@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <!-- Core -->
         <file>qml/main.qml</file>
+        <file>qml/AppState.qml</file>
         <!-- Theme -->
         <file>qml/theme/ThemeConfig.qml</file>
         <!-- Shell -->

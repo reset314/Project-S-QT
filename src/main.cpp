@@ -1,6 +1,12 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QSystemTrayIcon>
+#include <QMenu>
+#include <QAction>
+#include <QShortcut>
+#include <QKeySequence>
+#include <QTimer>
 
 // Core
 #include "core/storage/Database.h"
@@ -29,12 +35,76 @@
 #include "services/NotificationService.h"
 #include "services/CallManager.h"
 
+// Platform
+#include "platform/WinTaskbar.h"
+#include "platform/MacDock.h"
+#include "platform/LinuxDesktop.h"
+
 // ViewModels
 #include "viewmodels/ChatMessagesModel.h"
 #include "viewmodels/ConversationListModel.h"
 #include "viewmodels/ContactListModel.h"
 #include "viewmodels/LoginViewModel.h"
 #include "viewmodels/SettingsViewModel.h"
+
+// ---------------------------------------------------------------------------
+// AppState — a small QObject that bridges C++ signals to QML properties
+// ---------------------------------------------------------------------------
+
+class AppState : public QObject {
+    Q_OBJECT
+    Q_PROPERTY(bool loggedIn READ isLoggedIn NOTIFY loggedInChanged)
+    Q_PROPERTY(QString connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
+    Q_PROPERTY(QString currentUsername READ currentUsername NOTIFY currentUsernameChanged)
+    Q_PROPERTY(int totalUnread READ totalUnread NOTIFY totalUnreadChanged)
+    Q_PROPERTY(bool windowVisible READ isWindowVisible NOTIFY windowVisibleChanged)
+
+public:
+    explicit AppState(QObject *parent = nullptr) : QObject(parent) {}
+
+    bool isLoggedIn() const { return loggedIn_; }
+    void setLoggedIn(bool v) {
+        if (loggedIn_ != v) { loggedIn_ = v; emit loggedInChanged(); }
+    }
+
+    QString connectionStatus() const { return connectionStatus_; }
+    void setConnectionStatus(const QString &v) {
+        if (connectionStatus_ != v) { connectionStatus_ = v; emit connectionStatusChanged(); }
+    }
+
+    QString currentUsername() const { return currentUsername_; }
+    void setCurrentUsername(const QString &v) {
+        if (currentUsername_ != v) { currentUsername_ = v; emit currentUsernameChanged(); }
+    }
+
+    int totalUnread() const { return totalUnread_; }
+    void setTotalUnread(int v) {
+        if (totalUnread_ != v) { totalUnread_ = v; emit totalUnreadChanged(); }
+    }
+
+    bool isWindowVisible() const { return windowVisible_; }
+    void setWindowVisible(bool v) {
+        if (windowVisible_ != v) { windowVisible_ = v; emit windowVisibleChanged(); }
+    }
+
+signals:
+    void loggedInChanged();
+    void connectionStatusChanged();
+    void currentUsernameChanged();
+    void totalUnreadChanged();
+    void windowVisibleChanged();
+
+private:
+    bool loggedIn_ = false;
+    QString connectionStatus_ = QStringLiteral("disconnected");
+    QString currentUsername_;
+    int totalUnread_ = 0;
+    bool windowVisible_ = true;
+};
+
+// ---------------------------------------------------------------------------
+// main
+// ---------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -48,11 +118,22 @@ int main(int argc, char *argv[])
     database->initialize();
 
     auto keychain = new Keychain(&app);
-    auto tokenManager = new TokenManager(keychain, &app);
-    auto httpClient = new HttpClient(tokenManager, &app);
+    auto tokenManager = new TokenManager(&app);
+    auto httpClient = new HttpClient(&app);
+    httpClient->setTokenManager(tokenManager);
 
     auto wsClient = new ChatStreamClient(tokenManager, &app);
     wsClient->setBaseUrl("ws://localhost:8000"); // Configure via settings
+
+    // ── Platform integration ───────────────────────────────────
+    PlatformIntegration *platform = nullptr;
+#ifdef Q_OS_WIN
+    platform = new WinTaskbar(&app);
+#elif defined(Q_OS_MACOS)
+    platform = new MacDock(&app);
+#else
+    platform = new LinuxDesktop(&app);
+#endif
 
     // ── Repositories ───────────────────────────────────────────
     auto authRepo     = new AuthRepository(httpClient, tokenManager, &app);
@@ -78,6 +159,116 @@ int main(int argc, char *argv[])
 
     auto callManager  = new CallManager(callRepo, tokenManager, &app);
 
+    // ── AppState bridge ────────────────────────────────────────
+    auto appState = new AppState(&app);
+
+    // Wire TokenManager → AppState
+    QObject::connect(tokenManager, &TokenManager::loginStateChanged,
+                     appState, [appState](bool loggedIn) {
+                         appState->setLoggedIn(loggedIn);
+                     });
+
+    // Wire UnreadTracker → AppState + Platform badge
+    QObject::connect(unreadTracker, &UnreadTracker::totalUnreadChanged,
+                     appState, [appState, platform](int total) {
+                         appState->setTotalUnread(total);
+                         if (platform)
+                             platform->updateBadge(total);
+                     });
+
+    // Wire ChatStreamClient → AppState connection status
+    QObject::connect(wsClient, &ChatStreamClient::connected,
+                     appState, [appState]() {
+                         appState->setConnectionStatus(QStringLiteral("connected"));
+                     });
+    QObject::connect(wsClient, &ChatStreamClient::disconnected,
+                     appState, [appState]() {
+                         appState->setConnectionStatus(QStringLiteral("disconnected"));
+                     });
+
+    // Wire UnreadTracker → tray icon
+    QObject::connect(unreadTracker, &UnreadTracker::totalUnreadChanged,
+                     notificationService, [notificationService](int total) {
+                         notificationService->updateTrayIcon(total > 0);
+                     });
+
+    // ── System Tray Icon ───────────────────────────────────────
+    auto trayIcon = new QSystemTrayIcon(&app);
+    trayIcon->setToolTip("AI Chat");
+
+    auto trayMenu = new QMenu();
+
+    auto showAction = trayMenu->addAction(QObject::tr("Show / Hide"));
+    QObject::connect(showAction, &QAction::triggered, &app, [&app, appState]() {
+        if (app.topLevelWindows().isEmpty()) return;
+        auto *window = app.topLevelWindows().first();
+        if (window->isVisible()) {
+            window->hide();
+            appState->setWindowVisible(false);
+        } else {
+            window->show();
+            window->raise();
+            window->requestActivate();
+            appState->setWindowVisible(true);
+        }
+    });
+
+    trayMenu->addSeparator();
+
+    auto quitAction = trayMenu->addAction(QObject::tr("Quit"));
+    QObject::connect(quitAction, &QAction::triggerized, &app, &QApplication::quit);
+
+    trayIcon->setContextMenu(trayMenu);
+
+    // Use a default icon; callers should replace with a real application icon
+    QIcon fallbackIcon(":/icons/tray_normal.png");
+    if (!fallbackIcon.isNull())
+        trayIcon->setIcon(fallbackIcon);
+
+    trayIcon->show();
+
+    // Wire tray activation (click) → show window
+    QObject::connect(trayIcon, &QSystemTrayIcon::activated,
+                     &app, [&app, appState](QSystemTrayIcon::ActivationReason reason) {
+                         if (reason == QSystemTrayIcon::Trigger ||
+                             reason == QSystemTrayIcon::DoubleClick) {
+                             if (app.topLevelWindows().isEmpty()) return;
+                             auto *window = app.topLevelWindows().first();
+                             if (!window->isVisible()) {
+                                 window->show();
+                                 window->raise();
+                                 window->requestActivate();
+                                 appState->setWindowVisible(true);
+                             }
+                         }
+                     });
+
+    // Initialise the notification service with our tray icon
+    notificationService->init(trayIcon);
+
+    // ── Global Shortcut ─ Ctrl+Shift+A → show window ──────────
+    auto globalShortcut = new QShortcut(QKeySequence(QStringLiteral("Ctrl+Shift+A")), &app);
+    QObject::connect(globalShortcut, &QShortcut::activated, &app, [&app, appState]() {
+        if (app.topLevelWindows().isEmpty()) return;
+        auto *window = app.topLevelWindows().first();
+        if (!window->isVisible()) {
+            window->show();
+            window->raise();
+            window->requestActivate();
+            appState->setWindowVisible(true);
+        } else {
+            // Already visible — bring to front
+            window->raise();
+            window->requestActivate();
+        }
+    });
+
+    // ── Minimise-to-tray — intercept window close ──────────────
+    // QApplication::setQuitOnLastWindowClosed(false) above means
+    // closing the window only hides it instead of quitting the app.
+    // When the user explicitly clicks Quit from the tray menu,
+    // QApplication::quit() will still terminate the process.
+
     // ── ViewModels ─────────────────────────────────────────────
     auto chatMessagesModel    = new ChatMessagesModel(&app);
     auto conversationListModel = new ConversationListModel(&app);
@@ -88,7 +279,6 @@ int main(int argc, char *argv[])
     // ── QML Engine ─────────────────────────────────────────────
     QQmlApplicationEngine engine;
 
-    // Expose context properties for QML
     auto ctx = engine.rootContext();
     ctx->setContextProperty("chatMessagesModel",    chatMessagesModel);
     ctx->setContextProperty("conversationListModel", conversationListModel);
@@ -97,6 +287,9 @@ int main(int argc, char *argv[])
     ctx->setContextProperty("settingsViewModel",    settingsViewModel);
     ctx->setContextProperty("unreadTracker",        unreadTracker);
     ctx->setContextProperty("chatService",          chatService);
+
+    // AppState singleton for QML
+    ctx->setContextProperty("appState", appState);
 
     // Repositories exposed for pages that need direct access
     ctx->setContextProperty("aiUserRepo",    aiUserRepo);
@@ -114,3 +307,5 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
+
+#include "main.moc"

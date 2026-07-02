@@ -26,6 +26,10 @@ public:
     void setServerUrl(const QString &url);
     QString serverUrl() const;
 
+    /// Decode the "exp" claim from a JWT token and return it as QDateTime.
+    /// Returns std::nullopt if the token is malformed or the claim is missing.
+    static std::optional<QDateTime> decodeJwtExp(const QString &token);
+
 signals:
     void loginStateChanged(bool loggedIn);
 
@@ -35,6 +39,5 @@ private:
     QString serverUrl_;
     bool loggedIn_ = false;
 
-    static std::optional<QDateTime> decodeJwtExp(const QString &token);
     bool isAccessTokenExpired() const;
 };
