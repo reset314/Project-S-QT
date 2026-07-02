@@ -362,7 +362,7 @@ QString ChatService::optimisticInsert(const QString &aiUserId,
                                       const QString &msgType)
 {
     MessageDTO msg;
-    msg.clientUuid = UuidGenerator::generate();
+    msg.clientUuid = UuidGenerator::generate().toStdString();
     msg.aiUserId = aiUserId.toStdString();
     msg.conversationId = conversationId.toStdString();
     msg.senderType = senderType.toStdString();

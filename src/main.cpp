@@ -10,6 +10,7 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QFileInfo>
+#include <QWindow>
 
 // Core
 #include "core/storage/Database.h"
@@ -117,13 +118,12 @@ int main(int argc, char *argv[])
     app.setQuitOnLastWindowClosed(false);
 
     // ── Core infrastructure ────────────────────────────────────
-    auto database = new Database(&app);
+    auto database = new Database();
     QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
                      + QDir::separator() + "ai_chat_desktop.db";
     QDir().mkpath(QFileInfo(dbPath).absolutePath());
     database->open(dbPath);
 
-    auto keychain = new Keychain(&app);
     auto tokenManager = new TokenManager(&app);
     auto httpClient = new HttpClient(&app);
     httpClient->setTokenManager(tokenManager);

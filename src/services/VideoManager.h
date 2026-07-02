@@ -52,3 +52,5 @@ private:
     QVideoSink *remoteVideoSink_ = nullptr;
     bool cameraOn_ = false;
 };
+
+Q_DECLARE_OPAQUE_POINTER(QVideoSink*)

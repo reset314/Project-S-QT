@@ -1,6 +1,7 @@
 #include <QtTest>
 #include "../src/services/SyncService.h"
 #include "../src/core/storage/Database.h"
+#include "../src/core/network/HttpClient.h"
 #include "../src/repositories/ChatRepository.h"
 
 /// Minimal HttpClient subclass that always fails network calls.

@@ -54,7 +54,7 @@ private slots:
         QJsonObject payloadObj;
         payloadObj["exp"] = static_cast<double>(farFuture);
         QByteArray payloadJson = QJsonDocument(payloadObj).toJson(QJsonDocument::Compact);
-        QString payloadB64 = payloadJson.toUtf8().toBase64(
+        QString payloadB64 = payloadJson.toBase64(
             QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
 
         QString token = "eyJhbGciOiJIUzI1NiJ9." + payloadB64 + ".sig";
@@ -73,7 +73,7 @@ private slots:
         QJsonObject payloadObj;
         payloadObj["exp"] = static_cast<double>(pastExp);
         QByteArray payloadJson = QJsonDocument(payloadObj).toJson(QJsonDocument::Compact);
-        QString payloadB64 = payloadJson.toUtf8().toBase64(
+        QString payloadB64 = payloadJson.toBase64(
             QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
 
         QString token = "eyJhbGciOiJIUzI1NiJ9." + payloadB64 + ".sig";
@@ -89,7 +89,7 @@ private slots:
         QJsonObject payloadObj;
         payloadObj["sub"] = "user123";
         QByteArray payloadJson = QJsonDocument(payloadObj).toJson(QJsonDocument::Compact);
-        QString payloadB64 = payloadJson.toUtf8().toBase64(
+        QString payloadB64 = payloadJson.toBase64(
             QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
 
         QString token = "eyJhbGciOiJIUzI1NiJ9." + payloadB64 + ".sig";
