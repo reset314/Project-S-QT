@@ -15,6 +15,7 @@ find_package(LibDataChannel QUIET)
 
 set(SOURCES
     src/main.cpp
+    src/core/utils/UuidGenerator.cpp
     # Additional sources added in later tasks
 )
 
