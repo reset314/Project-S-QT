@@ -19,6 +19,8 @@ set(SOURCES
     src/core/storage/Database.cpp
     src/core/auth/Keychain.cpp
     src/core/auth/TokenManager.cpp
+    src/core/network/HttpClient.cpp
+    src/core/network/ChatStreamClient.cpp
     # Additional sources added in later tasks
 )
 
