@@ -20,7 +20,7 @@ Database::~Database() { if (db_.isOpen()) db_.close(); }
 // ---------------------------------------------------------------------------
 
 bool Database::open(const QString &path) {
-    db_ = QSqlDatabase::addDatabase("QSQLITE");
+    db_ = QSqlDatabase::addDatabase("QSQLITE", "AIChatMain");
     db_.setDatabaseName(path);
     if (!db_.open()) {
         qCritical() << "Database open failed:" << db_.lastError().text();
@@ -443,7 +443,10 @@ void Database::deleteMessage(const QString &clientUuid) {
 
 void Database::deleteMessagesSince(const QString &aiUserId, const QString &since) {
     QSqlQuery q(db_);
-    q.prepare("DELETE FROM messages WHERE ai_user_id = ? AND timestamp >= ?");
+    q.prepare("UPDATE messages SET deleted_at = ? "
+              "WHERE ai_user_id = ? AND timestamp >= ? "
+              "AND (deleted_at IS NULL OR deleted_at = '')");
+    q.addBindValue(QDateTime::currentDateTimeUtc().toString(Qt::ISODate));
     q.addBindValue(aiUserId);
     q.addBindValue(since);
     if (!q.exec())

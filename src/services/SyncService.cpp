@@ -45,18 +45,16 @@ void SyncService::syncMessages(const QString &aiUserId, double anchorHours)
     }
 
     // -----------------------------------------------------------------------
-    // Layer 1 — Clear the local window we're about to re-fetch
-    // -----------------------------------------------------------------------
-    repo_->deleteMessagesSince(aiUserId, effectiveSince);
-
-    // -----------------------------------------------------------------------
-    // Layer 2 — Phantom cleanup: remove stale unsynced optimistic inserts
-    //           that were never confirmed by the server (30 min threshold)
+    // Layer 1 — Phantom cleanup: remove stale unsynced optimistic inserts
+    //           that were never confirmed by the server (30 min threshold).
+    //           This is safe to run before the fetch because it only affects
+    //           messages without a server_id.
     // -----------------------------------------------------------------------
     repo_->deleteStaleUnsynced(aiUserId, 30);
 
     // -----------------------------------------------------------------------
-    // Layer 3 — Fetch from server and reconcile
+    // Layer 2 — Fetch from server FIRST, before deleting any local data.
+    //           If the fetch fails we preserve local state and bail out.
     // -----------------------------------------------------------------------
     auto result = repo_->syncMessages(aiUserId, effectiveSince);
 
@@ -71,6 +69,12 @@ void SyncService::syncMessages(const QString &aiUserId, double anchorHours)
     }
 
     const auto &sync = *result;
+
+    // -----------------------------------------------------------------------
+    // Layer 3 — Now that we have a successful server response, clear the local
+    //           window we are about to replace with fresh server data.
+    // -----------------------------------------------------------------------
+    repo_->deleteMessagesSince(aiUserId, effectiveSince);
 
     // Build a set of server-side serverIds for reconciliation
     QSet<int64_t> serverIds;

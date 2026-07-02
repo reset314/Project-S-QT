@@ -104,7 +104,7 @@ void ChatService::sendMediaMessage(const QString &aiUserId,
 
     // Media messages bypass batching — send immediately
     auto result = repo_->sendFormDataMessage(aiUserId, filePath, content,
-                                             conversationId, msgType);
+                                             conversationId, effectiveMsgType);
     if (!result) {
         qWarning() << "ChatService::sendMediaMessage failed:"
                    << QString::fromStdString(result.error().code)
@@ -222,13 +222,16 @@ void ChatService::flushBatch(const QString &aiUserId)
 
     const auto &resp = *result;
 
-    // Backfill serverId on the first optimistic message in the batch
+    // Backfill serverId on ALL optimistic messages in the batch.
+    // The server returns ONE userMessageId; apply it to every batched UUID
+    // so all messages are linked to the confirmed server-side record.
     if (!resp.userMessageId.empty() && !clientUuids.isEmpty()) {
-        QString firstUuid = clientUuids.first();
         QVariantMap values;
         values["server_id"] = static_cast<qint64>(
             QString::fromStdString(resp.userMessageId).toLongLong());
-        repo_->updateMessage(firstUuid, values);
+        for (const auto &uuid : clientUuids) {
+            repo_->updateMessage(uuid, values);
+        }
     }
 
     // Track conversation mapping
@@ -299,6 +302,10 @@ void ChatService::onStreamInit(const QString &conversationId,
     Q_UNUSED(timestamp)
     QString aiUserId = resolveAiUserId(conversationId);
 
+    // Reset watchdog on every stream event so long-running streams don't
+    // time out prematurely.
+    resetWatchdog(aiUserId);
+
     // If aiUserId is empty we still emit the signal — upstream can try to
     // resolve it from the conversationId or learn it from stream_done.
 
@@ -309,6 +316,10 @@ void ChatService::onStreamChunk(const QString &conversationId,
                                 const QString &chunk)
 {
     QString aiUserId = resolveAiUserId(conversationId);
+
+    // Reset watchdog on every chunk so long-running streams don't time out.
+    resetWatchdog(aiUserId);
+
     emit streamChunkReceived(aiUserId, chunk);
 }
 
@@ -318,9 +329,10 @@ void ChatService::onStreamDone(const QString &conversationId,
 {
     QString aiUserId = resolveAiUserId(conversationId);
 
-    // Cancel watchdog — stream completed successfully
-    if (!aiUserId.isEmpty())
-        cancelWatchdog(aiUserId);
+    // Cancel watchdog unconditionally — stopWatchdog safely handles empty keys.
+    // Must come before any aiUserId.isEmpty() guard so the timer is always
+    // cleaned up even when the aiUserId cannot be resolved.
+    cancelWatchdog(aiUserId);
 
     emit streamDoneReceived(aiUserId, messageId, content);
 }
@@ -331,9 +343,10 @@ void ChatService::onStreamError(const QString &conversationId,
 {
     QString aiUserId = resolveAiUserId(conversationId);
 
-    // Cancel watchdog — stream failed
-    if (!aiUserId.isEmpty())
-        cancelWatchdog(aiUserId);
+    // Cancel watchdog unconditionally — stopWatchdog safely handles empty keys.
+    // Must come before any aiUserId.isEmpty() guard so the timer is always
+    // cleaned up even when the aiUserId cannot be resolved.
+    cancelWatchdog(aiUserId);
 
     emit streamErrorReceived(aiUserId, code, message);
 }

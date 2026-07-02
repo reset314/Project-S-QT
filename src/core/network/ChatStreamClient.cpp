@@ -104,13 +104,13 @@ void ChatStreamClient::onConnected()
     auth["token"] = token_;
     ws_.sendTextMessage(QJsonDocument(auth).toJson(QJsonDocument::Compact));
 
-    authenticated_ = true;
     reconnectAttempts_ = 0;
 
     // Start heartbeat
     startHeartbeat();
 
-    emit connected();
+    // NOTE: authenticated_ and connected() are deferred until the server
+    // responds with the first non-pong frame (see onTextMessageReceived).
 }
 
 void ChatStreamClient::onDisconnected()
@@ -155,6 +155,19 @@ void ChatStreamClient::onTextMessageReceived(const QString &text)
         return;
     }
 
+    // Defer authenticated_ / connected() until the server sends back any
+    // valid frame (other than pong/ping) after the auth frame was sent.
+    // This ensures the server actually accepted the auth before we signal
+    // readiness upstream.
+    if (!authenticated_) {
+        QString type = doc.object().value("type").toString();
+        if (type != "pong" && type != "ping") {
+            authenticated_ = true;
+            qDebug() << "ChatStreamClient: authenticated by server frame type:" << type;
+            emit connected();
+        }
+    }
+
     handleFrame(doc.object());
 }
 
@@ -185,6 +198,12 @@ void ChatStreamClient::handleFrame(const QJsonObject &frame)
 
     if (type == "pong") {
         resetPongTimeout();
+        return;
+    }
+
+    if (type == "ping") {
+        // Server-initiated heartbeat — respond with pong
+        sendPong();
         return;
     }
 

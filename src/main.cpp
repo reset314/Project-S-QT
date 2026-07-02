@@ -7,6 +7,9 @@
 #include <QShortcut>
 #include <QKeySequence>
 #include <QTimer>
+#include <QStandardPaths>
+#include <QDir>
+#include <QFileInfo>
 
 // Core
 #include "core/storage/Database.h"
@@ -115,15 +118,19 @@ int main(int argc, char *argv[])
 
     // ── Core infrastructure ────────────────────────────────────
     auto database = new Database(&app);
-    database->initialize();
+    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+                     + QDir::separator() + "ai_chat_desktop.db";
+    QDir().mkpath(QFileInfo(dbPath).absolutePath());
+    database->open(dbPath);
 
     auto keychain = new Keychain(&app);
     auto tokenManager = new TokenManager(&app);
     auto httpClient = new HttpClient(&app);
     httpClient->setTokenManager(tokenManager);
 
-    auto wsClient = new ChatStreamClient(tokenManager, &app);
-    wsClient->setBaseUrl("ws://localhost:8000"); // Configure via settings
+    auto wsClient = new ChatStreamClient(&app);
+    // WS URL is constructed at connectToServer() time from the server URL
+    // (e.g. http://localhost:8000 → ws://localhost:8000/ws/connect)
 
     // ── Platform integration ───────────────────────────────────
     PlatformIntegration *platform = nullptr;
@@ -216,7 +223,7 @@ int main(int argc, char *argv[])
     trayMenu->addSeparator();
 
     auto quitAction = trayMenu->addAction(QObject::tr("Quit"));
-    QObject::connect(quitAction, &QAction::triggerized, &app, &QApplication::quit);
+    QObject::connect(quitAction, &QAction::triggered, &app, &QApplication::quit);
 
     trayIcon->setContextMenu(trayMenu);
 

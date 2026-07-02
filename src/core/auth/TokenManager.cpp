@@ -94,7 +94,7 @@ Result<void> TokenManager::login(const QString &username, const QString &passwor
     if (serverUrl_.isEmpty())
         return std::unexpected(ApiError{.code = "CONFIG_ERROR", .message = "Server URL not set"});
 
-    QNetworkAccessManager mgr;
+    auto *mgr = new QNetworkAccessManager(this);
     QNetworkRequest request(QUrl(serverUrl_ + "/auth/login"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Accept", "application/json");
@@ -103,7 +103,7 @@ Result<void> TokenManager::login(const QString &username, const QString &passwor
     body["username"] = username;
     body["password"] = password;
 
-    QNetworkReply *reply = mgr.post(request, QJsonDocument(body).toJson(QJsonDocument::Compact));
+    QNetworkReply *reply = mgr->post(request, QJsonDocument(body).toJson(QJsonDocument::Compact));
 
     QEventLoop loop;
     QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
@@ -167,7 +167,7 @@ Result<QString> TokenManager::refreshAccessToken() {
     if (refreshToken_.isEmpty())
         return std::unexpected(ApiError{.code = "NO_REFRESH_TOKEN", .message = "No refresh token available"});
 
-    QNetworkAccessManager mgr;
+    auto *mgr = new QNetworkAccessManager(this);
     QNetworkRequest request(QUrl(serverUrl_ + "/auth/refresh"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Accept", "application/json");
@@ -175,7 +175,7 @@ Result<QString> TokenManager::refreshAccessToken() {
     QJsonObject body;
     body["refresh_token"] = refreshToken_;
 
-    QNetworkReply *reply = mgr.post(request, QJsonDocument(body).toJson(QJsonDocument::Compact));
+    QNetworkReply *reply = mgr->post(request, QJsonDocument(body).toJson(QJsonDocument::Compact));
 
     QEventLoop loop;
     QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
@@ -218,6 +218,17 @@ Result<QString> TokenManager::refreshAccessToken() {
     if (!w.has_value())
         return std::unexpected(w.error());
 
+    // Handle refresh token rotation: if the server returned a new refresh_token,
+    // update and persist it so we don't lose the session when the old one expires.
+    QString newRefresh = data.value("refresh_token").toString();
+    if (!newRefresh.isEmpty() && newRefresh != refreshToken_) {
+        refreshToken_ = newRefresh;
+        auto rw = Keychain::write(KEY_REFRESH_TOKEN, newRefresh);
+        if (!rw.has_value())
+            qWarning() << "TokenManager: failed to persist rotated refresh token:"
+                       << QString::fromStdString(rw.error().message);
+    }
+
     return access;
 }
 
@@ -240,11 +251,16 @@ void TokenManager::restoreFromKeychain() {
         // Token is expired — try to refresh
         auto result = refreshAccessToken();
         if (!result.has_value()) {
-            // Refresh failed — clear everything
-            accessToken_.clear();
-            refreshToken_.clear();
-            Keychain::remove(KEY_ACCESS_TOKEN);
-            Keychain::remove(KEY_REFRESH_TOKEN);
+            if (result.error().code == "NETWORK_ERROR") {
+                // Network error — keep session alive for retry later.
+                // The expired access token and valid refresh token are preserved
+                // so the next request can attempt a refresh again.
+                qWarning() << "TokenManager: refresh failed with network error,"
+                           << "keeping session for retry";
+                return;
+            }
+            // Auth error (401, invalid token) — refreshAccessToken() already
+            // called logout() which cleared tokens and persisted state.
             return;
         }
     }
