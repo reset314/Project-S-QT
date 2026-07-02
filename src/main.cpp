@@ -27,6 +27,7 @@
 #include "services/SyncService.h"
 #include "services/UnreadTracker.h"
 #include "services/NotificationService.h"
+#include "services/CallManager.h"
 
 // ViewModels
 #include "viewmodels/ChatMessagesModel.h"
@@ -75,6 +76,8 @@ int main(int argc, char *argv[])
     auto unreadTracker = new UnreadTracker(database, convRepo, &app);
     unreadTracker->init();
 
+    auto callManager  = new CallManager(callRepo, tokenManager, &app);
+
     // ── ViewModels ─────────────────────────────────────────────
     auto chatMessagesModel    = new ChatMessagesModel(&app);
     auto conversationListModel = new ConversationListModel(&app);
@@ -102,6 +105,7 @@ int main(int argc, char *argv[])
     ctx->setContextProperty("expansionRepo", expansionRepo);
     ctx->setContextProperty("tokenManager",  tokenManager);
     ctx->setContextProperty("userRepo",      userRepo);
+    ctx->setContextProperty("callManager",   callManager);
 
     engine.load(QUrl("qrc:/qml/main.qml"));
 

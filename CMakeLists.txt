@@ -46,6 +46,12 @@ set(SOURCES
     src/viewmodels/ContactListModel.cpp
     src/viewmodels/LoginViewModel.cpp
     src/viewmodels/SettingsViewModel.cpp
+    # Task 16 — Call System
+    src/core/network/CallSignalingClient.cpp
+    src/services/WebRtcEngine.cpp
+    src/services/AudioManager.cpp
+    src/services/VideoManager.cpp
+    src/services/CallManager.cpp
 )
 
 set(RESOURCES

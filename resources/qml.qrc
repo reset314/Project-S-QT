@@ -33,7 +33,10 @@
         <file>qml/components/ContactCard.qml</file>
         <file>qml/components/ConversationItem.qml</file>
         <file>qml/components/LoadingSpinner.qml</file>
+        <!-- Pages (continued) -->
+        <file>qml/pages/CallPage.qml</file>
         <!-- Dialogs -->
         <file>qml/dialogs/ConfirmDialog.qml</file>
+        <file>qml/dialogs/CallInviteDialog.qml</file>
     </qresource>
 </RCC>
