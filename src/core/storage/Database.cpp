@@ -86,6 +86,63 @@ void Database::runMigrations() {
                 last_sync_time TEXT
             )
         )"},
+        // Fix conversations.id to TEXT — server uses UUID strings, not integers.
+        // SQLite has no ALTER COLUMN; recreate the table.
+        {8, R"(
+            CREATE TABLE IF NOT EXISTS conversations_new (
+                id TEXT PRIMARY KEY,
+                ai_user_id TEXT NOT NULL,
+                title TEXT,
+                summary TEXT,
+                last_message_preview TEXT,
+                unread_count INTEGER DEFAULT 0,
+                created_at TEXT,
+                updated_at TEXT
+            );
+            INSERT OR IGNORE INTO conversations_new
+                (id, ai_user_id, title, summary, last_message_preview,
+                 unread_count, created_at, updated_at)
+            SELECT CAST(id AS TEXT), ai_user_id, title, summary,
+                   last_message_preview, unread_count, created_at, updated_at
+            FROM conversations;
+            DROP TABLE IF EXISTS conversations;
+            ALTER TABLE conversations_new RENAME TO conversations;
+        )"},
+        {9, "CREATE INDEX IF NOT EXISTS idx_conv_ai_user ON conversations(ai_user_id)"},
+        // Fix messages.conversation_id to TEXT for UUID compatibility.
+        {10, R"(
+            CREATE TABLE IF NOT EXISTS messages_new (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                server_id INTEGER UNIQUE,
+                client_uuid TEXT NOT NULL,
+                ai_user_id TEXT NOT NULL,
+                conversation_id TEXT,
+                sender_type TEXT NOT NULL,
+                msg_type TEXT NOT NULL,
+                content TEXT,
+                media_list TEXT,
+                is_complete INTEGER DEFAULT 1,
+                is_read INTEGER DEFAULT 0,
+                source_function TEXT,
+                revoked_at TEXT,
+                deleted_at TEXT,
+                timestamp TEXT NOT NULL
+            );
+            INSERT OR IGNORE INTO messages_new
+                (id, server_id, client_uuid, ai_user_id, conversation_id,
+                 sender_type, msg_type, content, media_list, is_complete, is_read,
+                 source_function, revoked_at, deleted_at, timestamp)
+            SELECT id, server_id, client_uuid, ai_user_id,
+                   CAST(conversation_id AS TEXT),
+                   sender_type, msg_type, content, media_list, is_complete, is_read,
+                   source_function, revoked_at, deleted_at, timestamp
+            FROM messages;
+            DROP TABLE IF EXISTS messages;
+            ALTER TABLE messages_new RENAME TO messages;
+        )"},
+        {11, "CREATE INDEX IF NOT EXISTS idx_messages_ai_user ON messages(ai_user_id)"},
+        {12, "CREATE INDEX IF NOT EXISTS idx_messages_client ON messages(client_uuid)"},
+        {13, "CREATE INDEX IF NOT EXISTS idx_messages_server ON messages(server_id)"},
     };
 
     for (const auto &m : migrations) {

@@ -21,7 +21,19 @@ set(SOURCES
     src/core/auth/TokenManager.cpp
     src/core/network/HttpClient.cpp
     src/core/network/ChatStreamClient.cpp
-    # Additional sources added in later tasks
+    # Task 7 — Repositories (Part 1)
+    src/repositories/AuthRepository.cpp
+    src/repositories/ChatRepository.cpp
+    src/repositories/ConversationRepository.cpp
+    src/repositories/AIUserRepository.cpp
+    # Task 8 — Repositories (Part 2)
+    src/repositories/UserRepository.cpp
+    src/repositories/MemoryRepository.cpp
+    src/repositories/ProfileRepository.cpp
+    src/repositories/UploadRepository.cpp
+    src/repositories/ExpansionRepository.cpp
+    src/repositories/CallRepository.cpp
+    src/repositories/TTSRepository.cpp
 )
 
 set(RESOURCES
