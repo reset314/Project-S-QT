@@ -227,6 +227,10 @@ void ChatRepository::upsertMessage(const MessageDTO &msg, const QString &aiUserI
     if (db_) db_->upsertMessage(msg, aiUserId);
 }
 
+void ChatRepository::updateMessage(const QString &clientUuid, const QVariantMap &values) {
+    if (db_) db_->updateMessage(clientUuid, values);
+}
+
 QVector<MessageDTO> ChatRepository::getLocalMessages(const QString &aiUserId, int limit) {
     if (!db_) return {};
     return db_->getLocalMessages(aiUserId, limit);

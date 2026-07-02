@@ -34,6 +34,12 @@ set(SOURCES
     src/repositories/ExpansionRepository.cpp
     src/repositories/CallRepository.cpp
     src/repositories/TTSRepository.cpp
+    # Task 9 — Services: ChatService & SyncService
+    src/services/ChatService.cpp
+    src/services/SyncService.cpp
+    # Task 10 — Services: UnreadTracker & NotificationService
+    src/services/UnreadTracker.cpp
+    src/services/NotificationService.cpp
 )
 
 set(RESOURCES

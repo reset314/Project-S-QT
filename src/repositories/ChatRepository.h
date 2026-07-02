@@ -1,6 +1,7 @@
 #pragma once
 #include <QObject>
 #include <QVector>
+#include <QVariantMap>
 #include "../core/utils/ApiError.h"
 #include "../core/models/MessageDTO.h"
 
@@ -86,6 +87,7 @@ public:
     QVector<MessageDTO> getLocalMessagesBefore(const QString &aiUserId,
                                                 const QString &beforeTimestamp,
                                                 int limit = 50);
+    void updateMessage(const QString &clientUuid, const QVariantMap &values);
     void deleteMessagesSince(const QString &aiUserId, const QString &since);
     void deleteStaleUnsynced(const QString &aiUserId, int staleMinutes = 30);
     void markAsRead(const QString &aiUserId);
