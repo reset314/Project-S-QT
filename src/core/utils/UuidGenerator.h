@@ -3,6 +3,6 @@
 
 class UuidGenerator {
 public:
-    /// Generate a UUID v7 (time-ordered) string without dashes.
+    /// Generate a UUID v4 (random) string without dashes.
     static QString generate();
 };

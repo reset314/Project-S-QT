@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <expected>
+#include "../vendor/tl/expected.hpp"
 #include <QJsonObject>
 #include <QString>
 
@@ -21,4 +21,4 @@ struct ApiError {
 };
 
 template<typename T>
-using Result = std::expected<T, ApiError>;
+using Result = tl::expected<T, ApiError>;

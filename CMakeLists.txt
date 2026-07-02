@@ -25,7 +25,7 @@ set(RESOURCES
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
 
-target_include_directories(${PROJECT_NAME} PRIVATE src)
+target_include_directories(${PROJECT_NAME} PRIVATE src src/core/vendor)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Quick
