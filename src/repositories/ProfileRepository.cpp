@@ -56,8 +56,7 @@ Result<UserProfileDTO> ProfileRepository::updateProfile(const QString &key,
     body["content"] = content;
     body["confidence"] = confidence;
 
-    // PUT /profiles/{key}  —  HttpClient lacks put(), use post() as fallback.
-    auto result = http_->post(QString("/profiles/%1").arg(key), body);
+    auto result = http_->put(QString("/profiles/%1").arg(key), body);
     if (!result)
         return std::unexpected(result.error());
 

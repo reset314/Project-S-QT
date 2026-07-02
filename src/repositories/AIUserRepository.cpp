@@ -117,15 +117,7 @@ Result<AIUserDTO> AIUserRepository::updateAIUser(const QString &aiUserId,
     // the retry-with-refresh logic.  The server strictly requires PUT though.
     //
     // Best approach: send a raw request through HttpClient's internal NAM.
-    // But that would duplicate code.  Let's just use post() — in practice,
-    // FastAPI with method-based routing will reject this.
-    //
-    // Solution: construct a raw QNetworkRequest with PUT method.
-    // We'll do it inline using the same pattern as HttpClient.
-
-    // For now, use post() as a pragmatic fallback; the caller can upgrade
-    // HttpClient to support put() in a later task.
-    auto result = http_->post(QString("/aiusers/%1").arg(aiUserId), fields);
+    auto result = http_->put(QString("/aiusers/%1").arg(aiUserId), fields);
     if (!result)
         return std::unexpected(result.error());
 

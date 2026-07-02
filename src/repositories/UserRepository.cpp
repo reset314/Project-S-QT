@@ -45,10 +45,7 @@ Result<QVector<UserDTO>> UserRepository::listUsers()
 Result<UserDTO> UserRepository::updateUser(const QString &userId,
                                             const QJsonObject &fields)
 {
-    // NOTE: HttpClient lacks a put() method.  We use post() as a best-effort
-    // fallback.  Strict FastAPI routing may reject this for PUT-only endpoints.
-    // A future HttpClient::put() method should be added.
-    auto result = http_->post(QString("/users/%1").arg(userId), fields);
+    auto result = http_->put(QString("/users/%1").arg(userId), fields);
     if (!result)
         return std::unexpected(result.error());
 

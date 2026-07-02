@@ -19,6 +19,8 @@ public:
 
     Result<QJsonObject> get(const QString &path, const QUrlQuery &params = {});
     Result<QJsonObject> post(const QString &path, const QJsonObject &body = {});
+    Result<QJsonObject> put(const QString &path, const QJsonObject &body = {});
+    Result<QJsonObject> del(const QString &path, const QJsonObject &body = {});
     Result<QJsonObject> postFormData(const QString &path,
                                       const QMap<QString, QString> &fields,
                                       const QString &filePath = {});

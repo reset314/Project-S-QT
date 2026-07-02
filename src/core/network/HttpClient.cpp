@@ -55,6 +55,16 @@ Result<QJsonObject> HttpClient::post(const QString &path, const QJsonObject &bod
     return sendWithRetry("POST", path, body);
 }
 
+Result<QJsonObject> HttpClient::put(const QString &path, const QJsonObject &body)
+{
+    return sendWithRetry("PUT", path, body);
+}
+
+Result<QJsonObject> HttpClient::del(const QString &path, const QJsonObject &body)
+{
+    return sendWithRetry("DELETE", path, body);
+}
+
 Result<QJsonObject> HttpClient::postFormData(const QString &path,
                                               const QMap<QString, QString> &fields,
                                               const QString &filePath)
@@ -179,6 +189,16 @@ Result<QJsonObject> HttpClient::doRequest(const QString &method,
             QByteArray jsonBytes = QJsonDocument(body).toJson(QJsonDocument::Compact);
             reply = nam_->post(request, jsonBytes);
         }
+    } else if (method == "PUT") {
+        request.setHeader(QNetworkRequest::ContentTypeHeader,
+                          QStringLiteral("application/json"));
+        QByteArray jsonBytes = QJsonDocument(body).toJson(QJsonDocument::Compact);
+        reply = nam_->put(request, jsonBytes);
+    } else if (method == "DELETE") {
+        request.setHeader(QNetworkRequest::ContentTypeHeader,
+                          QStringLiteral("application/json"));
+        QByteArray jsonBytes = QJsonDocument(body).toJson(QJsonDocument::Compact);
+        reply = nam_->deleteResource(request);
     } else {
         return tl::make_unexpected(
             ApiError::networkError("Unsupported HTTP method: " + method.toStdString()));
