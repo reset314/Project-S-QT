@@ -1,5 +1,39 @@
 <RCC>
     <qresource prefix="/">
+        <!-- Core -->
         <file>qml/main.qml</file>
+        <!-- Theme -->
+        <file>qml/theme/ThemeConfig.qml</file>
+        <!-- Shell -->
+        <file>qml/shell/MainShell.qml</file>
+        <file>qml/shell/Sidebar.qml</file>
+        <file>qml/shell/TitleBar.qml</file>
+        <file>qml/shell/StatusBar.qml</file>
+        <!-- Pages -->
+        <file>qml/pages/LoginPage.qml</file>
+        <file>qml/pages/ChatPage.qml</file>
+        <file>qml/pages/ContactListPage.qml</file>
+        <file>qml/pages/ContactDetailPage.qml</file>
+        <file>qml/pages/CreateAIUserPage.qml</file>
+        <file>qml/pages/ConversationListPage.qml</file>
+        <file>qml/pages/SettingsPage.qml</file>
+        <file>qml/pages/AccountPage.qml</file>
+        <file>qml/pages/ProfilePage.qml</file>
+        <file>qml/pages/ProfileEditPage.qml</file>
+        <file>qml/pages/TTSVoicesPage.qml</file>
+        <file>qml/pages/ExpansionPage.qml</file>
+        <!-- Components -->
+        <file>qml/components/ChatBubble.qml</file>
+        <file>qml/components/MessageInput.qml</file>
+        <file>qml/components/TypingIndicator.qml</file>
+        <file>qml/components/MediaPreview.qml</file>
+        <file>qml/components/FilePickerButton.qml</file>
+        <file>qml/components/EmojiPicker.qml</file>
+        <file>qml/components/UserAvatar.qml</file>
+        <file>qml/components/ContactCard.qml</file>
+        <file>qml/components/ConversationItem.qml</file>
+        <file>qml/components/LoadingSpinner.qml</file>
+        <!-- Dialogs -->
+        <file>qml/dialogs/ConfirmDialog.qml</file>
     </qresource>
 </RCC>
