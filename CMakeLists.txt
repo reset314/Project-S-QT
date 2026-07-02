@@ -40,6 +40,12 @@ set(SOURCES
     # Task 10 — Services: UnreadTracker & NotificationService
     src/services/UnreadTracker.cpp
     src/services/NotificationService.cpp
+    # Task 11 — ViewModels
+    src/viewmodels/ChatMessagesModel.cpp
+    src/viewmodels/ConversationListModel.cpp
+    src/viewmodels/ContactListModel.cpp
+    src/viewmodels/LoginViewModel.cpp
+    src/viewmodels/SettingsViewModel.cpp
 )
 
 set(RESOURCES
