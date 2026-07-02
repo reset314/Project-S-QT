@@ -17,6 +17,8 @@ set(SOURCES
     src/main.cpp
     src/core/utils/UuidGenerator.cpp
     src/core/storage/Database.cpp
+    src/core/auth/Keychain.cpp
+    src/core/auth/TokenManager.cpp
     # Additional sources added in later tasks
 )
 
