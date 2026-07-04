@@ -18,7 +18,7 @@ Item {
                 width: expList.width; height: cardCol.implicitHeight + 16
                 color: Theme.surfaceColor
                 ColumnLayout {
-                    id: cardCol; anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 }; spacing: 4
+                    id: cardCol; anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top; anchors.margins: 12; spacing: 4
                     RowLayout {
                         Text { text: model.name || qsTr("Unknown"); font.pixelSize: Theme.fontSizeBody; font.weight: Font.Bold; color: Theme.textPrimary; Layout.fillWidth: true }
                         Rectangle { color: model.review_status === "approved" ? Theme.successColor : (model.review_status === "rejected" ? Theme.errorColor : Theme.warningColor)
