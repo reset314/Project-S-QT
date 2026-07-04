@@ -27,6 +27,8 @@ Item {
     property string thinkText: contentJson && contentJson.think ? contentJson.think : ""
     property string emotionText: contentJson && contentJson.emotion ? contentJson.emotion : ""
     property bool hasThinkContent: thinkText.length > 0
+    property bool displayThink: true    // controlled by chatConfig.is_display_think
+    property bool displayEmotion: true  // controlled by chatConfig.is_display_emotion
 
     readonly property real maxBubbleWidth: chatBubble.width * 0.78
 
@@ -154,9 +156,9 @@ Item {
                 width: Math.min(implicitWidth, chatBubble.maxBubbleWidth)
                 spacing: Theme.spacingTiny
 
-                // Emotion indicator
+                // Emotion indicator (conditional)
                 Rectangle {
-                    visible: chatBubble.emotionText.length > 0
+                    visible: chatBubble.emotionText.length > 0 && chatBubble.displayEmotion
                     width: emotionLabel.implicitWidth + 8
                     height: 18
                     radius: 9
@@ -171,10 +173,10 @@ Item {
                     }
                 }
 
-                // Think (collapsible)
+                // Think (collapsible, conditional)
                 Loader {
-                    active: chatBubble.hasThinkContent
-                    visible: chatBubble.hasThinkContent
+                    active: chatBubble.hasThinkContent && chatBubble.displayThink
+                    visible: chatBubble.hasThinkContent && chatBubble.displayThink
                     sourceComponent: thinkBubbleComponent
                 }
 

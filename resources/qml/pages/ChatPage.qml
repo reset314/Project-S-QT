@@ -16,73 +16,10 @@ Item {
         anchors.fill: parent
         spacing: 0
 
-        // ── Chat Header ────────────────────────────────────────
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 56
-            color: Theme.surfaceColor
-            border.color: Theme.dividerColor
-            border.width: 1
-
-            RowLayout {
-                anchors {
-                    fill: parent
-                    leftMargin: Theme.spacingLarge
-                    rightMargin: Theme.spacingMedium
-                }
-                spacing: Theme.spacingMedium
-
-                // Back button
-                Rectangle {
-                    Layout.preferredWidth: 32; Layout.preferredHeight: 32
-                    radius: 16
-                    color: backMouse.containsMouse
-                           ? Theme.sidebarHover : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "←"
-                        font.pixelSize: Theme.fontSizeHeading
-                        color: Theme.textPrimary
-                    }
-
-                    MouseArea {
-                        id: backMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: closeChat()
-                    }
-                }
-
-                C.UserAvatar {
-                    Layout.preferredWidth: Theme.avatarSizeSmall
-                    Layout.preferredHeight: Theme.avatarSizeSmall
-                    name: chatPage.aiUserName
-                }
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 0
-
-                    Text {
-                        text: chatPage.aiUserName || qsTr("Chat")
-                        color: Theme.textPrimary
-                        font.pixelSize: Theme.fontSizeSubheading
-                        font.weight: Theme.fontWeightMedium
-                        Layout.fillWidth: true
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        text: chatPage.isAiTyping ? qsTr("typing...") : qsTr("Online")
-                        color: chatPage.isAiTyping
-                               ? Theme.textSecondary
-                               : Theme.onlineColor
-                        font.pixelSize: Theme.fontSizeCaption
-                    }
-                }
-            }
+        // ── Chat Header (name only) ─────────────────────────────
+        C.BackHeader {
+            title: chatPage.aiUserName || qsTr("Chat")
+            onBackClicked: closeChat()
         }
 
         // ── Messages List ──────────────────────────────────────
