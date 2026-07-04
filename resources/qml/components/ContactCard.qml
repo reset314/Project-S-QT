@@ -17,12 +17,12 @@ Rectangle {
     signal clicked()
     signal chatClicked()
 
-    // Full-card click → chat
+    // Full-card click → detail
     MouseArea {
         id: mouseArea
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: contactCard.chatClicked()
+        onClicked: contactCard.clicked()
     }
 
     RowLayout {

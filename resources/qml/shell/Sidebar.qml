@@ -5,148 +5,80 @@ import "../components" as C
 
 Rectangle {
     id: sidebar
-    width: Theme.sidebarWidth
+    width: 300
     color: Theme.sidebarBackground
+    border.color: Theme.dividerColor; border.width: 1
 
-    /// Emitted when the user selects an AI user to chat with.
+    property int currentTab: 0 // 0=chats 1=contacts 2=extensions
+
     signal chatSelected(string aiUserId, string aiUserName)
-
     signal contactSelected(string aiUserId)
     signal settingsClicked()
     signal createAIUserClicked()
 
     ColumnLayout {
-        anchors.fill: parent
-        spacing: 0
+        anchors.fill: parent; spacing: 0
 
-        // ── User Info Header ────────────────────────────────────
+        // ── Header ───────────────────────────────────────────────
         Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 64
-            color: Theme.primaryColor
+            Layout.fillWidth: true; Layout.preferredHeight: 48
+            color: "transparent"
             RowLayout {
-                anchors {
-                    fill: parent
-                    leftMargin: Theme.spacingLarge
-                    rightMargin: Theme.spacingLarge
-                }
-                spacing: Theme.spacingMedium
-                C.UserAvatar {
-                    Layout.preferredWidth: Theme.avatarSizeMedium
-                    Layout.preferredHeight: Theme.avatarSizeMedium
-                    name: "User"
-                }
-                Text {
-                    text: qsTr("Chats")
-                    color: Theme.textOnPrimary
-                    font.pixelSize: Theme.fontSizeHeading
-                    font.weight: Theme.fontWeightBold
-                    Layout.fillWidth: true
-                }
-                Rectangle {
-                    Layout.preferredWidth: 32; Layout.preferredHeight: 32
-                    radius: 16
-                    color: settingsMouse.containsMouse ? Qt.rgba(1,1,1,0.2) : "transparent"
-                    Text { anchors.centerIn: parent; text: "⚙"; color: Theme.textOnPrimary; font.pixelSize: Theme.fontSizeHeading }
-                    MouseArea {
-                        id: settingsMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: sidebar.settingsClicked()
-                    }
-                }
-            }
-        }
-
-        // ── AI User list (all chats are per AI user) ────────────
-        ListView {
-            id: userListView
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            clip: true
-            spacing: 1
-            // Show all contacts (AI users); could be filtered to only
-            // those with recent messages in a "Chats" tab later.
-            model: typeof contactListModel !== "undefined" ? contactListModel : null
-
-            delegate: C.ContactCard {
-                width: userListView.width
-                aiUserId: model.id || ""
-                aiUserName: model.name || ""
-                aiUserDescription: model.description || ""
-                aiUserAvatar: model.avatar || ""
-                // llmProvider: model.llmProvider || ""
-                // llmModel: model.llmModel || ""
-
-                // Unread badge
-                property int unreadCount: {
-                    if (typeof unreadTracker !== "undefined" && unreadTracker.unreadMap) {
-                        var map = unreadTracker.unreadMap
-                        var key = model.id || ""
-                        return map[key] ? map[key] : 0
-                    }
-                    return 0
-                }
-
-                onChatClicked: {
-                    sidebar.chatSelected(model.id || "", model.name || "")
-                }
-
-                onClicked: {
-                    sidebar.contactSelected(model.id || "")
-                }
-            }
-
-            Rectangle {
-                visible: userListView.count === 0
-                anchors.fill: parent
-                color: "transparent"
-                Text {
-                    anchors.centerIn: parent
-                    text: qsTr("No contacts yet")
-                    color: Theme.textHint
-                    font.pixelSize: Theme.fontSizeBody
-                }
-            }
-        }
-
-        // ── Bottom Actions ──────────────────────────────────────
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 48
-            color: Theme.sidebarBackground
-            border.color: Theme.dividerColor
-            border.width: 1
-            RowLayout {
-                anchors {
-                    fill: parent
-                    leftMargin: Theme.spacingLarge
-                    rightMargin: Theme.spacingLarge
-                }
-                Rectangle {
-                    Layout.preferredHeight: 32
-                    implicitWidth: newChatText.implicitWidth + 24
-                    radius: Theme.buttonRadius
-                    color: newChatMouse.containsMouse ? Theme.primaryLight : Theme.primaryColor
-                    Text {
-                        id: newChatText
-                        anchors.centerIn: parent
-                        text: qsTr("New AI User")
-                        color: Theme.textOnPrimary
-                        font.pixelSize: Theme.fontSizeSmall
-                        font.weight: Theme.fontWeightMedium
-                    }
-                    MouseArea {
-                        id: newChatMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: sidebar.createAIUserClicked()
-                    }
-                }
+                anchors { fill: parent; leftMargin: 12; rightMargin: 8 }
+                C.UserAvatar { Layout.preferredWidth: 32; Layout.preferredHeight: 32; name: "Me" }
                 Item { Layout.fillWidth: true }
+                Rectangle { width: 32; height: 32; radius: 16; color: parentMouse.containsMouse ? Theme.sidebarHover : "transparent"
+                    C.Icon { anchors.centerIn: parent; name: currentTab == 1 ? "user-plus" : "plus"; size: 18 }
+                    MouseArea { id: parentMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            if (sidebar.currentTab == 1) sidebar.createAIUserClicked()
+                        }
+                    }
+                }
             }
         }
+
+        // ── List area (tab-switched) ─────────────────────────────
+        Item {
+            Layout.fillWidth: true; Layout.fillHeight: true
+
+            // Chats list
+            ListView {
+                id: chatList; anchors.fill: parent; visible: sidebar.currentTab === 0; clip: true; spacing: 1
+                model: typeof conversationListModel !== "undefined" ? conversationListModel : null
+                delegate: C.ChatListDelegate {
+                    width: chatList.width
+                    aiUserId: model.aiUserId || ""; name: model.aiUserName || model.title || ""
+                    avatar: model.aiUserAvatar || ""; lastMessage: model.lastMessagePreview || ""
+                    lastTime: formatTime(model.updatedAt || "")
+                    unread: { if (typeof unreadTracker !== "undefined" && unreadTracker.unreadMap) return unreadTracker.unreadMap[model.aiUserId] || 0; return 0 }
+                    onClicked: sidebar.chatSelected(model.aiUserId, model.aiUserName || model.title)
+                }
+            }
+
+            // Contacts list
+            ListView {
+                id: contactList; anchors.fill: parent; visible: sidebar.currentTab === 1; clip: true; spacing: 1
+                model: typeof contactListModel !== "undefined" ? contactListModel : null
+                delegate: C.ContactCard {
+                    width: contactList.width
+                    aiUserId: model.id || ""; aiUserName: model.name || ""
+                    aiUserDescription: model.description || ""; aiUserAvatar: model.avatar || ""
+                    onClicked: sidebar.contactSelected(model.id)
+                    onChatClicked: sidebar.chatSelected(model.id, model.name)
+                }
+            }
+
+            // Extensions list (placeholder)
+            ListView {
+                id: extList; anchors.fill: parent; visible: sidebar.currentTab === 2; clip: true; spacing: 1
+                model: 0
+            }
+        }
+    }
+
+    function formatTime(isoStr) {
+        if (!isoStr || isoStr.length < 16) return ""
+        return isoStr.substring(11, 16)
     }
 }

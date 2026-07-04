@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../pages" as Pages
+import "../components" as C
 import "../dialogs" as Dialogs
 
 Item {
@@ -11,151 +12,110 @@ Item {
     property string currentAiUserId: ""
     property string currentAiUserName: ""
     property string currentConversationId: ""
-    property bool detailPanelOpen: false
 
-    // ── Layout ─────────────────────────────────────────────────
+    // ── Layout: tab-bar | sidebar list | content ────────────────
     RowLayout {
-        anchors.fill: parent
-        spacing: 0
+        anchors.fill: parent; spacing: 0
 
-        // Sidebar
+        // ═══ Vertical tab bar (far left) ══════════════════════════
+        Rectangle {
+            id: tabBar
+            Layout.preferredWidth: 56; Layout.fillHeight: true
+            color: Theme.sidebarBackground
+            border.color: Theme.dividerColor; border.width: 1
+
+            ColumnLayout {
+                anchors.fill: parent; spacing: 0
+
+                C.TabButton { iconName: "message-circle"; label: qsTr("Chats")
+                    selected: sidebar.currentTab === 0
+                    onClicked: sidebar.currentTab = 0 }
+                C.TabButton { iconName: "users"; label: qsTr("Contacts")
+                    selected: sidebar.currentTab === 1
+                    onClicked: sidebar.currentTab = 1 }
+                C.TabButton { iconName: "puzzle"; label: qsTr("Ext")
+                    selected: sidebar.currentTab === 2
+                    onClicked: sidebar.currentTab = 2 }
+
+                Item { Layout.fillHeight: true }
+
+                C.TabButton { iconName: "settings"; label: ""
+                    onClicked: sidebar.settingsClicked() }
+            }
+        }
+
+        // ═══ Sidebar list area ═══════════════════════════════════
         Sidebar {
             id: sidebar
+            Layout.preferredWidth: sidebar.width
             Layout.fillHeight: true
-            Layout.preferredWidth: Theme.sidebarWidth
 
             onChatSelected: function(aiUserId, aiUserName) {
                 mainShell.currentAiUserId = aiUserId
                 mainShell.currentAiUserName = aiUserName
-                if (typeof unreadTracker !== "undefined") {
-                    unreadTracker.clearAndMarkRead(aiUserId)
-                }
-                // Guard against concurrent StackView transitions
-                if (stackView.busy) {
-                    // Defer: wait for current transition to finish
-                    chatSelectedTimer.aiUserId = aiUserId
-                    chatSelectedTimer.aiUserName = aiUserName
-                    chatSelectedTimer.restart()
-                    return
-                }
+                if (typeof unreadTracker !== "undefined") unreadTracker.clearAndMarkRead(aiUserId)
                 navigateToChat()
             }
-
             onContactSelected: function(aiUserId) {
                 mainShell.currentAiUserId = aiUserId
                 stackView.push(contactDetailPageComponent)
             }
-
-            onSettingsClicked: {
-                stackView.push(settingsPageComponent)
-            }
-
-            onCreateAIUserClicked: {
-                stackView.push(createAIUserPageComponent)
-            }
+            onSettingsClicked: { stackView.push(settingsPageComponent) }
+            onCreateAIUserClicked: { stackView.push(createAIUserPageComponent) }
         }
 
-        // Vertical divider
+        // ═══ Draggable divider ═══════════════════════════════════
         Rectangle {
-            Layout.fillHeight: true
-            Layout.preferredWidth: 1
-            color: Theme.dividerColor
+            Layout.preferredWidth: 4; Layout.fillHeight: true
+            color: "transparent"
+            MouseArea {
+                anchors.fill: parent; cursorShape: Qt.SplitHCursor
+                property real startX: 0
+                onPressed: function(m) { startX = m.x }
+                onPositionChanged: function(m) {
+                    var newW = sidebar.width + (m.x - startX)
+                    if (newW >= 200 && newW <= 500) sidebar.width = newW
+                }
+            }
         }
 
-        // ── Center Content (StackView) ─────────────────────────
+        // ═══ Content StackView ═══════════════════════════════════
         StackView {
             id: stackView
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            Layout.fillWidth: true; Layout.fillHeight: true
             clip: true
-
-            // Empty placeholder until user selects a contact
             initialItem: welcomePlaceholder
-
-            // No transitions — instant page switch
-        }
-
-        // ── Detail Panel (right, collapsible) ───────────────────
-        Rectangle {
-            id: detailPanel
-            visible: mainShell.detailPanelOpen
-            Layout.fillHeight: true
-            Layout.preferredWidth: visible ? Theme.detailPanelWidth : 0
-            color: Theme.surfaceColor
-            border.color: Theme.dividerColor
-            border.width: 1
-
-            Behavior on Layout.preferredWidth {
-                NumberAnimation { duration: Theme.animationNormal }
-            }
-
-            // Detail content placeholder
-            Text {
-                anchors.centerIn: parent
-                text: qsTr("Details")
-                color: Theme.textHint
-                font.pixelSize: Theme.fontSizeBody
-            }
         }
     }
 
-    // ── Component cache ────────────────────────────────────────
-    // ── Welcome / empty state placeholder ───────────────────────
+    // ── Component cache ──────────────────────────────────────────
     Component {
         id: welcomePlaceholder
         Rectangle {
             color: Theme.backgroundColor
-            implicitWidth: 400
-            implicitHeight: 400
             Column {
-                anchors.centerIn: parent
-                spacing: Theme.spacingMedium
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: "💬"
-                    font.pixelSize: 64
-                }
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: qsTr("Select a contact to start chatting")
-                    color: Theme.textHint
-                    font.pixelSize: Theme.fontSizeBody
-                }
+                anchors.centerIn: parent; spacing: Theme.spacingMedium
+                C.Icon { name: "message-circle"; size: 64; anchors.horizontalCenter: parent.horizontalCenter }
+                Text { text: qsTr("Select a contact to start chatting"); color: Theme.textHint; font.pixelSize: Theme.fontSizeBody; anchors.horizontalCenter: parent.horizontalCenter }
             }
         }
     }
 
     Component { id: chatPageComponent; Pages.ChatPage {
-        aiUserId: mainShell.currentAiUserId
-        aiUserName: mainShell.currentAiUserName
+        aiUserId: mainShell.currentAiUserId; aiUserName: mainShell.currentAiUserName
     }}
     Component { id: contactDetailPageComponent; Pages.ContactDetailPage {
         aiUserId: mainShell.currentAiUserId
     }}
     Component { id: createAIUserPageComponent; Pages.CreateAIUserPage {} }
     Component { id: settingsPageComponent; Pages.SettingsPage {} }
-    Component { id: loginPageComponent; Pages.LoginPage {} }
-
-    // ── Deferred chat navigation (avoids StackView busy errors) ──
-    Timer {
-        id: chatSelectedTimer
-        interval: 50
-        repeat: false
-        property string aiUserId: ""
-        property string aiUserName: ""
-        onTriggered: navigateToChat()
-    }
 
     function navigateToChat() {
-        if (stackView.currentItem && stackView.currentItem.objectName === "chatPage") {
+        if (stackView.currentItem && stackView.currentItem.objectName === "chatPage")
             stackView.replace(chatPageComponent)
-        } else {
+        else
             stackView.push(chatPageComponent)
-        }
     }
 
-    // ── Confirm dialog ─────────────────────────────────────────
-    Dialogs.ConfirmDialog {
-        id: confirmDialog
-    }
+    Dialogs.ConfirmDialog { id: confirmDialog }
 }
