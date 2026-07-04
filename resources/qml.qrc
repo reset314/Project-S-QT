@@ -39,6 +39,7 @@
         <file>qml/components/UserAvatar.qml</file>
         <file>qml/components/ContactCard.qml</file>
         <file>qml/components/ConversationItem.qml</file>
+        <file>qml/components/MemoryViewer.qml</file>
         <file>qml/components/LoadingSpinner.qml</file>
         <!-- Pages (continued) -->
         <file>qml/pages/CallPage.qml</file>
