@@ -49,6 +49,13 @@ Item {
             id: sidebar
             Layout.preferredWidth: sidebar.width
             Layout.fillHeight: true
+            visible: {
+                var item = stackView.currentItem
+                if (!item) return true
+                var n = item.objectName || ""
+                // Show list for chat/contact/expansion pages + welcome
+                return n === "chatPage" || n === "contactDetail" || n === "" || n === "expansionPage"
+            }
 
             onChatSelected: function(aiUserId, aiUserName) {
                 mainShell.currentAiUserId = aiUserId
@@ -62,6 +69,9 @@ Item {
             }
             onSettingsClicked: { stackView.push(settingsPageComponent) }
             onCreateAIUserClicked: { stackView.push(createAIUserPageComponent) }
+
+            // Tab switch resets content to welcome
+            onCurrentTabChanged: { if (stackView.depth > 0) stackView.pop(null) }
         }
 
         // ═══ Draggable divider ═══════════════════════════════════
@@ -105,7 +115,7 @@ Item {
         aiUserId: mainShell.currentAiUserId; aiUserName: mainShell.currentAiUserName
     }}
     Component { id: contactDetailPageComponent; Pages.ContactDetailPage {
-        aiUserId: mainShell.currentAiUserId
+        aiUserId: mainShell.currentAiUserId; objectName: "contactDetail"
     }}
     Component { id: createAIUserPageComponent; Pages.CreateAIUserPage {} }
     Component { id: settingsPageComponent; Pages.SettingsPage {} }

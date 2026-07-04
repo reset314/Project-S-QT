@@ -79,8 +79,13 @@ Rectangle {
     Connections {
         target: typeof unreadTracker !== "undefined" ? unreadTracker : null
         enabled: typeof unreadTracker !== "undefined"
-        function onTotalUnreadChanged(total) {
-            statusBar.totalUnread = total
+        function onTotalUnreadChanged(total) { statusBar.totalUnread = total }
+    }
+    Connections {
+        target: typeof appState !== "undefined" ? appState : null
+        enabled: typeof appState !== "undefined"
+        function onConnectionStatusChanged() {
+            statusBar.connected = appState.connectionStatus === "connected"
         }
     }
 }

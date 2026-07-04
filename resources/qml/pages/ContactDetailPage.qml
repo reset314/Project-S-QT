@@ -101,25 +101,27 @@ Item {
     function reloadData() { lookupContact() }
     function saveChanges() {
         if (typeof aiUserRepo === "undefined") return
-        var data = fieldValues; data["id"] = aiUserId
-        aiUserRepo.updateAIUser(aiUserId, data)
-        editing = false
+        var result = aiUserRepo.updateAIUserJson(aiUserId, fieldValues)
+        if (result && !result.error) {
+            editing = false; lookupContact()
+        }
     }
 
     function lookupContact() {
-        if (typeof contactListModel === "undefined" || !aiUserId) return
-        for (var i = 0; i < contactListModel.rowCount(); i++) {
-            var idx = contactListModel.index(i, 0)
-            if (contactListModel.data(idx, 257) === aiUserId) {
-                detailName = contactListModel.data(idx, 258) || ""
-                detailDescription = contactListModel.data(idx, 259) || ""
-                detailAvatar = contactListModel.data(idx, 260) || ""
-                detailLlmProvider = contactListModel.data(idx, 262) || ""
-                detailLlmModel = contactListModel.data(idx, 263) || ""
-                detailCreated = contactListModel.data(idx, 264) || ""
-                return
-            }
-        }
+        if (typeof aiUserRepo === "undefined" || !aiUserId) return
+        var json = aiUserRepo.getAIUserJson(aiUserId)
+        if (!json || json.error) return
+        detailName = json.name || ""; detailDescription = json.description || ""; detailAvatar = json.avatar || ""
+        detailLlmProvider = json.llm_provider || ""; detailLlmModel = json.llm_model || ""
+        detailImageProvider = json.llm_image_provider || ""; detailImageModel = json.llm_image_model || ""
+        detailMultiProvider = json.llm_multimodal_provider || ""; detailMultiModel = json.llm_multimodal_model || ""
+        detailTranscribeProvider = json.llm_audio_transcribe_provider || ""; detailTranscribeModel = json.llm_audio_transcribe_model || ""
+        detailUnderstandProvider = json.llm_audio_understanding_provider || ""; detailUnderstandModel = json.llm_audio_understanding_model || ""
+        detailSystemPrompt = json.system_prompt || ""; detailTtsId = json.tts_id || ""
+        detailCreated = json.created_at || ""; detailUpdated = json.updated_at || ""
+        var cc = json.chat_config || {}
+        detailDisplayThink = cc.is_display_think !== undefined ? cc.is_display_think : true
+        detailDisplayEmotion = cc.is_display_emotion !== undefined ? cc.is_display_emotion : true
     }
     Component.onCompleted: { lookupContact() }
 
