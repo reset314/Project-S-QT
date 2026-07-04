@@ -29,7 +29,7 @@ Rectangle {
             radius: 16
             color: backMouse.containsMouse ? Theme.sidebarHover : "transparent"
 
-            Text { anchors.centerIn: parent; text: "←"; font.pixelSize: Theme.fontSizeHeading; color: Theme.textPrimary }
+            Icon { anchors.centerIn: parent; name: "arrow-left"; size: 20 }
 
             MouseArea {
                 id: backMouse

@@ -116,9 +116,7 @@ Item {
 
                 Text {
                     anchors.centerIn: parent
-                    text: "↓"
-                    color: "white"
-                    font.pixelSize: Theme.fontSizeHeading
+                    C.Icon { name: "chevron-down"; size: 20; anchors.centerIn: parent; color: "white" }
                 }
 
                 MouseArea {

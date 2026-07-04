@@ -73,6 +73,7 @@
         <file alias="chevron-right.svg">icons/chevron-right.svg</file>
         <file alias="chevron-down.svg">icons/chevron-down.svg</file>
         <file alias="panel-left-close.svg">icons/panel-left-close.svg</file>
+        <file alias="info.svg">icons/info.svg</file>
         <file alias="app.svg">icons/app.svg</file>
     </qresource>
     <qresource prefix="/themes">

@@ -4,232 +4,125 @@ import QtQuick.Layouts 1.15
 import "../components" as C
 
 Item {
-    id: contactDetailPage
-    anchors.fill: parent
-
-    property string aiUserId: ""
+    id: page; anchors.fill: parent; property string aiUserId: ""
+    property bool editing: false
 
     ColumnLayout {
-        anchors.fill: parent
-        spacing: 0
+        anchors.fill: parent; spacing: 0
+        C.BackHeader { title: qsTr("Contact Details"); onBackClicked: closeDetail() }
 
-        // ── Header ──────────────────────────────────────────────
-        C.BackHeader {
-            title: qsTr("Contact Details")
-            onBackClicked: closeDetail()
-        }
-
-        // ── Detail content ──────────────────────────────────────
         ScrollView {
-            id: contactScroll
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            clip: true
-
+            id: scroll; Layout.fillWidth: true; Layout.fillHeight: true; clip: true
             ColumnLayout {
-                width: contactScroll.availableWidth
-                spacing: Theme.spacingLarge
+                width: scroll.availableWidth; spacing: Theme.spacingMedium
 
-                // Avatar + name section
-                Item {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 140
-
-                    ColumnLayout {
-                        anchors.centerIn: parent
-                        spacing: Theme.spacingMedium
-
-                        C.UserAvatar {
-                            Layout.alignment: Qt.AlignHCenter
-                            size: Theme.avatarSizeXLarge
-                            name: detailName
-                        }
-
-                        Text {
-                            Layout.alignment: Qt.AlignHCenter
-                            text: detailName
-                            color: Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeTitle
-                            font.weight: Theme.fontWeightBold
-                        }
-
-                        Text {
-                            Layout.alignment: Qt.AlignHCenter
-                            text: detailDescription
-                            color: Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeBody
-                            visible: detailDescription.length > 0
-                        }
+                // Avatar + name
+                RowLayout { Layout.fillWidth: true; Layout.margins: Theme.spacingLarge; spacing: Theme.spacingMedium
+                    C.UserAvatar { Layout.preferredWidth: 64; Layout.preferredHeight: 64; name: detailName; imageSource: detailAvatar }
+                    ColumnLayout { spacing: 2
+                        Text { text: detailName || qsTr("Unknown"); font.pixelSize: Theme.fontSizeTitle; font.weight: Font.Bold; color: Theme.textPrimary }
+                        Text { text: detailDescription || ""; font.pixelSize: Theme.fontSizeBody; color: Theme.textSecondary; visible: text !== "" }
                     }
                 }
 
-                // Info cards
-                DetailCard {
-                    Layout.fillWidth: true
-                    Layout.leftMargin: Theme.spacingLarge
-                    Layout.rightMargin: Theme.spacingLarge
-                    label: qsTr("AI User ID")
-                    value: aiUserId
+                // Edit / Save toggle
+                RowLayout { Layout.fillWidth: true; Layout.margins: Theme.spacingLarge
+                    Item { Layout.fillWidth: true }
+                    Button { text: editing ? qsTr("Save") : qsTr("Edit")
+                        onClicked: { if (editing) saveChanges(); editing = !editing } }
+                    Button { visible: editing; text: qsTr("Cancel"); onClicked: { editing = false; reloadData() } }
                 }
 
-                DetailCard {
-                    Layout.fillWidth: true
-                    Layout.leftMargin: Theme.spacingLarge
-                    Layout.rightMargin: Theme.spacingLarge
-                    label: qsTr("LLM Provider")
-                    value: detailLlmProvider
-                }
-
-                DetailCard {
-                    Layout.fillWidth: true
-                    Layout.leftMargin: Theme.spacingLarge
-                    Layout.rightMargin: Theme.spacingLarge
-                    label: qsTr("LLM Model")
-                    value: detailLlmModel
-                }
-
-                DetailCard {
-                    Layout.fillWidth: true
-                    Layout.leftMargin: Theme.spacingLarge
-                    Layout.rightMargin: Theme.spacingLarge
-                    label: qsTr("Created")
-                    value: detailCreatedAt
-                }
-
-                Item { Layout.preferredHeight: Theme.spacingMedium }
-
-                // Start chat button
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 44
-                    Layout.leftMargin: Theme.spacingLarge
-                    Layout.rightMargin: Theme.spacingLarge
-                    radius: Theme.buttonRadius
-                    color: chatBtnMouse.containsMouse
-                           ? Theme.primaryLight : Theme.primaryColor
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: qsTr("Start Chat")
-                        color: Theme.textOnPrimary
-                        font.pixelSize: Theme.fontSizeBody
-                        font.weight: Theme.fontWeightMedium
-                    }
-
-                    MouseArea {
-                        id: chatBtnMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: startChat()
+                // ── Fields ────────────────────────────────────────────
+                Repeater {
+                    model: fields
+                    delegate: FieldRow { label: model.label; value: model.value; isEdit: editing; fieldKey: model.key
+                        onValueChanged: function(k, v) { fieldValues[k] = v }
                     }
                 }
+
+                // View Memories button
+                Button { Layout.margins: Theme.spacingLarge; text: qsTr("View Memories");
+                    onClicked: { /* Memory viewer — Task 12 */ } }
             }
         }
     }
 
-    // ── Contact data (looked up from model) ─────────────────────
-    property string detailName: ""
-    property string detailDescription: ""
-    property string detailLlmProvider: ""
-    property string detailLlmModel: ""
-    property string detailCreatedAt: ""
+    // ── Field data ────────────────────────────────────────────────
+    property var fieldValues: ({})
+    property string detailName: ""; property string detailDescription: ""; property string detailAvatar: ""
+    property string detailLlmProvider: ""; property string detailLlmModel: ""
+    property string detailImageProvider: ""; property string detailImageModel: ""
+    property string detailMultiProvider: ""; property string detailMultiModel: ""
+    property string detailTranscribeProvider: ""; property string detailTranscribeModel: ""
+    property string detailUnderstandProvider: ""; property string detailUnderstandModel: ""
+    property string detailSystemPrompt: ""; property string detailTtsId: ""
+    property bool detailDisplayThink: true; property bool detailDisplayEmotion: true
+    property string detailCreated: ""; property string detailUpdated: ""
 
-    // Look up contact info from model
-    Connections {
-        target: typeof contactListModel !== "undefined" ? contactListModel : null
-        enabled: typeof contactListModel !== "undefined"
-        function onModelReset() {
-            lookupContact()
-        }
-        function onRowsInserted() {
-            lookupContact()
+    property var fields: [
+        {key:"avatar", label:qsTr("Avatar URL"), value:detailAvatar},
+        {key:"name", label:qsTr("Name"), value:detailName},
+        {key:"description", label:qsTr("Description"), value:detailDescription},
+        {key:"llm_provider", label:qsTr("LLM Provider"), value:detailLlmProvider},
+        {key:"llm_model", label:qsTr("LLM Model"), value:detailLlmModel},
+        {key:"image_provider", label:qsTr("Image Provider"), value:detailImageProvider},
+        {key:"image_model", label:qsTr("Image Model"), value:detailImageModel},
+        {key:"multi_provider", label:qsTr("Multimodal Provider"), value:detailMultiProvider},
+        {key:"multi_model", label:qsTr("Multimodal Model"), value:detailMultiModel},
+        {key:"transcribe_provider", label:qsTr("Transcribe Provider"), value:detailTranscribeProvider},
+        {key:"transcribe_model", label:qsTr("Transcribe Model"), value:detailTranscribeModel},
+        {key:"understand_provider", label:qsTr("Understand Provider"), value:detailUnderstandProvider},
+        {key:"understand_model", label:qsTr("Understand Model"), value:detailUnderstandModel},
+        {key:"system_prompt", label:qsTr("System Prompt"), value:detailSystemPrompt},
+        {key:"tts_id", label:qsTr("TTS Voice"), value:detailTtsId},
+        {key:"created", label:qsTr("Created"), value:detailCreated},
+        {key:"updated", label:qsTr("Updated"), value:detailUpdated},
+    ]
+    property var chatConfigFields: [
+        {key:"is_display_think", label:qsTr("Display Think"), value:detailDisplayThink},
+        {key:"is_display_emotion", label:qsTr("Display Emotion"), value:detailDisplayEmotion}
+    ]
+
+    component FieldRow: Rectangle {
+        property string label: ""; property string value: ""; property bool isEdit: false; property string fieldKey: ""
+        signal valueChanged(string key, string val)
+        Layout.fillWidth: true; Layout.preferredHeight: rowCol.implicitHeight + 16; Layout.margins: Theme.spacingLarge
+        radius: Theme.cardRadius; color: Theme.surfaceColor; border.color: Theme.dividerColor; border.width: 1
+        ColumnLayout {
+            id: rowCol; anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: 12 }; spacing: 4
+            Text { text: label; font.pixelSize: Theme.fontSizeCaption; color: Theme.textHint }
+            Text { visible: !isEdit; text: value || qsTr("N/A"); font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; Layout.fillWidth: true; wrapMode: Text.Wrap }
+            TextField { visible: isEdit; text: value; font.pixelSize: Theme.fontSizeBody; Layout.fillWidth: true
+                onTextChanged: valueChanged(fieldKey, text) }
         }
     }
 
-    Component.onCompleted: {
-        lookupContact()
+    function reloadData() { lookupContact() }
+    function saveChanges() {
+        if (typeof aiUserRepo === "undefined") return
+        var data = fieldValues; data["id"] = aiUserId
+        aiUserRepo.updateAIUser(aiUserId, data)
+        editing = false
     }
 
     function lookupContact() {
         if (typeof contactListModel === "undefined" || !aiUserId) return
         for (var i = 0; i < contactListModel.rowCount(); i++) {
             var idx = contactListModel.index(i, 0)
-            // Roles: Id=257, Name=258, Description=259, Avatar=260,
-            // CreatedBy=261, LlmProvider=262, LlmModel=263, CreatedAt=264
-            var id = contactListModel.data(idx, 257)  // IdRole
-            if (id === aiUserId) {
+            if (contactListModel.data(idx, 257) === aiUserId) {
                 detailName = contactListModel.data(idx, 258) || ""
                 detailDescription = contactListModel.data(idx, 259) || ""
+                detailAvatar = contactListModel.data(idx, 260) || ""
                 detailLlmProvider = contactListModel.data(idx, 262) || ""
                 detailLlmModel = contactListModel.data(idx, 263) || ""
-                detailCreatedAt = contactListModel.data(idx, 264) || ""
+                detailCreated = contactListModel.data(idx, 264) || ""
                 return
             }
         }
     }
+    Component.onCompleted: { lookupContact() }
 
-    // ── Navigation ───────────────────────────────────────────────
-    function closeDetail() {
-        var sv = findStackView()
-        if (sv) sv.pop()
-    }
-
-    function startChat() {
-        var p = parent
-        while (p) {
-            if (p.hasOwnProperty("chatSelected")) {
-                p.chatSelected(aiUserId, detailName, "")
-                return
-            }
-            p = p.parent
-        }
-    }
-
-    function findStackView() {
-        var obj = contactDetailPage.parent
-        while (obj) {
-            if (obj instanceof StackView) return obj
-            obj = obj.parent
-        }
-        return null
-    }
-
-    // ── Detail card component ──────────────────────────────────
-    component DetailCard: Rectangle {
-        property string label: ""
-        property string value: ""
-
-        height: detailRow.implicitHeight + 16
-        radius: Theme.cardRadius
-        color: Theme.surfaceColor
-        border.color: Theme.dividerColor
-        border.width: 1
-
-        ColumnLayout {
-            id: detailRow
-            anchors {
-                left: parent.left
-                right: parent.right
-                verticalCenter: parent.verticalCenter
-                leftMargin: Theme.spacingLarge
-                rightMargin: Theme.spacingLarge
-            }
-            spacing: 2
-
-            Text {
-                text: label
-                color: Theme.textHint
-                font.pixelSize: Theme.fontSizeCaption
-            }
-
-            Text {
-                text: value || qsTr("N/A")
-                color: Theme.textPrimary
-                font.pixelSize: Theme.fontSizeBody
-                wrapMode: Text.Wrap
-                Layout.fillWidth: true
-            }
-        }
-    }
+    function closeDetail() { var sv = findStackView(); if (sv) sv.pop() }
+    function findStackView() { var o = page.parent; while (o) { if (o instanceof StackView) return o; o = o.parent } return null }
 }

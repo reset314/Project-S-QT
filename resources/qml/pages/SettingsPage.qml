@@ -30,49 +30,49 @@ Item {
                     section: "Account"
                     title: "Account"
                     subtitle: "Manage your account settings"
-                    icon: "👤"
+                    icon: "user-plus"
                     page: "AccountPage"
                 }
                 ListElement {
                     section: "Appearance"
                     title: "Appearance"
                     subtitle: "Theme, font size, and display"
-                    icon: "🎨"
+                    icon: "palette"
                     page: "AppearanceSection"
                 }
                 ListElement {
                     section: "Voice"
                     title: "TTS Voices"
                     subtitle: "Text-to-speech voice selection"
-                    icon: "🔊"
+                    icon: "play"
                     page: "TTSVoicesPage"
                 }
                 ListElement {
                     section: "Profiles"
                     title: "User Profiles"
                     subtitle: "Manage extracted user profiles"
-                    icon: "📋"
+                    icon: "brain"
                     page: "ProfilePage"
                 }
                 ListElement {
                     section: "Network"
                     title: "Server Configuration"
                     subtitle: "Server URL and network settings"
-                    icon: "🌐"
+                    icon: "settings"
                     page: "NetworkSection"
                 }
                 ListElement {
                     section: "Plugins"
                     title: "Expansions"
                     subtitle: "Manage extension modules"
-                    icon: "🧩"
+                    icon: "puzzle"
                     page: "ExpansionPage"
                 }
                 ListElement {
                     section: "About"
                     title: "About"
                     subtitle: "Version and license information"
-                    icon: "ℹ️"
+                    icon: "info"
                     page: "AboutSection"
                 }
             }
@@ -115,12 +115,7 @@ Item {
                         Layout.preferredWidth: 36; Layout.preferredHeight: 36
                         radius: 18
                         color: Theme.sidebarHover
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: icon
-                            font.pixelSize: Theme.fontSizeHeading
-                        }
+                        C.Icon { anchors.centerIn: parent; name: icon; size: 18 }
                     }
 
                     // Title + subtitle
@@ -143,11 +138,7 @@ Item {
                     }
 
                     // Arrow
-                    Text {
-                        text: "›"
-                        color: Theme.textHint
-                        font.pixelSize: Theme.fontSizeTitle
-                    }
+                    C.Icon { name: "chevron-right"; size: 20; color: Theme.textHint }
                 }
 
                 MouseArea {
