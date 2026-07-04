@@ -72,4 +72,9 @@
         <file alias="panel-left-close.svg">icons/panel-left-close.svg</file>
         <file alias="app.svg">icons/app.svg</file>
     </qresource>
+    <qresource prefix="/themes">
+        <file alias="light.css">../resources/themes/light.css</file>
+        <file alias="dark.css">../resources/themes/dark.css</file>
+        <file alias="glass.css">../resources/themes/glass.css</file>
+    </qresource>
 </RCC>
