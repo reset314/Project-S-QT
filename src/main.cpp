@@ -460,7 +460,7 @@ int main(int argc, char *argv[])
     // Read saved theme from QSettings, fall back to built-in light.css
     QString savedTheme = QSettings("Project-S", "Project-S")
         .value("settings/themePath", ":/themes/light.css").toString();
-    themeManager->loadTheme(savedTheme);
+    themeManager->setTheme(savedTheme);
 
 #ifdef Q_OS_WIN
     auto windowHelper = new WindowHelper(&app);

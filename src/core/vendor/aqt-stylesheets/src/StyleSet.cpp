@@ -72,7 +72,7 @@ std::vector<std::string> styleClassName(QObject* pObj)
   std::vector<std::string> classNames;
 
   if (pStyleSet) {
-    for (auto className : pStyleSet->name().split(" ", QString::SkipEmptyParts)) {
+    for (auto className : pStyleSet->name().split(" ", Qt::SkipEmptyParts)) {
       classNames.emplace_back(className.toStdString());
     }
   }

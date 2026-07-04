@@ -2,22 +2,21 @@
 #include <QObject>
 #include <QString>
 
-class StyleEngine; // aqt-stylesheets
-
+// Simple path tracker for the current CSS theme.
+// StyleEngineSetup in QML handles actual CSS loading via styleSheetSource.
 class ThemeManager : public QObject {
     Q_OBJECT
-    Q_PROPERTY(QString currentThemePath READ currentThemePath NOTIFY themeChanged)
+    Q_PROPERTY(QString themeUrl READ themeUrl NOTIFY themeChanged)
 public:
     explicit ThemeManager(QObject *parent = nullptr);
 
-    Q_INVOKABLE void loadTheme(const QString &cssPath);
+    Q_INVOKABLE void setTheme(const QString &url);
     Q_INVOKABLE void reload();
-    Q_INVOKABLE QString currentThemePath() const { return currentThemePath_; }
+    QString themeUrl() const { return currentUrl_; }
 
 signals:
     void themeChanged();
 
 private:
-    StyleEngine *engine_ = nullptr;
-    QString currentThemePath_;
+    QString currentUrl_;
 };

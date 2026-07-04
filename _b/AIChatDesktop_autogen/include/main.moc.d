@@ -14,6 +14,7 @@ C:/Users/root/Documents/Programs/aaa2/_b/AIChatDesktop_autogen/include/main.moc:
   C:/Users/root/Documents/Programs/aaa2/src/core/network/ChatStreamClient.h \
   C:/Users/root/Documents/Programs/aaa2/src/core/network/HttpClient.h \
   C:/Users/root/Documents/Programs/aaa2/src/core/storage/Database.h \
+  C:/Users/root/Documents/Programs/aaa2/src/core/theme/ThemeManager.h \
   C:/Users/root/Documents/Programs/aaa2/src/core/utils/ApiError.h \
   C:/Users/root/Documents/Programs/aaa2/src/core/utils/JsonHelper.h \
   C:/Users/root/Documents/Programs/aaa2/src/core/vendor/tl/expected.hpp \

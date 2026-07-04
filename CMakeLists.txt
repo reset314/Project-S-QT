@@ -13,8 +13,6 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS
 find_package(nlohmann_json REQUIRED)
 find_package(LibDataChannel QUIET)
 
-find_package(Boost REQUIRED)
-
 set(SOURCES
     src/main.cpp
     src/core/utils/UuidGenerator.cpp
@@ -72,6 +70,19 @@ set(SOURCES
     src/platform/WinTaskbar.cpp
     src/platform/MacDock.cpp
     src/platform/LinuxDesktop.cpp
+    # Theme system
+    src/core/theme/ThemeManager.cpp
+    # aqt-stylesheets library
+    src/core/vendor/aqt-stylesheets/src/StyleEngine.cpp
+    src/core/vendor/aqt-stylesheets/src/StyleSet.cpp
+    src/core/vendor/aqt-stylesheets/src/StyleSetProps.cpp
+    src/core/vendor/aqt-stylesheets/src/CssParser.cpp
+    src/core/vendor/aqt-stylesheets/src/StyleMatchTree.cpp
+    src/core/vendor/aqt-stylesheets/src/Convert.cpp
+    src/core/vendor/aqt-stylesheets/src/StyleChecker.cpp
+    src/core/vendor/aqt-stylesheets/src/StyleEngineSetup.cpp
+    src/core/vendor/aqt-stylesheets/src/UrlUtils.cpp
+    src/core/vendor/aqt-stylesheets/src/StylesDirWatcher.cpp
 )
 
 set(RESOURCES
@@ -83,8 +94,10 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE
     src
     src/core/vendor
-    ${Boost_INCLUDE_DIRS}
     src/core/vendor/aqt-stylesheets/src
+    src/core/vendor/aqt-stylesheets/src/include
+    src/core/vendor/aqt-stylesheets/third-party
+    src/core/vendor/aqt-stylesheets/third-party/cpp-peglib
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -98,7 +111,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Widgets
     Qt6::Concurrent
     nlohmann_json::nlohmann_json
-    ${Boost_LIBRARIES}
 )
 
 # Windows-specific system libraries
