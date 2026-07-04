@@ -1,12 +1,11 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
 import "../components" as C
 
 Item {
     id: chatPage
-    anchors.fill: parent
+    objectName: "chatPage"
 
     property string aiUserId: ""
     property string aiUserName: ""
@@ -21,30 +20,30 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 56
-            color: Theme.ThemeConfig.surfaceColor
-            border.color: Theme.ThemeConfig.dividerColor
+            color: Theme.surfaceColor
+            border.color: Theme.dividerColor
             border.width: 1
 
             RowLayout {
                 anchors {
                     fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingMedium
+                    leftMargin: Theme.spacingLarge
+                    rightMargin: Theme.spacingMedium
                 }
-                spacing: Theme.ThemeConfig.spacingMedium
+                spacing: Theme.spacingMedium
 
                 // Back button
                 Rectangle {
                     Layout.preferredWidth: 32; Layout.preferredHeight: 32
                     radius: 16
                     color: backMouse.containsMouse
-                           ? Theme.ThemeConfig.sidebarHover : "transparent"
+                           ? Theme.sidebarHover : "transparent"
 
                     Text {
                         anchors.centerIn: parent
                         text: "←"
-                        font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                        color: Theme.ThemeConfig.textPrimary
+                        font.pixelSize: Theme.fontSizeHeading
+                        color: Theme.textPrimary
                     }
 
                     MouseArea {
@@ -57,8 +56,8 @@ Item {
                 }
 
                 C.UserAvatar {
-                    Layout.preferredWidth: Theme.ThemeConfig.avatarSizeSmall
-                    Layout.preferredHeight: Theme.ThemeConfig.avatarSizeSmall
+                    Layout.preferredWidth: Theme.avatarSizeSmall
+                    Layout.preferredHeight: Theme.avatarSizeSmall
                     name: chatPage.aiUserName
                 }
 
@@ -68,9 +67,9 @@ Item {
 
                     Text {
                         text: chatPage.aiUserName || qsTr("Chat")
-                        color: Theme.ThemeConfig.textPrimary
-                        font.pixelSize: Theme.ThemeConfig.fontSizeSubheading
-                        font.weight: Theme.ThemeConfig.fontWeightMedium
+                        color: Theme.textPrimary
+                        font.pixelSize: Theme.fontSizeSubheading
+                        font.weight: Theme.fontWeightMedium
                         Layout.fillWidth: true
                         elide: Text.ElideRight
                     }
@@ -78,9 +77,9 @@ Item {
                     Text {
                         text: chatPage.isAiTyping ? qsTr("typing...") : qsTr("Online")
                         color: chatPage.isAiTyping
-                               ? Theme.ThemeConfig.textSecondary
-                               : Theme.ThemeConfig.onlineColor
-                        font.pixelSize: Theme.ThemeConfig.fontSizeCaption
+                               ? Theme.textSecondary
+                               : Theme.onlineColor
+                        font.pixelSize: Theme.fontSizeCaption
                     }
                 }
             }
@@ -93,70 +92,102 @@ Item {
             Layout.fillHeight: true
             clip: true
             spacing: 4
-            verticalLayoutDirection: ListView.BottomToTop
 
             model: typeof chatMessagesModel !== "undefined" ? chatMessagesModel : null
 
-            delegate: Loader {
+            delegate: C.ChatBubble {
                 width: messageList.width
-                sourceComponent: {
-                    var msgType = model.msgType || "text"
-                    switch (msgType) {
-                        case "image":
-                        case "video":
-                        case "audio":
-                        case "file":
-                            return mediaMessageDelegate
-                        default:
-                            return chatBubbleDelegate
-                    }
-                }
+                senderType: model.senderType || "ai"
+                msgType: model.msgType || "text"
+                contentJson: model.content || {}
+                timestamp: model.timestamp || ""
+                isComplete: model.isComplete !== undefined ? model.isComplete : true
             }
 
-            // Auto-scroll to bottom on new messages
+            // ── Scroll logic ──────────────────────────────────────
             property bool autoScroll: true
+
+            // History loaded → scroll to bottom (via C++ signal)
+            function onHistoryLoaded() {
+                autoScroll = true
+                Qt.callLater(function() {
+                    messageList.positionViewAtEnd()
+                })
+            }
 
             onCountChanged: {
                 if (autoScroll) {
-                    positionViewAtBeginning()
+                    Qt.callLater(function() {
+                        messageList.positionViewAtEnd()
+                    })
                 }
             }
 
-            // Detect manual scroll to disable auto-scroll
+            // Detect manual scroll → disable auto-scroll
+            onMovementStarted: {
+                autoScroll = atYEnd
+            }
+
+            function scrollToBottom() {
+                autoScroll = true
+                Qt.callLater(function() {
+                    messageList.positionViewAtEnd()
+                })
+            }
+
+            Connections {
+                target: typeof chatMessagesModel !== "undefined" ? chatMessagesModel : null
+                function onHistoryLoaded() {
+                    messageList.onHistoryLoaded()
+                }
+            }
+
+            // ── Pull to top → load older messages ──────────────────
+            property bool _loadingOlder: false
+
             onContentYChanged: {
-                if (contentY < originY - 60) {
-                    autoScroll = false
-                } else if (contentY >= originY - 10) {
-                    autoScroll = true
+                if (contentY < 80 && !_loadingOlder && count > 0) {
+                    _loadingOlder = true
+                    loadOlderMessages()
+                }
+            }
+
+            function loadOlderMessages() {
+                if (typeof chatMessagesModel !== "undefined") {
+                    chatMessagesModel.loadOlder()
+                }
+            }
+
+            Connections {
+                target: typeof chatMessagesModel !== "undefined" ? chatMessagesModel : null
+                function onOlderMessagesLoaded(prependCount) {
+                    messageList._loadingOlder = false
                 }
             }
 
             // Scroll-to-bottom FAB
             Rectangle {
-                visible: !messageList.autoScroll && messageList.count > 0
+                visible: messageList.count > 0 && !messageList.atYEnd
                 anchors {
                     bottom: parent.bottom
                     right: parent.right
-                    bottomMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingLarge
+                    bottomMargin: Theme.spacingLarge
+                    rightMargin: Theme.spacingLarge
                 }
                 width: 40; height: 40; radius: 20
-                color: Theme.ThemeConfig.primaryColor
+                color: Theme.primaryColor
 
                 Text {
                     anchors.centerIn: parent
                     text: "↓"
                     color: "white"
-                    font.pixelSize: Theme.ThemeConfig.fontSizeHeading
+                    font.pixelSize: Theme.fontSizeHeading
                 }
 
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        messageList.autoScroll = true
-                        messageList.positionViewAtBeginning()
-                    }
+                    onClicked: messageList.scrollToBottom()
                 }
             }
 
@@ -170,8 +201,8 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: qsTr("Start a conversation!")
-                    color: Theme.ThemeConfig.textHint
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                    color: Theme.textHint
+                    font.pixelSize: Theme.fontSizeBody
                 }
             }
         }
@@ -179,9 +210,8 @@ Item {
         // ── Typing indicator ────────────────────────────────────
         C.TypingIndicator {
             Layout.fillWidth: true
+            Layout.leftMargin: Theme.spacingLarge
             typing: chatPage.isAiTyping
-            anchors.left: parent.left
-            anchors.leftMargin: Theme.ThemeConfig.spacingLarge
         }
 
         // ── Message Input ──────────────────────────────────────
@@ -202,63 +232,16 @@ Item {
         }
     }
 
-    // ── Delegate components ──────────────────────────────────────
-    Component {
-        id: chatBubbleDelegate
-        C.ChatBubble {
-            senderType: model.senderType || "ai"
-            msgType: model.msgType || "text"
-            contentJson: model.content || {}
-            timestamp: model.timestamp || ""
-            isComplete: model.isComplete !== undefined ? model.isComplete : true
-        }
-    }
-
-    Component {
-        id: mediaMessageDelegate
-        Column {
-            width: parent.width
-            spacing: Theme.ThemeConfig.spacingSmall
-
-            // Text content (if any)
-            C.ChatBubble {
-                width: parent.width
-                senderType: model.senderType || "ai"
-                msgType: "text"
-                contentJson: {
-                    if (model.content && model.content.response) {
-                        return model.content
-                    }
-                    return { response: "" }
-                }
-                timestamp: model.timestamp || ""
-                isComplete: model.isComplete !== undefined ? model.isComplete : true
-                visible: model.content && model.content.response
-            }
-
-            // Media preview
-            C.MediaPreview {
-                anchors {
-                    left: parent.left
-                    leftMargin: model.senderType === "user"
-                               ? parent.width - width - Theme.ThemeConfig.spacingLarge
-                               : Theme.ThemeConfig.spacingLarge
-                }
-                mediaType: model.msgType || "file"
-                mediaUrl: model.mediaList && model.mediaList.length > 0
-                         ? model.mediaList[0].url || "" : ""
-                mediaName: model.mediaList && model.mediaList.length > 0
-                          ? model.mediaList[0].filename || "" : ""
-            }
-        }
-    }
-
     // ── Functions ────────────────────────────────────────────────
     function sendTextMessage(text) {
         if (typeof chatService !== "undefined") {
             chatService.sendMessage(chatPage.aiUserId, text, chatPage.conversationId)
+            messageList.autoScroll = true
+            Qt.callLater(function() {
+                messageList.positionViewAtEnd()
+            })
         } else {
-            console.log("ChatService not available, message:", text)
+            console.warn("ChatService not available")
         }
     }
 
@@ -293,18 +276,25 @@ Item {
                 if (conversationId && !chatPage.conversationId) {
                     chatPage.conversationId = conversationId
                 }
+                messageList.autoScroll = true
+                Qt.callLater(function() { messageList.positionViewAtEnd() })
             }
         }
 
         function onStreamChunkReceived(aiUserId, content) {
             if (aiUserId === chatPage.aiUserId) {
                 chatPage.isAiTyping = true
+                if (messageList.autoScroll) {
+                    Qt.callLater(function() { messageList.positionViewAtEnd() })
+                }
             }
         }
 
         function onStreamDoneReceived(aiUserId, messageId, content) {
             if (aiUserId === chatPage.aiUserId) {
                 chatPage.isAiTyping = false
+                messageList.autoScroll = true
+                Qt.callLater(function() { messageList.positionViewAtEnd() })
             }
         }
 
@@ -315,10 +305,16 @@ Item {
         }
     }
 
-    // Set active AI user for unread tracking
+    // Set active AI user for unread tracking + trigger history load
     Component.onCompleted: {
-        if (typeof unreadTracker !== "undefined" && chatPage.aiUserId) {
-            unreadTracker.setActiveAiUser(chatPage.aiUserId)
+        if (chatPage.aiUserId) {
+            if (typeof unreadTracker !== "undefined") {
+                unreadTracker.setActiveAiUser(chatPage.aiUserId)
+            }
+            // Trigger history load via ChatMessagesModel
+            if (typeof chatMessagesModel !== "undefined") {
+                chatMessagesModel.setActiveAiUserId(chatPage.aiUserId)
+            }
         }
     }
 

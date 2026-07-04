@@ -1,18 +1,17 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import "../theme/ThemeConfig.qml" as Theme
 
 Rectangle {
     id: typingIndicator
     width: typingRow.width + 24
     height: 36
-    radius: Theme.ThemeConfig.bubbleRadius
-    color: Theme.ThemeConfig.aiBubbleColor
-    border.color: Theme.ThemeConfig.dividerColor
+    radius: Theme.bubbleRadius
+    color: Theme.aiBubbleColor
+    border.color: Theme.dividerColor
     border.width: 1
 
     property bool typing: false
-    property color dotColor: Theme.ThemeConfig.textSecondary
+    property color dotColor: Theme.textSecondary
 
     visible: typing
 

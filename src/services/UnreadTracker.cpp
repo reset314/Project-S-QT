@@ -76,7 +76,7 @@ void UnreadTracker::onIncomingMessage(const QString &conversationId)
 
 void UnreadTracker::clearAndMarkRead(const QString &aiUserId)
 {
-    if (!counts_.contains(aiUserId) && counts_.value(aiUserId) == 0)
+    if (!counts_.contains(aiUserId) || counts_.value(aiUserId) == 0)
         return;
 
     counts_[aiUserId] = 0;

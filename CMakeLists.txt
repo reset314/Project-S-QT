@@ -7,7 +7,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS
-    Quick QuickControls2 Network WebSockets Sql Multimedia MultimediaWidgets Widgets
+    Quick QuickControls2 Network WebSockets Sql Multimedia MultimediaWidgets Widgets Concurrent
 )
 
 find_package(nlohmann_json REQUIRED)
@@ -53,6 +53,7 @@ set(SOURCES
     src/services/VideoManager.cpp
     src/services/CallManager.cpp
     # Task 17 — Platform Integration
+    src/platform/PlatformIntegration.cpp
     src/platform/WinTaskbar.cpp
     src/platform/MacDock.cpp
     src/platform/LinuxDesktop.cpp
@@ -75,8 +76,14 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Multimedia
     Qt6::MultimediaWidgets
     Qt6::Widgets
+    Qt6::Concurrent
     nlohmann_json::nlohmann_json
 )
+
+# Windows-specific system libraries
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} PRIVATE dwmapi)
+endif()
 
 if(LibDataChannel_FOUND)
     target_link_libraries(${PROJECT_NAME} PRIVATE LibDataChannel::LibDataChannel)
@@ -95,17 +102,7 @@ if(BUILD_TESTS)
     enable_testing()
     find_package(Qt6 REQUIRED COMPONENTS Test)
 
-    set(TEST_SOURCES
-        tests/tst_Database.cpp
-        tests/tst_ApiError.cpp
-        tests/tst_JsonHelper.cpp
-        tests/tst_UuidGenerator.cpp
-        tests/tst_TokenManager.cpp
-        tests/tst_SyncService.cpp
-        tests/tst_UnreadTracker.cpp
-    )
-
-    # Re-use production source files (exclude main.cpp which has its own main())
+    # Production sources shared by all test executables (exclude main.cpp)
     set(PROD_SOURCES_FOR_TESTS
         src/core/utils/UuidGenerator.cpp
         src/core/storage/Database.cpp
@@ -135,28 +132,26 @@ if(BUILD_TESTS)
         src/services/CallManager.cpp
     )
 
-    add_executable(AIChatDesktopTests ${TEST_SOURCES} ${PROD_SOURCES_FOR_TESTS})
-
-    target_include_directories(AIChatDesktopTests PRIVATE src src/core/vendor)
-
-    target_link_libraries(AIChatDesktopTests PRIVATE
-        Qt6::Quick
-        Qt6::QuickControls2
-        Qt6::Network
-        Qt6::WebSockets
-        Qt6::Sql
-        Qt6::Multimedia
-        Qt6::MultimediaWidgets
-        Qt6::Widgets
-        Qt6::Test
-        nlohmann_json::nlohmann_json
+    # Build each test as its own executable
+    set(TEST_FILES
+        Database ApiError JsonHelper UuidGenerator TokenManager SyncService UnreadTracker
     )
-
-    if(LibDataChannel_FOUND)
-        target_link_libraries(AIChatDesktopTests PRIVATE LibDataChannel::LibDataChannel)
-        target_compile_definitions(AIChatDesktopTests PRIVATE HAS_LIBDATACHANNEL)
-    endif()
-
-    # Register the test with CTest
-    add_test(NAME AIChatDesktopTests COMMAND AIChatDesktopTests)
+    foreach(TEST_NAME ${TEST_FILES})
+        set(TEST_TARGET "test_${TEST_NAME}")
+        add_executable(${TEST_TARGET}
+            tests/tst_${TEST_NAME}.cpp
+            ${PROD_SOURCES_FOR_TESTS}
+        )
+        target_include_directories(${TEST_TARGET} PRIVATE src src/core/vendor)
+        target_link_libraries(${TEST_TARGET} PRIVATE
+            Qt6::Quick Qt6::QuickControls2 Qt6::Network Qt6::WebSockets
+            Qt6::Sql Qt6::Multimedia Qt6::MultimediaWidgets Qt6::Widgets Qt6::Concurrent
+            Qt6::Test nlohmann_json::nlohmann_json
+        )
+        if(LibDataChannel_FOUND)
+            target_link_libraries(${TEST_TARGET} PRIVATE LibDataChannel::LibDataChannel)
+            target_compile_definitions(${TEST_TARGET} PRIVATE HAS_LIBDATACHANNEL)
+        endif()
+        add_test(NAME ${TEST_TARGET} COMMAND ${TEST_TARGET})
+    endforeach()
 endif()

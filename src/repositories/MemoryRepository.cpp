@@ -22,7 +22,7 @@ Result<QVector<MemoryDTO>> MemoryRepository::queryMemories(const QString &aiUser
 
     auto result = http_->get("/memories", params);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     // Response: {success: true, data: [...]}
     // HttpClient passes through the root when data is an array.

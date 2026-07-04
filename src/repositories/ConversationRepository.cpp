@@ -40,7 +40,7 @@ Result<QVector<ConversationDTO>> ConversationRepository::listConversations()
 {
     auto result = http_->get("/conversations");
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     // GET /conversations returns {success: true, data: [...]}
     // HttpClient can't return an array as QJsonObject, so it passes the root through.
@@ -83,7 +83,7 @@ Result<ConversationDTO> ConversationRepository::createConversation(
 
     auto result = http_->post("/conversations", body);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     ConversationDTO conv = ConversationDTO::fromJson(*result);
 
@@ -102,7 +102,7 @@ Result<void> ConversationRepository::endConversation(const QString &conversation
 
     auto result = http_->post("/end", body);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     return {};
 }

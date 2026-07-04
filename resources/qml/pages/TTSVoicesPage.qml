@@ -1,7 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
+import "../components" as C
 
 Item {
     id: ttsVoicesPage
@@ -14,51 +14,9 @@ Item {
         spacing: 0
 
         // ── Header ──────────────────────────────────────────────
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 56
-            color: Theme.ThemeConfig.surfaceColor
-            border.color: Theme.ThemeConfig.dividerColor
-            border.width: 1
-
-            RowLayout {
-                anchors {
-                    fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingMedium
-                }
-                spacing: Theme.ThemeConfig.spacingMedium
-
-                Rectangle {
-                    Layout.preferredWidth: 32; Layout.preferredHeight: 32
-                    radius: 16
-                    color: backMouse.containsMouse
-                           ? Theme.ThemeConfig.sidebarHover : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "←"
-                        font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                        color: Theme.ThemeConfig.textPrimary
-                    }
-
-                    MouseArea {
-                        id: backMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: closePage()
-                    }
-                }
-
-                Text {
-                    text: qsTr("TTS Voices")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                    font.weight: Theme.ThemeConfig.fontWeightBold
-                    Layout.fillWidth: true
-                }
-            }
+        C.BackHeader {
+            title: qsTr("TTS Voices")
+            onBackClicked: closePage()
         }
 
         // ── Voice list ──────────────────────────────────────────
@@ -79,18 +37,18 @@ Item {
             section.delegate: Rectangle {
                 width: voiceList.width
                 height: 32
-                color: Theme.ThemeConfig.backgroundColor
+                color: Theme.backgroundColor
 
                 Text {
                     anchors {
                         left: parent.left
-                        leftMargin: Theme.ThemeConfig.spacingLarge
+                        leftMargin: Theme.spacingLarge
                         verticalCenter: parent.verticalCenter
                     }
                     text: section
-                    color: Theme.ThemeConfig.textHint
-                    font.pixelSize: Theme.ThemeConfig.fontSizeCaption
-                    font.weight: Theme.ThemeConfig.fontWeightBold
+                    color: Theme.textHint
+                    font.pixelSize: Theme.fontSizeCaption
+                    font.weight: Theme.fontWeightBold
                 }
             }
 
@@ -98,26 +56,26 @@ Item {
                 width: voiceList.width
                 height: 56
                 color: delegateMouse.containsMouse
-                       ? Theme.ThemeConfig.sidebarHover : Theme.ThemeConfig.surfaceColor
+                       ? Theme.sidebarHover : Theme.surfaceColor
 
                 RowLayout {
                     anchors {
                         fill: parent
-                        leftMargin: Theme.ThemeConfig.spacingLarge
-                        rightMargin: Theme.ThemeConfig.spacingMedium
+                        leftMargin: Theme.spacingLarge
+                        rightMargin: Theme.spacingMedium
                     }
-                    spacing: Theme.ThemeConfig.spacingMedium
+                    spacing: Theme.spacingMedium
 
                     // Radio indicator
                     Rectangle {
                         Layout.preferredWidth: 20; Layout.preferredHeight: 20
                         radius: 10
                         border.color: selectedVoice === model.voiceId
-                                      ? Theme.ThemeConfig.primaryColor
-                                      : Theme.ThemeConfig.dividerColor
+                                      ? Theme.primaryColor
+                                      : Theme.dividerColor
                         border.width: 2
                         color: selectedVoice === model.voiceId
-                               ? Theme.ThemeConfig.primaryColor : "transparent"
+                               ? Theme.primaryColor : "transparent"
 
                         Rectangle {
                             anchors.centerIn: parent
@@ -134,11 +92,11 @@ Item {
 
                         Text {
                             text: model.name || ""
-                            color: Theme.ThemeConfig.textPrimary
-                            font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                            color: Theme.textPrimary
+                            font.pixelSize: Theme.fontSizeBody
                             font.weight: selectedVoice === model.voiceId
-                                         ? Theme.ThemeConfig.fontWeightMedium
-                                         : Theme.ThemeConfig.fontWeightNormal
+                                         ? Theme.fontWeightMedium
+                                         : Theme.fontWeightNormal
                         }
 
                         Text {
@@ -148,8 +106,8 @@ Item {
                                 if (model.gender) parts.push(model.gender)
                                 return parts.join(" · ")
                             }
-                            color: Theme.ThemeConfig.textSecondary
-                            font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                            color: Theme.textSecondary
+                            font.pixelSize: Theme.fontSizeSmall
                         }
                     }
 
@@ -158,13 +116,13 @@ Item {
                         Layout.preferredWidth: 32; Layout.preferredHeight: 32
                         radius: 16
                         color: previewMouse.containsMouse
-                               ? Theme.ThemeConfig.primaryLight : Theme.ThemeConfig.primaryColor
+                               ? Theme.primaryLight : Theme.primaryColor
 
                         Text {
                             anchors.centerIn: parent
                             text: "▶"
                             color: "white"
-                            font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                            font.pixelSize: Theme.fontSizeSmall
                         }
 
                         MouseArea {
@@ -193,7 +151,7 @@ Item {
                         leftMargin: 68
                     }
                     height: 1
-                    color: Theme.ThemeConfig.dividerColor
+                    color: Theme.dividerColor
                 }
             }
 
@@ -206,8 +164,8 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: qsTr("No voices available")
-                    color: Theme.ThemeConfig.textHint
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                    color: Theme.textHint
+                    font.pixelSize: Theme.fontSizeBody
                 }
             }
         }
@@ -216,22 +174,22 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 64
-            color: Theme.ThemeConfig.surfaceColor
-            border.color: Theme.ThemeConfig.dividerColor
+            color: Theme.surfaceColor
+            border.color: Theme.dividerColor
             border.width: 1
 
             RowLayout {
                 anchors {
                     fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingLarge
+                    leftMargin: Theme.spacingLarge
+                    rightMargin: Theme.spacingLarge
                 }
-                spacing: Theme.ThemeConfig.spacingMedium
+                spacing: Theme.spacingMedium
 
                 Text {
                     text: qsTr("Speed")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                    color: Theme.textPrimary
+                    font.pixelSize: Theme.fontSizeBody
                 }
 
                 Slider {
@@ -252,8 +210,8 @@ Item {
 
                 Text {
                     text: speedSlider.value.toFixed(1) + "x"
-                    color: Theme.ThemeConfig.textSecondary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                    color: Theme.textSecondary
+                    font.pixelSize: Theme.fontSizeSmall
                     Layout.preferredWidth: 36
                 }
             }

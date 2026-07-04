@@ -1,21 +1,21 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import "../theme/ThemeConfig.qml" as Theme
 
 Rectangle {
     id: avatar
-    width: Theme.ThemeConfig.avatarSizeMedium
-    height: Theme.ThemeConfig.avatarSizeMedium
+    width: Theme.avatarSizeMedium
+    height: Theme.avatarSizeMedium
     radius: width / 2
     color: generateColor(name)
+    clip: true
 
     property string name: ""
     property string imageSource: ""
-    property int size: Theme.ThemeConfig.avatarSizeMedium
+    property int size: Theme.avatarSizeMedium
 
     // Override default width/height based on size property
     Component.onCompleted: {
-        if (size !== Theme.ThemeConfig.avatarSizeMedium) {
+        if (size !== Theme.avatarSizeMedium) {
             avatar.width = size
             avatar.height = size
         }
@@ -29,13 +29,6 @@ Rectangle {
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
         layer.enabled: true
-        layer.effect: OpacityMask {
-            maskSource: Rectangle {
-                width: avatar.width
-                height: avatar.height
-                radius: avatar.radius
-            }
-        }
     }
 
     Text {
@@ -43,7 +36,7 @@ Rectangle {
         text: initials(name)
         color: "white"
         font.pixelSize: Math.max(10, avatar.width * 0.38)
-        font.weight: Theme.ThemeConfig.fontWeightBold
+        font.weight: Theme.fontWeightBold
         visible: imageSource === ""
     }
 
@@ -56,8 +49,8 @@ Rectangle {
         width: Math.max(8, avatar.width * 0.28)
         height: Math.max(8, avatar.width * 0.28)
         radius: width / 2
-        color: isOnline ? Theme.ThemeConfig.onlineColor : Theme.ThemeConfig.offlineColor
-        border.color: Theme.ThemeConfig.surfaceColor
+        color: isOnline ? Theme.onlineColor : Theme.offlineColor
+        border.color: Theme.surfaceColor
         border.width: 2
         anchors {
             right: parent.right
@@ -78,7 +71,7 @@ Rectangle {
     }
 
     function generateColor(str) {
-        if (!str || str.length === 0) return Theme.ThemeConfig.primaryColor
+        if (!str || str.length === 0) return Theme.primaryColor
         var hash = 0
         for (var i = 0; i < str.length; i++) {
             hash = str.charCodeAt(i) + ((hash << 5) - hash)

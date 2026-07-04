@@ -1,0 +1,68 @@
+[DEBUG] WinTaskbar: initialised (stub — ITaskbarList3 not linked)
+[DEBUG] UnreadTracker::init loaded 1 entries
+[DEBUG] WebRtcEngine: libdatachannel NOT available
+[] Using Qt multimedia with FFmpeg version 7.1.3 LGPL version 2.1 or later
+[DEBUG] AudioManager: default mic: "Voicemeeter Out B1 (VB-Audio Voicemeeter VAIO)" default speaker: "扬声器 (Steam Streaming Speakers)"
+[DEBUG] VideoManager: initialized
+[DEBUG] CallManager: initialized
+[WARN] QSystemTrayIcon::setVisible: No Icon set
+[WARN] qrc:/qml/shell/TitleBar.qml:138:13: QML Connections: Detected function "onIconTypeChanged" in Connections element. This is probably intended to be a signal handler but no signal of the target matches the name.
+[WARN] qrc:/qml/shell/TitleBar.qml:138:13: QML Connections: Detected function "onIconTypeChanged" in Connections element. This is probably intended to be a signal handler but no signal of the target matches the name.
+[WARN] qrc:/qml/shell/TitleBar.qml:138:13: QML Connections: Detected function "onIconTypeChanged" in Connections element. This is probably intended to be a signal handler but no signal of the target matches the name.
+[DEBUG] TokenManager HTTP 200 OK body: "{\"success\":true,\"data\":{\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkNGJiNjk4MS0wMTllLTcwMDAtYjAxMy05ZWViYTQ2YzRkZGYiLCJpYXQiOjE3ODMwOTczNjIsImV4cCI6MTc4MzcwMjE2Mn0.rYFJieBKSgxZgLo"
+[DEBUG] ChatStreamClient: connecting to "wss://www.p314.top/ws/connect"
+[DEBUG] ChatStreamClient: WebSocket connected, sending auth
+[DEBUG] Loaded 260 conversations
+[DEBUG] Loaded 5 AI users
+[DEBUG] ChatMessagesModel: loaded 32 messages for "d4bb6988-019e-7000-81f1-f188b433b74f"
+[DEBUG] SyncService: sync complete for "d4bb6988-019e-7000-81f1-f188b433b74f" - fetched 0 messages
+[WARN] ChatPage: sendTextMessage aiUserId=d4bb6988-019e-7000-81f1-f188b433b74f convId= text=test
+[DEBUG] messagesChanged: reloaded 1 messages for "d4bb6988-019e-7000-81f1-f188b433b74f"
+[DEBUG] ChatMessagesModel: loadOlder before "2026-07-03T16:49:47Z"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"ping\"}"
+[DEBUG] messagesChanged: reloaded 1 messages for "d4bb6988-019e-7000-81f1-f188b433b74f"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"pong\"}"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"stream_message_init\", \"payload\": {\"conversation_id\": \"28e2f900-019f-7000-b582-1c277c4ebe33\", \"message_id\": \"28e30347-019f-7000-93c8-05bc95b7bf56\", \"timestamp\": \"2026-07-03T16:49:53.991159+00:00\"}}"
+[DEBUG] ChatStreamClient: authenticated by server frame type: "stream_message_init"
+[DEBUG] ChatService::onStreamInit conv: "" aiUserId: "" msgId: ""
+[DEBUG] messagesChanged: reloaded 0 messages for ""
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"stream_message_done\", \"payload\": {\"conversation_id\": \"28e2f900-019f-7000-b582-1c277c4ebe33\", \"message_id\": \"28e30347-019f-7000-93c8-05bc95b7bf56\", \"content\": \"{\\\"think\\\": \\\"\\\", \\\"emotion\\\": \\\"\\u53cb\\u597d\\\", \\\"response\\\": \\\"\\u5728\\u7684\\uff0c\\u4ec0\\u4e48\\u6d4b\\u8bd5\\uff1f\\\"}\"}}"
+[DEBUG] ChatStreamClient: stream_message_done conv: "" msgId: "" contentLen: 0
+[DEBUG] ChatService::onStreamDone conv: "" aiUserId: "" clientUuid: "" contentLen: 0
+[DEBUG] messagesChanged: reloaded 0 messages for ""
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"ping\"}"
+[WARN] ChatService: watchdog expired for "d4bb6988-019e-7000-81f1-f188b433b74f"
+[WARN] upsertMessage update failed: "UNIQUE constraint failed: messages.server_id 无法获取行"
+[DEBUG] SyncService: sync complete for "d4bb6988-019e-7000-81f1-f188b433b74f" - fetched 2 messages
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"pong\"}"
+[WARN] QIODevice::read (QSslSocket): device not open
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"ping\"}"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"pong\"}"
+[DEBUG] ChatMessagesModel: loaded 39 messages for "d4bb6988-019e-7000-92ae-55e8a7002b2e"
+[DEBUG] SyncService: sync complete for "d4bb6988-019e-7000-92ae-55e8a7002b2e" - fetched 0 messages
+[WARN] upsertMessage update failed: "UNIQUE constraint failed: messages.server_id 无法获取行"
+[DEBUG] ChatMessagesModel: loadOlder before "d4bb756c-019e-7000-8946-dc5e2218099f"
+[DEBUG] ChatMessagesModel: loaded 0 older messages for "d4bb6988-019e-7000-81f1-f188b433b74f"
+[DEBUG] ChatMessagesModel: loaded 34 messages for "d4bb6988-019e-7000-81f1-f188b433b74f"
+[WARN] upsertMessage update failed: "UNIQUE constraint failed: messages.server_id 无法获取行"
+[DEBUG] SyncService: sync complete for "d4bb6988-019e-7000-81f1-f188b433b74f" - fetched 2 messages
+[DEBUG] ChatMessagesModel: loadOlder before "d4bb7572-019e-7000-a69f-f0cec9bc38c6"
+[DEBUG] ChatMessagesModel: loaded 30 older messages for "d4bb6988-019e-7000-b740-c4c8f001ece7"
+[DEBUG] ChatMessagesModel: loaded 50 messages for "d4bb6988-019e-7000-b740-c4c8f001ece7"
+[DEBUG] SyncService: sync complete for "d4bb6988-019e-7000-b740-c4c8f001ece7" - fetched 0 messages
+[DEBUG] ChatMessagesModel: loadOlder before "25d8f8ca-019f-7000-ab27-83dff0e23d47"
+[DEBUG] ChatMessagesModel: loaded 30 older messages for "d4bb6988-019e-7000-b81d-8fde4976ed57"
+[DEBUG] ChatMessagesModel: loaded 50 messages for "d4bb6988-019e-7000-b81d-8fde4976ed57"
+[DEBUG] SyncService: sync complete for "d4bb6988-019e-7000-b81d-8fde4976ed57" - fetched 0 messages
+[WARN] upsertMessage update failed: "UNIQUE constraint failed: messages.server_id 无法获取行"
+[DEBUG] ChatMessagesModel: loadOlder before "d4bb756c-019e-7000-8946-dc5e2218099f"
+[DEBUG] ChatMessagesModel: loaded 0 older messages for "d4bb6988-019e-7000-81f1-f188b433b74f"
+[DEBUG] ChatMessagesModel: loaded 34 messages for "d4bb6988-019e-7000-81f1-f188b433b74f"
+[WARN] upsertMessage update failed: "UNIQUE constraint failed: messages.server_id 无法获取行"
+[DEBUG] SyncService: sync complete for "d4bb6988-019e-7000-81f1-f188b433b74f" - fetched 2 messages
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"ping\"}"
+[DEBUG] ChatMessagesModel: loadOlder before "25d8f8ca-019f-7000-ab27-83dff0e23d47"
+[DEBUG] ChatMessagesModel: loaded 30 older messages for "d4bb6988-019e-7000-b81d-8fde4976ed57"
+[DEBUG] ChatMessagesModel: loaded 50 messages for "d4bb6988-019e-7000-b81d-8fde4976ed57"
+[DEBUG] SyncService: sync complete for "d4bb6988-019e-7000-b81d-8fde4976ed57" - fetched 0 messages
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"pong\"}"

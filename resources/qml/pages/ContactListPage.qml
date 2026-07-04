@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
 import "../components" as C
 
 Item {
@@ -16,23 +15,23 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 56
-            color: Theme.ThemeConfig.surfaceColor
-            border.color: Theme.ThemeConfig.dividerColor
+            color: Theme.surfaceColor
+            border.color: Theme.dividerColor
             border.width: 1
 
             RowLayout {
                 anchors {
                     fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingMedium
+                    leftMargin: Theme.spacingLarge
+                    rightMargin: Theme.spacingMedium
                 }
-                spacing: Theme.ThemeConfig.spacingMedium
+                spacing: Theme.spacingMedium
 
                 Text {
                     text: qsTr("Contacts")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                    font.weight: Theme.ThemeConfig.fontWeightBold
+                    color: Theme.textPrimary
+                    font.pixelSize: Theme.fontSizeHeading
+                    font.weight: Theme.fontWeightBold
                     Layout.fillWidth: true
                 }
             }
@@ -42,28 +41,28 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 48
-            color: Theme.ThemeConfig.surfaceColor
-            border.color: Theme.ThemeConfig.dividerColor
+            color: Theme.surfaceColor
+            border.color: Theme.dividerColor
             border.width: 1
 
             TextField {
                 id: searchField
                 anchors {
                     fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingLarge
-                    topMargin: Theme.ThemeConfig.spacingSmall
-                    bottomMargin: Theme.ThemeConfig.spacingSmall
+                    leftMargin: Theme.spacingLarge
+                    rightMargin: Theme.spacingLarge
+                    topMargin: Theme.spacingSmall
+                    bottomMargin: Theme.spacingSmall
                 }
-                placeholderText: qsTr("Search contacts...")
-                font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                placeholderText: activeFocus ? "" : qsTr("Search contacts...")
+                font.pixelSize: Theme.fontSizeBody
 
                 background: Rectangle {
-                    radius: Theme.ThemeConfig.buttonRadius
-                    color: Theme.ThemeConfig.backgroundColor
+                    radius: Theme.buttonRadius
+                    color: Theme.backgroundColor
                 }
 
-                leftPadding: Theme.ThemeConfig.spacingMedium
+                leftPadding: Theme.spacingMedium
             }
         }
 
@@ -109,7 +108,7 @@ Item {
 
                 ColumnLayout {
                     anchors.centerIn: parent
-                    spacing: Theme.ThemeConfig.spacingLarge
+                    spacing: Theme.spacingLarge
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
@@ -120,8 +119,8 @@ Item {
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("No contacts yet")
-                        color: Theme.ThemeConfig.textHint
-                        font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                        color: Theme.textHint
+                        font.pixelSize: Theme.fontSizeBody
                     }
                 }
             }
@@ -132,26 +131,21 @@ Item {
             anchors {
                 bottom: parent.bottom
                 right: parent.right
-                bottomMargin: Theme.ThemeConfig.spacingLarge
-                rightMargin: Theme.ThemeConfig.spacingLarge
+                bottomMargin: Theme.spacingLarge
+                rightMargin: Theme.spacingLarge
             }
             width: 56; height: 56; radius: 28
-            color: Theme.ThemeConfig.accentColor
+            color: Theme.accentColor
             z: 2
 
             layer.enabled: true
-            layer.effect: DropShadow {
-                horizontalOffset: 0; verticalOffset: 4
-                radius: 8; samples: 17
-                color: "#40000000"
-            }
 
             Text {
                 anchors.centerIn: parent
                 text: "+"
                 color: "white"
-                font.pixelSize: Theme.ThemeConfig.fontSizeDisplay
-                font.weight: Theme.ThemeConfig.fontWeightBold
+                font.pixelSize: Theme.fontSizeDisplay
+                font.weight: Theme.fontWeightBold
             }
 
             MouseArea {

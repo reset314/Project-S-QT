@@ -59,7 +59,7 @@ private slots:
 
     void testResultError()
     {
-        Result<int> r = std::unexpected(
+        Result<int> r = tl::make_unexpected(
             ApiError{.code = "FAIL", .message = "It failed"});
         QVERIFY(!r.has_value());
         QCOMPARE(r.error().code, std::string("FAIL"));

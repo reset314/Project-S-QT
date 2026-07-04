@@ -82,6 +82,25 @@ void ChatService::sendMessage(const QString &aiUserId,
     // Only start max-wait if not already running (first message in batch)
     if (!batch.maxWaitTimer->isActive())
         batch.maxWaitTimer->start(sendMaxWaitMs_);
+
+    // Build MessageDTO for incremental model update
+    MessageDTO optimisticMsg;
+    optimisticMsg.clientUuid = clientUuid.toStdString();
+    optimisticMsg.aiUserId = aiUserId.toStdString();
+    optimisticMsg.conversationId = conversationId.toStdString();
+    optimisticMsg.senderType = "user";
+    optimisticMsg.msgType = "text";
+    QJsonObject contentObj;
+    contentObj[QStringLiteral("response")] = content;
+    optimisticMsg.content = contentObj;
+    optimisticMsg.isComplete = false;
+    optimisticMsg.timestamp = QDateTime::currentDateTimeUtc()
+                                  .toString(Qt::ISODate).toStdString();
+
+    // Incremental model update — no flicker
+    emit messageAppended(aiUserId, optimisticMsg);
+    // Also notify for full sync (DB persistence)
+    emit messagesChanged(aiUserId);
 }
 
 // ---------------------------------------------------------------------------
@@ -122,8 +141,7 @@ void ChatService::sendMediaMessage(const QString &aiUserId,
     // Backfill serverId
     if (!resp.messageId.empty()) {
         QVariantMap values;
-        values["server_id"] = static_cast<qint64>(
-            QString::fromStdString(resp.messageId).toLongLong());
+        values["server_id"] = QString::fromStdString(resp.messageId);
         values["is_complete"] = true;
         repo_->updateMessage(clientUuid, values);
     }
@@ -227,8 +245,8 @@ void ChatService::flushBatch(const QString &aiUserId)
     // so all messages are linked to the confirmed server-side record.
     if (!resp.userMessageId.empty() && !clientUuids.isEmpty()) {
         QVariantMap values;
-        values["server_id"] = static_cast<qint64>(
-            QString::fromStdString(resp.userMessageId).toLongLong());
+        values["server_id"] = QString::fromStdString(resp.userMessageId);
+        values["is_complete"] = 1;
         for (const auto &uuid : clientUuids) {
             repo_->updateMessage(uuid, values);
         }
@@ -246,6 +264,13 @@ void ChatService::flushBatch(const QString &aiUserId)
 
     // Start watchdog — we now expect WS stream events
     resetWatchdog(aiUserId);
+
+    // Notify UI — server confirmed; message may have server_id backfilled
+    for (const auto &uuid : clientUuids) {
+        emit messageMarkedComplete(aiUserId, uuid,
+                                    QString::fromStdString(resp.userMessageId));
+    }
+    emit messagesChanged(aiUserId);
 }
 
 // ---------------------------------------------------------------------------
@@ -299,17 +324,42 @@ void ChatService::onStreamInit(const QString &conversationId,
                                const QString &messageId,
                                const QString &timestamp)
 {
-    Q_UNUSED(timestamp)
     QString aiUserId = resolveAiUserId(conversationId);
+    qDebug() << "ChatService::onStreamInit" << "conv:" << conversationId
+             << "aiUserId:" << aiUserId << "msgId:" << messageId;
 
     // Reset watchdog on every stream event so long-running streams don't
     // time out prematurely.
     resetWatchdog(aiUserId);
 
-    // If aiUserId is empty we still emit the signal — upstream can try to
-    // resolve it from the conversationId or learn it from stream_done.
+    // Create an optimistic AI message in the local DB so it appears in the
+    // message list immediately (shown as "typing..." with isComplete=false).
+    // Subsequent stream_chunk frames will update its content.
+    if (!aiUserId.isEmpty() && !streamingAiMessages_.contains(conversationId)) {
+        MessageDTO aiMsg;
+        aiMsg.clientUuid = UuidGenerator::generate().toStdString();
+        aiMsg.aiUserId = aiUserId.toStdString();
+        aiMsg.conversationId = conversationId.toStdString();
+        aiMsg.senderType = "ai";
+        aiMsg.msgType = "text";
+        aiMsg.content = QJsonObject{};
+        aiMsg.isComplete = false;
+        aiMsg.timestamp = timestamp.isEmpty()
+            ? QDateTime::currentDateTimeUtc().toString(Qt::ISODate).toStdString()
+            : timestamp.toStdString();
+        if (!messageId.isEmpty())
+            aiMsg.serverId = messageId.toStdString();
+
+        repo_->insertMessage(aiMsg, aiUserId);
+        streamingAiMessages_[conversationId]
+            = QString::fromStdString(aiMsg.clientUuid);
+
+        // Incremental model update — add placeholder bubble
+        emit messageAppended(aiUserId, aiMsg);
+    }
 
     emit streamInitReceived(aiUserId, conversationId, messageId);
+    emit messagesChanged(aiUserId);
 }
 
 void ChatService::onStreamChunk(const QString &conversationId,
@@ -320,7 +370,23 @@ void ChatService::onStreamChunk(const QString &conversationId,
     // Reset watchdog on every chunk so long-running streams don't time out.
     resetWatchdog(aiUserId);
 
+    // Update the optimistic AI message content in the local DB so the
+    // model reflects the latest streaming text on each chunk.
+    QString clientUuid = streamingAiMessages_.value(conversationId);
+    if (!clientUuid.isEmpty()) {
+        QVariantMap values;
+        QJsonObject contentObj;
+        contentObj[QStringLiteral("response")] = chunk;
+        values[QStringLiteral("content")]
+            = QString(QJsonDocument(contentObj).toJson(QJsonDocument::Compact));
+        repo_->updateMessage(clientUuid, values);
+
+        // Incremental model update — update text in-place
+        emit messageContentUpdated(aiUserId, clientUuid, contentObj);
+    }
+
     emit streamChunkReceived(aiUserId, chunk);
+    emit messagesChanged(aiUserId);
 }
 
 void ChatService::onStreamDone(const QString &conversationId,
@@ -334,7 +400,41 @@ void ChatService::onStreamDone(const QString &conversationId,
     // cleaned up even when the aiUserId cannot be resolved.
     cancelWatchdog(aiUserId);
 
+    // Finalize the optimistic AI message — set full content and mark complete.
+    QString clientUuid = streamingAiMessages_.take(conversationId);
+    qDebug() << "ChatService::onStreamDone" << "conv:" << conversationId
+             << "aiUserId:" << aiUserId << "clientUuid:" << clientUuid
+             << "contentLen:" << content.size();
+    if (!clientUuid.isEmpty()) {
+        QVariantMap values;
+        // Parse structured content: if the server returns JSON (starts with {),
+        // use it directly; otherwise wrap as {"response": content}.
+        // Matches tryParseStructuredContent() + MessageDTO::fromJson.
+        QString trimmed = content.trimmed();
+        QJsonObject contentObj;
+        if (trimmed.startsWith('{')) {
+            QJsonDocument doc = QJsonDocument::fromJson(trimmed.toUtf8());
+            if (doc.isObject())
+                contentObj = doc.object();
+            else
+                contentObj[QStringLiteral("response")] = content;
+        } else {
+            contentObj[QStringLiteral("response")] = content;
+        }
+        values[QStringLiteral("content")]
+            = QString(QJsonDocument(contentObj).toJson(QJsonDocument::Compact));
+        values[QStringLiteral("is_complete")] = 1;
+        if (!messageId.isEmpty())
+            values[QStringLiteral("server_id")] = messageId;
+        repo_->updateMessage(clientUuid, values);
+
+        // Incremental model update — finalize content and mark complete
+        emit messageContentUpdated(aiUserId, clientUuid, contentObj);
+        emit messageMarkedComplete(aiUserId, clientUuid, messageId);
+    }
+
     emit streamDoneReceived(aiUserId, messageId, content);
+    emit messagesChanged(aiUserId);
 }
 
 void ChatService::onStreamError(const QString &conversationId,
@@ -348,7 +448,16 @@ void ChatService::onStreamError(const QString &conversationId,
     // cleaned up even when the aiUserId cannot be resolved.
     cancelWatchdog(aiUserId);
 
+    // Clean up the optimistic AI message on error
+    QString clientUuid = streamingAiMessages_.take(conversationId);
+    if (!clientUuid.isEmpty()) {
+        QVariantMap values;
+        values[QStringLiteral("is_complete")] = 1;
+        repo_->updateMessage(clientUuid, values);
+    }
+
     emit streamErrorReceived(aiUserId, code, message);
+    emit messagesChanged(aiUserId);
 }
 
 // ---------------------------------------------------------------------------

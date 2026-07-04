@@ -13,7 +13,7 @@ Result<QVector<UserProfileDTO>> ProfileRepository::getProfiles()
 {
     auto result = http_->get("/profiles");
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     // Response can be an array (from data) or the root envelope
     QJsonValue dataVal = result->value("data");
@@ -43,7 +43,7 @@ Result<UserProfileDTO> ProfileRepository::createProfile(const QString &key,
 
     auto result = http_->post("/profiles", body);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     return UserProfileDTO::fromJson(*result);
 }
@@ -58,7 +58,7 @@ Result<UserProfileDTO> ProfileRepository::updateProfile(const QString &key,
 
     auto result = http_->put(QString("/profiles/%1").arg(key), body);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     return UserProfileDTO::fromJson(*result);
 }

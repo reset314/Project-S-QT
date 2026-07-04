@@ -38,7 +38,7 @@ Result<UploadResult> UploadRepository::uploadFile(const QString &filePath)
 
     auto result = http_->postFormData("/upload", fields, filePath);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     return UploadResult::fromJson(*result);
 }

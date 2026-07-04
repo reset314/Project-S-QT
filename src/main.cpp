@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QQmlComponent>
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include <QAction>
@@ -11,6 +12,21 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QWindow>
+#include <QSettings>
+#include <QtConcurrent>
+#ifdef Q_OS_WIN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#include <dwmapi.h>
+#ifndef DWMWA_WINDOW_CORNER_PREFERENCE
+#define DWMWA_WINDOW_CORNER_PREFERENCE 33
+#endif
+#ifndef DWMWCP_ROUND
+#define DWMWCP_ROUND 2
+#endif
+#endif
 
 // Core
 #include "core/storage/Database.h"
@@ -107,15 +123,51 @@ private:
 };
 
 // ---------------------------------------------------------------------------
+// WindowHelper — Win32 native window drag for frameless windows
+// ---------------------------------------------------------------------------
+#ifdef Q_OS_WIN
+class WindowHelper : public QObject {
+    Q_OBJECT
+public:
+    explicit WindowHelper(QObject *parent = nullptr) : QObject(parent) {}
+    Q_INVOKABLE void startSystemDrag(QWindow *window) {
+        if (window) {
+            ReleaseCapture();
+            SendMessage(reinterpret_cast<HWND>(window->winId()),
+                        WM_NCLBUTTONDOWN, HTCAPTION, 0);
+        }
+    }
+};
+#endif
+
+// ---------------------------------------------------------------------------
 // main
 // ---------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
+    qputenv("QT_SSL_BACKEND", "schannel");
+
     QApplication app(argc, argv);
-    app.setApplicationName("AI Chat");
-    app.setOrganizationName("AIChat");
+    qRegisterMetaType<MessageDTO>("MessageDTO");
+    app.setApplicationName("Project-S");
+    app.setOrganizationName("Project-S");
     app.setQuitOnLastWindowClosed(false);
+    app.setWindowIcon(QIcon(":/icons/app.svg"));
+
+    // Redirect Qt debug output to stderr so it's visible in the terminal
+    qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &, const QString &msg) {
+        const char *prefix = "";
+        switch (type) {
+        case QtDebugMsg:    prefix = "DEBUG"; break;
+        case QtWarningMsg:  prefix = "WARN";  break;
+        case QtCriticalMsg: prefix = "CRIT";  break;
+        case QtFatalMsg:    prefix = "FATAL"; break;
+        default: break;
+        }
+        fprintf(stderr, "[%s] %s\n", prefix, qPrintable(msg));
+        fflush(stderr);
+    });
 
     // ── Core infrastructure ────────────────────────────────────
     auto database = new Database();
@@ -129,8 +181,12 @@ int main(int argc, char *argv[])
     httpClient->setTokenManager(tokenManager);
 
     auto wsClient = new ChatStreamClient(&app);
-    // WS URL is constructed at connectToServer() time from the server URL
-    // (e.g. http://localhost:8000 → ws://localhost:8000/ws/connect)
+
+    // Read server URL from persistent settings (set in registry or .ini)
+    QString serverUrl = QSettings("Project-S", "Project-S")
+                            .value("settings/serverUrl", "https://www.p314.top").toString();
+    tokenManager->setServerUrl(serverUrl);
+    httpClient->setBaseUrl(serverUrl);
 
     // ── Platform integration ───────────────────────────────────
     PlatformIntegration *platform = nullptr;
@@ -144,17 +200,17 @@ int main(int argc, char *argv[])
 
     // ── Repositories ───────────────────────────────────────────
     auto authRepo     = new AuthRepository(httpClient, tokenManager, &app);
-    auto convRepo     = new ConversationRepository(database, httpClient, &app);
-    auto aiUserRepo   = new AIUserRepository(database, httpClient, &app);
-    auto userRepo     = new UserRepository(database, httpClient, &app);
-    auto memoryRepo   = new MemoryRepository(database, httpClient, &app);
-    auto profileRepo  = new ProfileRepository(database, httpClient, &app);
+    auto convRepo     = new ConversationRepository(httpClient, database, &app);
+    auto aiUserRepo   = new AIUserRepository(httpClient, &app);
+    auto userRepo     = new UserRepository(httpClient, &app);
+    auto memoryRepo   = new MemoryRepository(httpClient, &app);
+    auto profileRepo  = new ProfileRepository(httpClient, &app);
     auto uploadRepo   = new UploadRepository(httpClient, &app);
-    auto expansionRepo = new ExpansionRepository(database, httpClient, &app);
-    auto callRepo     = new CallRepository(database, httpClient, &app);
-    auto ttsRepo      = new TTSRepository(database, httpClient, &app);
+    auto expansionRepo = new ExpansionRepository(httpClient, &app);
+    auto callRepo     = new CallRepository(httpClient, &app);
+    auto ttsRepo      = new TTSRepository(httpClient, &app);
 
-    auto chatRepo     = new ChatRepository(database, httpClient, wsClient, &app);
+    auto chatRepo     = new ChatRepository(httpClient, database, &app);
 
     // ── Services ───────────────────────────────────────────────
     auto notificationService = new NotificationService(&app);
@@ -201,7 +257,7 @@ int main(int argc, char *argv[])
 
     // ── System Tray Icon ───────────────────────────────────────
     auto trayIcon = new QSystemTrayIcon(&app);
-    trayIcon->setToolTip("AI Chat");
+    trayIcon->setToolTip("Project-S");
 
     auto trayMenu = new QMenu();
 
@@ -227,12 +283,12 @@ int main(int argc, char *argv[])
 
     trayIcon->setContextMenu(trayMenu);
 
-    // Use a default icon; callers should replace with a real application icon
-    QIcon fallbackIcon(":/icons/tray_normal.png");
-    if (!fallbackIcon.isNull())
-        trayIcon->setIcon(fallbackIcon);
-
-    trayIcon->show();
+    // Tray icon: only show if a real icon is available
+    QIcon appIcon(":/icons/app.svg");
+    if (!appIcon.isNull()) {
+        trayIcon->setIcon(appIcon);
+        trayIcon->show();
+    }
 
     // Wire tray activation (click) → show window
     QObject::connect(trayIcon, &QSystemTrayIcon::activated,
@@ -283,10 +339,124 @@ int main(int argc, char *argv[])
     auto loginViewModel       = new LoginViewModel(authRepo, tokenManager, &app);
     auto settingsViewModel    = new SettingsViewModel(&app);
 
+    // ── Post-login initialization pipeline ────────────────────────
+    QObject::connect(loginViewModel, &LoginViewModel::loginSuccess,
+                     &app, [wsClient, tokenManager, httpClient,
+                            convRepo, aiUserRepo,
+                            conversationListModel, contactListModel,
+                            chatService, syncService, unreadTracker]() {
+        // 1. Connect WebSocket
+        QString httpUrl = tokenManager->serverUrl();
+        QString wsUrl = httpUrl;
+        wsUrl.replace("https://", "wss://").replace("http://", "ws://");
+        wsUrl += "/ws/connect";
+        wsClient->connectToServer(wsUrl, tokenManager->accessToken());
+
+        // 2. Load conversations — populate sidebar
+        auto convResult = convRepo->listConversations();
+        if (convResult) {
+            conversationListModel->replaceAll(*convResult);
+            qDebug() << "Loaded" << convResult->size() << "conversations";
+        }
+
+        // 3. Load AI users (contacts) — populate sidebar
+        auto aiResult = aiUserRepo->listAIUsers();
+        if (aiResult) {
+            contactListModel->replaceAll(*aiResult);
+            qDebug() << "Loaded" << aiResult->size() << "AI users";
+        } else {
+            qWarning() << "Failed to load AI users:" << aiResult.error().code.c_str();
+        }
+    });
+
+    // ── ChatService → ChatMessagesModel ───────────────────────────
+    // Incremental updates — append/update single rows instead of full
+    // model reset (replaceAll) which causes ListView flicker.
+
+    QObject::connect(chatService, &ChatService::messageAppended,
+                     &app, [chatMessagesModel](
+                                const QString &aiUserId, const MessageDTO &msg) {
+        if (chatMessagesModel->activeAiUserId() == aiUserId)
+            chatMessagesModel->appendMessage(msg);
+    });
+
+    QObject::connect(chatService, &ChatService::messageContentUpdated,
+                     &app, [chatMessagesModel](
+                                const QString &aiUserId, const QString &clientUuid,
+                                const QJsonObject &content) {
+        if (chatMessagesModel->activeAiUserId() == aiUserId) {
+            int row = chatMessagesModel->findByClientUuid(clientUuid);
+            if (row >= 0)
+                chatMessagesModel->updateContent(row, content);
+        }
+    });
+
+    QObject::connect(chatService, &ChatService::messageMarkedComplete,
+                     &app, [chatMessagesModel](
+                                const QString &aiUserId, const QString &clientUuid,
+                                const QString &serverId) {
+        if (chatMessagesModel->activeAiUserId() == aiUserId) {
+            int row = chatMessagesModel->findByClientUuid(clientUuid);
+            if (row >= 0)
+                chatMessagesModel->markComplete(row, serverId);
+        }
+    });
+
+    // ── ChatMessagesModel load wiring ───────────────────────────
+    // When QML requests switching AI users, load history from server
+    // and populate the model. Runs synchronously on main thread to
+    // avoid QSqlDatabase / QNetworkAccessManager cross-thread issues.
+    QObject::connect(chatMessagesModel, &ChatMessagesModel::loadRequested,
+                     &app, [chatMessagesModel, chatRepo, syncService, unreadTracker](
+                                const QString &aiUserId) {
+        auto messages = chatRepo->getHistory(aiUserId, QString{}, 50);
+        if (messages) {
+            chatMessagesModel->onHistoryLoaded(*messages);
+            qDebug() << "ChatMessagesModel: loaded" << messages->size()
+                     << "messages for" << aiUserId;
+        } else {
+            qWarning() << "ChatMessagesModel: failed to load history for"
+                       << aiUserId;
+        }
+        if (unreadTracker)
+            unreadTracker->clearAndMarkRead(aiUserId);
+    });
+
+    // ── Pagination: load older messages on scroll-to-top ───────────
+    QObject::connect(chatMessagesModel, &ChatMessagesModel::loadOlderRequested,
+                     &app, [chatMessagesModel, chatRepo](
+                                const QString &aiUserId,
+                                const QString &beforeTimestamp) {
+        qDebug() << "ChatMessagesModel: loadOlder before" << beforeTimestamp;
+        // Use the oldest message timestamp as the "before" cursor
+        auto messages = chatRepo->getHistory(aiUserId, beforeTimestamp, 30);
+        if (messages) {
+            chatMessagesModel->onOlderMessagesLoaded(*messages);
+            qDebug() << "ChatMessagesModel: loaded" << messages->size()
+                     << "older messages for" << aiUserId;
+        }
+    });
+
     // ── QML Engine ─────────────────────────────────────────────
     QQmlApplicationEngine engine;
 
+    // Register ThemeConfig as a singleton via C++ — more reliable than
+    // pragma Singleton + qmldir in Qt 6.
+    QQmlComponent themeComponent(&engine, QUrl("qrc:/qml/theme/ThemeConfig.qml"));
+    QObject *themeConfig = themeComponent.create();
+    if (themeConfig) {
+        engine.rootContext()->setContextProperty("Theme", themeConfig);
+    } else {
+        qWarning() << "Failed to load ThemeConfig:" << themeComponent.errorString();
+    }
+
     auto ctx = engine.rootContext();
+
+#ifdef Q_OS_WIN
+    auto windowHelper = new WindowHelper(&app);
+    ctx->setContextProperty("windowHelper", windowHelper);
+#endif
+
     ctx->setContextProperty("chatMessagesModel",    chatMessagesModel);
     ctx->setContextProperty("conversationListModel", conversationListModel);
     ctx->setContextProperty("contactListModel",     contactListModel);
@@ -311,6 +481,16 @@ int main(int argc, char *argv[])
 
     if (engine.rootObjects().isEmpty())
         return -1;
+
+#ifdef Q_OS_WIN
+    // Windows 11 native rounded corners for frameless window
+    if (auto *window = qobject_cast<QWindow *>(engine.rootObjects().first())) {
+        int cornerPref = DWMWCP_ROUND;
+        DwmSetWindowAttribute(reinterpret_cast<HWND>(window->winId()),
+                              DWMWA_WINDOW_CORNER_PREFERENCE,
+                              &cornerPref, sizeof(cornerPref));
+    }
+#endif
 
     return app.exec();
 }

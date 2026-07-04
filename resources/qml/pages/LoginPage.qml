@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
 import "../components" as C
 
 Item {
@@ -13,76 +12,71 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        radius: Theme.ThemeConfig.cardRadius
-        color: Theme.ThemeConfig.surfaceColor
-        border.color: Theme.ThemeConfig.dividerColor
+        radius: Theme.cardRadius
+        color: Theme.surfaceColor
+        border.color: Theme.dividerColor
         border.width: 1
 
         layer.enabled: true
-        layer.effect: DropShadow {
-            horizontalOffset: 0; verticalOffset: 4
-            radius: 16; samples: 25
-            color: "#18000000"
-        }
 
         ColumnLayout {
             anchors {
                 fill: parent
-                topMargin: Theme.ThemeConfig.spacingXLarge
-                bottomMargin: Theme.ThemeConfig.spacingXLarge
+                topMargin: Theme.spacingXLarge
+                bottomMargin: Theme.spacingXLarge
                 leftMargin: 40
                 rightMargin: 40
             }
-            spacing: Theme.ThemeConfig.spacingLarge
+            spacing: Theme.spacingLarge
 
             // Logo / Title
             ColumnLayout {
                 Layout.alignment: Qt.AlignHCenter
-                spacing: Theme.ThemeConfig.spacingSmall
+                spacing: Theme.spacingSmall
 
                 Text {
                     Layout.alignment: Qt.AlignHCenter
-                    text: "AI Chat"
-                    color: Theme.ThemeConfig.primaryColor
-                    font.pixelSize: Theme.ThemeConfig.fontSizeDisplay
-                    font.weight: Theme.ThemeConfig.fontWeightBold
+                    text: "Project-S"
+                    color: Theme.primaryColor
+                    font.pixelSize: Theme.fontSizeDisplay
+                    font.weight: Theme.fontWeightBold
                 }
 
                 Text {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Sign in to your account")
-                    color: Theme.ThemeConfig.textSecondary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                    color: Theme.textSecondary
+                    font.pixelSize: Theme.fontSizeBody
                 }
             }
 
-            Item { Layout.preferredHeight: Theme.ThemeConfig.spacingSmall }
+            Item { Layout.preferredHeight: Theme.spacingSmall }
 
             // Username field
             ColumnLayout {
-                spacing: Theme.ThemeConfig.spacingTiny
+                spacing: Theme.spacingTiny
 
                 Text {
                     text: qsTr("Username")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeSmall
-                    font.weight: Theme.ThemeConfig.fontWeightMedium
+                    color: Theme.textPrimary
+                    font.pixelSize: Theme.fontSizeSmall
+                    font.weight: Theme.fontWeightMedium
                 }
 
                 TextField {
                     id: usernameField
                     Layout.fillWidth: true
                     Layout.preferredHeight: 44
-                    placeholderText: qsTr("Enter your username")
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
-                    color: Theme.ThemeConfig.textPrimary
+                    placeholderText: activeFocus ? "" : qsTr("Enter your username")
+                    font.pixelSize: Theme.fontSizeBody
+                    color: Theme.textPrimary
 
                     background: Rectangle {
-                        radius: Theme.ThemeConfig.buttonRadius
-                        color: Theme.ThemeConfig.backgroundColor
+                        radius: Theme.buttonRadius
+                        color: Theme.backgroundColor
                         border.color: usernameField.activeFocus
-                                      ? Theme.ThemeConfig.primaryColor
-                                      : Theme.ThemeConfig.dividerColor
+                                      ? Theme.primaryColor
+                                      : Theme.dividerColor
                         border.width: usernameField.activeFocus ? 2 : 1
                     }
 
@@ -98,29 +92,29 @@ Item {
 
             // Password field
             ColumnLayout {
-                spacing: Theme.ThemeConfig.spacingTiny
+                spacing: Theme.spacingTiny
 
                 Text {
                     text: qsTr("Password")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeSmall
-                    font.weight: Theme.ThemeConfig.fontWeightMedium
+                    color: Theme.textPrimary
+                    font.pixelSize: Theme.fontSizeSmall
+                    font.weight: Theme.fontWeightMedium
                 }
 
                 TextField {
                     id: passwordField
                     Layout.fillWidth: true
                     Layout.preferredHeight: 44
-                    placeholderText: qsTr("Enter your password")
+                    placeholderText: activeFocus ? "" : qsTr("Enter your password")
                     echoMode: TextInput.Password
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                    font.pixelSize: Theme.fontSizeBody
 
                     background: Rectangle {
-                        radius: Theme.ThemeConfig.buttonRadius
-                        color: Theme.ThemeConfig.backgroundColor
+                        radius: Theme.buttonRadius
+                        color: Theme.backgroundColor
                         border.color: passwordField.activeFocus
-                                      ? Theme.ThemeConfig.primaryColor
-                                      : Theme.ThemeConfig.dividerColor
+                                      ? Theme.primaryColor
+                                      : Theme.dividerColor
                         border.width: passwordField.activeFocus ? 2 : 1
                     }
 
@@ -151,26 +145,26 @@ Item {
                         left: parent.left
                         right: parent.right
                         verticalCenter: parent.verticalCenter
-                        leftMargin: Theme.ThemeConfig.spacingMedium
-                        rightMargin: Theme.ThemeConfig.spacingMedium
+                        leftMargin: Theme.spacingMedium
+                        rightMargin: Theme.spacingMedium
                     }
                     text: typeof loginViewModel !== "undefined" ? loginViewModel.errorMessage : ""
-                    color: Theme.ThemeConfig.errorColor
-                    font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                    color: Theme.errorColor
+                    font.pixelSize: Theme.fontSizeSmall
                     wrapMode: Text.Wrap
                 }
             }
 
-            Item { Layout.preferredHeight: Theme.ThemeConfig.spacingSmall }
+            Item { Layout.preferredHeight: Theme.spacingSmall }
 
             // Login button
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 44
-                radius: Theme.ThemeConfig.buttonRadius
+                radius: Theme.buttonRadius
                 color: loginBtnMouse.containsMouse
-                       ? Theme.ThemeConfig.primaryLight
-                       : Theme.ThemeConfig.primaryColor
+                       ? Theme.primaryLight
+                       : Theme.primaryColor
                 opacity: loginEnabled ? 1.0 : 0.6
 
                 property bool loginEnabled: usernameField.text.trim().length > 0
@@ -179,9 +173,9 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: qsTr("Sign In")
-                    color: Theme.ThemeConfig.textOnPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
-                    font.weight: Theme.ThemeConfig.fontWeightMedium
+                    color: Theme.textOnPrimary
+                    font.pixelSize: Theme.fontSizeBody
+                    font.weight: Theme.fontWeightMedium
                 }
 
                 MouseArea {

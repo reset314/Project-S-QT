@@ -1,7 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
+import "../components" as C
 
 Item {
     id: accountPage
@@ -12,83 +12,42 @@ Item {
         spacing: 0
 
         // ── Header ──────────────────────────────────────────────
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 56
-            color: Theme.ThemeConfig.surfaceColor
-            border.color: Theme.ThemeConfig.dividerColor
-            border.width: 1
-
-            RowLayout {
-                anchors {
-                    fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingMedium
-                }
-                spacing: Theme.ThemeConfig.spacingMedium
-
-                Rectangle {
-                    Layout.preferredWidth: 32; Layout.preferredHeight: 32
-                    radius: 16
-                    color: backMouse.containsMouse
-                           ? Theme.ThemeConfig.sidebarHover : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "←"
-                        font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                        color: Theme.ThemeConfig.textPrimary
-                    }
-
-                    MouseArea {
-                        id: backMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: closePage()
-                    }
-                }
-
-                Text {
-                    text: qsTr("Account")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                    font.weight: Theme.ThemeConfig.fontWeightBold
-                    Layout.fillWidth: true
-                }
-            }
+        C.BackHeader {
+            title: qsTr("Account")
+            onBackClicked: closePage()
         }
 
         // ── Content ─────────────────────────────────────────────
         ScrollView {
+            id: accountScroll
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
 
             ColumnLayout {
-                width: parent ? parent.width : 400
-                spacing: Theme.ThemeConfig.spacingLarge
+                width: accountScroll.availableWidth
+                spacing: Theme.spacingLarge
 
-                Item { Layout.preferredHeight: Theme.ThemeConfig.spacingLarge }
+                Item { Layout.preferredHeight: Theme.spacingLarge }
 
                 // User info card
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.leftMargin: Theme.ThemeConfig.spacingXLarge
-                    Layout.rightMargin: Theme.ThemeConfig.spacingXLarge
+                    Layout.leftMargin: Theme.spacingXLarge
+                    Layout.rightMargin: Theme.spacingXLarge
                     height: 80
-                    radius: Theme.ThemeConfig.cardRadius
-                    color: Theme.ThemeConfig.surfaceColor
-                    border.color: Theme.ThemeConfig.dividerColor
+                    radius: Theme.cardRadius
+                    color: Theme.surfaceColor
+                    border.color: Theme.dividerColor
                     border.width: 1
 
                     RowLayout {
                         anchors {
                             fill: parent
-                            leftMargin: Theme.ThemeConfig.spacingLarge
-                            rightMargin: Theme.ThemeConfig.spacingLarge
+                            leftMargin: Theme.spacingLarge
+                            rightMargin: Theme.spacingLarge
                         }
-                        spacing: Theme.ThemeConfig.spacingMedium
+                        spacing: Theme.spacingMedium
 
                         Text {
                             text: "👤"
@@ -101,21 +60,21 @@ Item {
 
                             Text {
                                 text: qsTr("Current User")
-                                color: Theme.ThemeConfig.textPrimary
-                                font.pixelSize: Theme.ThemeConfig.fontSizeSubheading
-                                font.weight: Theme.ThemeConfig.fontWeightMedium
+                                color: Theme.textPrimary
+                                font.pixelSize: Theme.fontSizeSubheading
+                                font.weight: Theme.fontWeightMedium
                             }
 
                             Text {
                                 text: qsTr("Signed in")
-                                color: Theme.ThemeConfig.onlineColor
-                                font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                                color: Theme.onlineColor
+                                font.pixelSize: Theme.fontSizeSmall
                             }
                         }
                     }
                 }
 
-                Item { Layout.preferredHeight: Theme.ThemeConfig.spacingMedium }
+                Item { Layout.preferredHeight: Theme.spacingMedium }
 
                 // Server URL
                 SettingsRow {
@@ -134,18 +93,18 @@ Item {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 44
-                    Layout.leftMargin: Theme.ThemeConfig.spacingXLarge
-                    Layout.rightMargin: Theme.ThemeConfig.spacingXLarge
-                    radius: Theme.ThemeConfig.buttonRadius
+                    Layout.leftMargin: Theme.spacingXLarge
+                    Layout.rightMargin: Theme.spacingXLarge
+                    radius: Theme.buttonRadius
                     color: logoutMouse.containsMouse
-                           ? "#E57373" : Theme.ThemeConfig.errorColor
+                           ? "#E57373" : Theme.errorColor
 
                     Text {
                         anchors.centerIn: parent
                         text: qsTr("Sign Out")
                         color: "white"
-                        font.pixelSize: Theme.ThemeConfig.fontSizeBody
-                        font.weight: Theme.ThemeConfig.fontWeightMedium
+                        font.pixelSize: Theme.fontSizeBody
+                        font.weight: Theme.fontWeightMedium
                     }
 
                     MouseArea {
@@ -168,33 +127,33 @@ Item {
         property string value: ""
 
         Layout.fillWidth: true
-        Layout.leftMargin: Theme.ThemeConfig.spacingXLarge
-        Layout.rightMargin: Theme.ThemeConfig.spacingXLarge
+        Layout.leftMargin: Theme.spacingXLarge
+        Layout.rightMargin: Theme.spacingXLarge
         height: 48
-        radius: Theme.ThemeConfig.buttonRadius
-        color: Theme.ThemeConfig.surfaceColor
-        border.color: Theme.ThemeConfig.dividerColor
+        radius: Theme.buttonRadius
+        color: Theme.surfaceColor
+        border.color: Theme.dividerColor
         border.width: 1
 
         RowLayout {
             anchors {
                 fill: parent
-                leftMargin: Theme.ThemeConfig.spacingLarge
-                rightMargin: Theme.ThemeConfig.spacingLarge
+                leftMargin: Theme.spacingLarge
+                rightMargin: Theme.spacingLarge
             }
-            spacing: Theme.ThemeConfig.spacingMedium
+            spacing: Theme.spacingMedium
 
             Text {
                 text: label
-                color: Theme.ThemeConfig.textPrimary
-                font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                color: Theme.textPrimary
+                font.pixelSize: Theme.fontSizeBody
                 Layout.fillWidth: true
             }
 
             Text {
                 text: value
-                color: Theme.ThemeConfig.textSecondary
-                font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                color: Theme.textSecondary
+                font.pixelSize: Theme.fontSizeBody
             }
         }
     }

@@ -25,7 +25,6 @@ struct AIUserDTO {
     std::optional<std::string> avatar;
     std::string createdAt;
     std::optional<std::string> updatedAt;
-    QJsonObject latexTemplates;
     QJsonObject chatConfig;
 
     static AIUserDTO fromJson(const QJsonObject &obj) {
@@ -64,8 +63,6 @@ struct AIUserDTO {
         d.createdAt = JsonHelper::getString(obj, "created_at");
         auto ua = obj.value("updated_at");
         if (ua.isString()) d.updatedAt = ua.toString().toStdString();
-        auto lt = obj.value("latex_templates");
-        d.latexTemplates = lt.isObject() ? lt.toObject() : QJsonObject{};
         auto cc = obj.value("chat_config");
         d.chatConfig = cc.isObject() ? cc.toObject() : QJsonObject{};
         return d;
@@ -92,7 +89,6 @@ struct AIUserDTO {
         if (avatar) o["avatar"] = QString::fromStdString(*avatar);
         o["created_at"] = QString::fromStdString(createdAt);
         if (updatedAt) o["updated_at"] = QString::fromStdString(*updatedAt);
-        if (!latexTemplates.isEmpty()) o["latex_templates"] = latexTemplates;
         if (!chatConfig.isEmpty()) o["chat_config"] = chatConfig;
         return o;
     }

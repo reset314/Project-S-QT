@@ -15,8 +15,8 @@
 /// receives a remote track.
 class VideoManager : public QObject {
     Q_OBJECT
-    Q_PROPERTY(QVideoSink* localVideoSink READ localVideoSink NOTIFY localVideoSinkChanged)
-    Q_PROPERTY(QVideoSink* remoteVideoSink READ remoteVideoSink NOTIFY remoteVideoSinkChanged)
+    Q_PROPERTY(QObject* localVideoSink READ localVideoSinkObj NOTIFY localVideoSinkChanged)
+    Q_PROPERTY(QObject* remoteVideoSink READ remoteVideoSinkObj NOTIFY remoteVideoSinkChanged)
     Q_PROPERTY(bool cameraOn READ isCameraOn NOTIFY cameraOnChanged)
 public:
     explicit VideoManager(QObject *parent = nullptr);
@@ -29,6 +29,8 @@ public:
 
     QVideoSink* localVideoSink() const;
     QVideoSink* remoteVideoSink() const;
+    QObject* localVideoSinkObj() const { return localVideoSink_; }
+    QObject* remoteVideoSinkObj() const { return remoteVideoSink_; }
 
     /// Called by CallManager when a remote video track is ready.
     /// The provided sink will receive frames from the remote peer.

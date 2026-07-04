@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
 import "../components" as C
 
 Item {
@@ -15,63 +14,21 @@ Item {
         spacing: 0
 
         // ── Header ──────────────────────────────────────────────
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 56
-            color: Theme.ThemeConfig.surfaceColor
-            border.color: Theme.ThemeConfig.dividerColor
-            border.width: 1
-
-            RowLayout {
-                anchors {
-                    fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingMedium
-                }
-                spacing: Theme.ThemeConfig.spacingMedium
-
-                // Back button
-                Rectangle {
-                    Layout.preferredWidth: 32; Layout.preferredHeight: 32
-                    radius: 16
-                    color: backMouse.containsMouse
-                           ? Theme.ThemeConfig.sidebarHover : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "←"
-                        font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                        color: Theme.ThemeConfig.textPrimary
-                    }
-
-                    MouseArea {
-                        id: backMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: closeDetail()
-                    }
-                }
-
-                Text {
-                    text: qsTr("Contact Details")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                    font.weight: Theme.ThemeConfig.fontWeightBold
-                    Layout.fillWidth: true
-                }
-            }
+        C.BackHeader {
+            title: qsTr("Contact Details")
+            onBackClicked: closeDetail()
         }
 
         // ── Detail content ──────────────────────────────────────
         ScrollView {
+            id: contactScroll
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
 
             ColumnLayout {
-                width: parent ? parent.width : 400
-                spacing: Theme.ThemeConfig.spacingLarge
+                width: contactScroll.availableWidth
+                spacing: Theme.spacingLarge
 
                 // Avatar + name section
                 Item {
@@ -80,27 +37,27 @@ Item {
 
                     ColumnLayout {
                         anchors.centerIn: parent
-                        spacing: Theme.ThemeConfig.spacingMedium
+                        spacing: Theme.spacingMedium
 
                         C.UserAvatar {
                             Layout.alignment: Qt.AlignHCenter
-                            size: Theme.ThemeConfig.avatarSizeXLarge
+                            size: Theme.avatarSizeXLarge
                             name: detailName
                         }
 
                         Text {
                             Layout.alignment: Qt.AlignHCenter
                             text: detailName
-                            color: Theme.ThemeConfig.textPrimary
-                            font.pixelSize: Theme.ThemeConfig.fontSizeTitle
-                            font.weight: Theme.ThemeConfig.fontWeightBold
+                            color: Theme.textPrimary
+                            font.pixelSize: Theme.fontSizeTitle
+                            font.weight: Theme.fontWeightBold
                         }
 
                         Text {
                             Layout.alignment: Qt.AlignHCenter
                             text: detailDescription
-                            color: Theme.ThemeConfig.textSecondary
-                            font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                            color: Theme.textSecondary
+                            font.pixelSize: Theme.fontSizeBody
                             visible: detailDescription.length > 0
                         }
                     }
@@ -109,54 +66,54 @@ Item {
                 // Info cards
                 DetailCard {
                     Layout.fillWidth: true
-                    Layout.leftMargin: Theme.ThemeConfig.spacingLarge
-                    Layout.rightMargin: Theme.ThemeConfig.spacingLarge
+                    Layout.leftMargin: Theme.spacingLarge
+                    Layout.rightMargin: Theme.spacingLarge
                     label: qsTr("AI User ID")
                     value: aiUserId
                 }
 
                 DetailCard {
                     Layout.fillWidth: true
-                    Layout.leftMargin: Theme.ThemeConfig.spacingLarge
-                    Layout.rightMargin: Theme.ThemeConfig.spacingLarge
+                    Layout.leftMargin: Theme.spacingLarge
+                    Layout.rightMargin: Theme.spacingLarge
                     label: qsTr("LLM Provider")
                     value: detailLlmProvider
                 }
 
                 DetailCard {
                     Layout.fillWidth: true
-                    Layout.leftMargin: Theme.ThemeConfig.spacingLarge
-                    Layout.rightMargin: Theme.ThemeConfig.spacingLarge
+                    Layout.leftMargin: Theme.spacingLarge
+                    Layout.rightMargin: Theme.spacingLarge
                     label: qsTr("LLM Model")
                     value: detailLlmModel
                 }
 
                 DetailCard {
                     Layout.fillWidth: true
-                    Layout.leftMargin: Theme.ThemeConfig.spacingLarge
-                    Layout.rightMargin: Theme.ThemeConfig.spacingLarge
+                    Layout.leftMargin: Theme.spacingLarge
+                    Layout.rightMargin: Theme.spacingLarge
                     label: qsTr("Created")
                     value: detailCreatedAt
                 }
 
-                Item { Layout.preferredHeight: Theme.ThemeConfig.spacingMedium }
+                Item { Layout.preferredHeight: Theme.spacingMedium }
 
                 // Start chat button
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 44
-                    Layout.leftMargin: Theme.ThemeConfig.spacingLarge
-                    Layout.rightMargin: Theme.ThemeConfig.spacingLarge
-                    radius: Theme.ThemeConfig.buttonRadius
+                    Layout.leftMargin: Theme.spacingLarge
+                    Layout.rightMargin: Theme.spacingLarge
+                    radius: Theme.buttonRadius
                     color: chatBtnMouse.containsMouse
-                           ? Theme.ThemeConfig.primaryLight : Theme.ThemeConfig.primaryColor
+                           ? Theme.primaryLight : Theme.primaryColor
 
                     Text {
                         anchors.centerIn: parent
                         text: qsTr("Start Chat")
-                        color: Theme.ThemeConfig.textOnPrimary
-                        font.pixelSize: Theme.ThemeConfig.fontSizeBody
-                        font.weight: Theme.ThemeConfig.fontWeightMedium
+                        color: Theme.textOnPrimary
+                        font.pixelSize: Theme.fontSizeBody
+                        font.weight: Theme.fontWeightMedium
                     }
 
                     MouseArea {
@@ -198,13 +155,15 @@ Item {
         if (typeof contactListModel === "undefined" || !aiUserId) return
         for (var i = 0; i < contactListModel.rowCount(); i++) {
             var idx = contactListModel.index(i, 0)
-            var id = contactListModel.data(idx, ContactListModel.IdRole)
+            // Roles: Id=257, Name=258, Description=259, Avatar=260,
+            // CreatedBy=261, LlmProvider=262, LlmModel=263, CreatedAt=264
+            var id = contactListModel.data(idx, 257)  // IdRole
             if (id === aiUserId) {
-                detailName = contactListModel.data(idx, ContactListModel.NameRole) || ""
-                detailDescription = contactListModel.data(idx, ContactListModel.DescriptionRole) || ""
-                detailLlmProvider = contactListModel.data(idx, ContactListModel.LlmProviderRole) || ""
-                detailLlmModel = contactListModel.data(idx, ContactListModel.LlmModelRole) || ""
-                detailCreatedAt = contactListModel.data(idx, ContactListModel.CreatedAtRole) || ""
+                detailName = contactListModel.data(idx, 258) || ""
+                detailDescription = contactListModel.data(idx, 259) || ""
+                detailLlmProvider = contactListModel.data(idx, 262) || ""
+                detailLlmModel = contactListModel.data(idx, 263) || ""
+                detailCreatedAt = contactListModel.data(idx, 264) || ""
                 return
             }
         }
@@ -242,9 +201,9 @@ Item {
         property string value: ""
 
         height: detailRow.implicitHeight + 16
-        radius: Theme.ThemeConfig.cardRadius
-        color: Theme.ThemeConfig.surfaceColor
-        border.color: Theme.ThemeConfig.dividerColor
+        radius: Theme.cardRadius
+        color: Theme.surfaceColor
+        border.color: Theme.dividerColor
         border.width: 1
 
         ColumnLayout {
@@ -253,21 +212,21 @@ Item {
                 left: parent.left
                 right: parent.right
                 verticalCenter: parent.verticalCenter
-                leftMargin: Theme.ThemeConfig.spacingLarge
-                rightMargin: Theme.ThemeConfig.spacingLarge
+                leftMargin: Theme.spacingLarge
+                rightMargin: Theme.spacingLarge
             }
             spacing: 2
 
             Text {
                 text: label
-                color: Theme.ThemeConfig.textHint
-                font.pixelSize: Theme.ThemeConfig.fontSizeCaption
+                color: Theme.textHint
+                font.pixelSize: Theme.fontSizeCaption
             }
 
             Text {
                 text: value || qsTr("N/A")
-                color: Theme.ThemeConfig.textPrimary
-                font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                color: Theme.textPrimary
+                font.pixelSize: Theme.fontSizeBody
                 wrapMode: Text.Wrap
                 Layout.fillWidth: true
             }

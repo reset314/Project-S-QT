@@ -1,11 +1,11 @@
 #pragma once
 #include <QObject>
 #include <QString>
+#include "AudioManager.h"
+#include "VideoManager.h"
 
 class CallSignalingClient;
 class WebRtcEngine;
-class AudioManager;
-class VideoManager;
 class CallRepository;
 class TokenManager;
 

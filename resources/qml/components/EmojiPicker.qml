@@ -1,13 +1,12 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
 
 Popup {
     id: emojiPicker
     width: 320
     height: 260
-    padding: Theme.ThemeConfig.spacingSmall
+    padding: Theme.spacingSmall
 
     signal emojiSelected(string emoji)
 
@@ -24,18 +23,12 @@ Popup {
     ]
 
     background: Rectangle {
-        color: Theme.ThemeConfig.surfaceColor
-        border.color: Theme.ThemeConfig.dividerColor
+        color: Theme.surfaceColor
+        border.color: Theme.dividerColor
         border.width: 1
-        radius: Theme.ThemeConfig.cardRadius
+        radius: Theme.cardRadius
 
         layer.enabled: true
-        layer.effect: DropShadow {
-            horizontalOffset: 0; verticalOffset: 4
-            radius: 12
-            samples: 17
-            color: "#20000000"
-        }
     }
 
     contentItem: ColumnLayout {
@@ -46,8 +39,8 @@ Popup {
             id: searchField
             Layout.fillWidth: true
             Layout.preferredHeight: 32
-            placeholderText: qsTr("Search emoji...")
-            font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+            placeholderText: activeFocus ? "" : qsTr("Search emoji...")
+            font.pixelSize: Theme.fontSizeSmall
         }
 
         // Tabs
@@ -61,14 +54,14 @@ Popup {
                 Rectangle {
                     width: 40; height: 32
                     color: emojiTabBar.currentIndex === index
-                           ? Theme.ThemeConfig.sidebarSelected
+                           ? Theme.sidebarSelected
                            : "transparent"
                     radius: 4
 
                     Text {
                         anchors.centerIn: parent
                         text: modelData
-                        font.pixelSize: Theme.ThemeConfig.fontSizeSubheading
+                        font.pixelSize: Theme.fontSizeSubheading
                     }
 
                     MouseArea {
@@ -108,7 +101,7 @@ Popup {
         Text {
             anchors.centerIn: parent
             text: modelData
-            font.pixelSize: Theme.ThemeConfig.fontSizeSubheading
+            font.pixelSize: Theme.fontSizeSubheading
         }
 
         MouseArea {
@@ -129,7 +122,7 @@ Popup {
             Text {
                 anchors.centerIn: parent
                 text: modelData
-                font.pixelSize: Theme.ThemeConfig.fontSizeSubheading
+                font.pixelSize: Theme.fontSizeSubheading
             }
 
             MouseArea {

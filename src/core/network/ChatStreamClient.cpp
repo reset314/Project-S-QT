@@ -143,6 +143,9 @@ void ChatStreamClient::onError(QAbstractSocket::SocketError error)
 
 void ChatStreamClient::onTextMessageReceived(const QString &text)
 {
+    // Log raw frame for debugging (first 300 chars)
+    qDebug() << "ChatStreamClient: raw frame:" << text.left(300);
+
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(text.toUtf8(), &parseError);
     if (parseError.error != QJsonParseError::NoError) {
@@ -196,6 +199,12 @@ void ChatStreamClient::handleFrame(const QJsonObject &frame)
 {
     QString type = frame.value("type").toString();
 
+    // Server wraps data in a "payload" sub-object — extract it.
+    // Fall back to the top-level frame if no payload exists.
+    QJsonObject data = frame.value("payload").toObject();
+    if (data.isEmpty())
+        data = frame;
+
     if (type == "pong") {
         resetPongTimeout();
         return;
@@ -208,39 +217,41 @@ void ChatStreamClient::handleFrame(const QJsonObject &frame)
     }
 
     if (type == "stream_message_init") {
-        QString conversationId = frame.value("conversation_id").toString();
-        QString messageId = frame.value("message_id").toString();
-        QString timestamp = frame.value("timestamp").toString();
+        QString conversationId = data.value("conversation_id").toString();
+        QString messageId = data.value("message_id").toString();
+        QString timestamp = data.value("timestamp").toString();
         emit streamInit(conversationId, messageId, timestamp);
         return;
     }
 
     if (type == "stream_chunk") {
-        QString conversationId = frame.value("conversation_id").toString();
+        QString conversationId = data.value("conversation_id").toString();
         // The chunk field contains the full accumulated content, not just the delta
-        QString chunk = frame.value("chunk").toString();
+        QString chunk = data.value("chunk").toString();
         emit streamChunk(conversationId, chunk);
         return;
     }
 
     if (type == "stream_message_done") {
-        QString conversationId = frame.value("conversation_id").toString();
-        QString messageId = frame.value("message_id").toString();
-        QString content = frame.value("content").toString();
+        QString conversationId = data.value("conversation_id").toString();
+        QString messageId = data.value("message_id").toString();
+        QString content = data.value("content").toString();
+        qDebug() << "ChatStreamClient: stream_message_done conv:" << conversationId
+                 << "msgId:" << messageId << "contentLen:" << content.size();
         emit streamDone(conversationId, messageId, content);
         return;
     }
 
     if (type == "stream_error") {
-        QString conversationId = frame.value("conversation_id").toString();
-        QString code = frame.value("code").toString();
-        QString message = frame.value("message").toString();
+        QString conversationId = data.value("conversation_id").toString();
+        QString code = data.value("code").toString();
+        QString message = data.value("message").toString();
         emit streamError(conversationId, code, message);
         return;
     }
 
     if (type == "proactive_message") {
-        QString conversationId = frame.value("conversation_id").toString();
+        QString conversationId = data.value("conversation_id").toString();
         emit proactiveMessage(conversationId, frame);
         return;
     }

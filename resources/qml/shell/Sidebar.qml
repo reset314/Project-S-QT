@@ -1,15 +1,16 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
 import "../components" as C
 
 Rectangle {
     id: sidebar
-    width: Theme.ThemeConfig.sidebarWidth
-    color: Theme.ThemeConfig.sidebarBackground
+    width: Theme.sidebarWidth
+    color: Theme.sidebarBackground
 
-    signal chatSelected(string aiUserId, string aiUserName, string conversationId)
+    /// Emitted when the user selects an AI user to chat with.
+    signal chatSelected(string aiUserId, string aiUserName)
+
     signal contactSelected(string aiUserId)
     signal settingsClicked()
     signal createAIUserClicked()
@@ -22,45 +23,31 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 64
-            color: Theme.ThemeConfig.primaryColor
-
+            color: Theme.primaryColor
             RowLayout {
                 anchors {
                     fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingLarge
+                    leftMargin: Theme.spacingLarge
+                    rightMargin: Theme.spacingLarge
                 }
-                spacing: Theme.ThemeConfig.spacingMedium
-
+                spacing: Theme.spacingMedium
                 C.UserAvatar {
-                    Layout.preferredWidth: Theme.ThemeConfig.avatarSizeMedium
-                    Layout.preferredHeight: Theme.ThemeConfig.avatarSizeMedium
+                    Layout.preferredWidth: Theme.avatarSizeMedium
+                    Layout.preferredHeight: Theme.avatarSizeMedium
                     name: "User"
                 }
-
                 Text {
                     text: qsTr("Chats")
-                    color: Theme.ThemeConfig.textOnPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                    font.weight: Theme.ThemeConfig.fontWeightBold
+                    color: Theme.textOnPrimary
+                    font.pixelSize: Theme.fontSizeHeading
+                    font.weight: Theme.fontWeightBold
                     Layout.fillWidth: true
                 }
-
-                // Settings gear icon
                 Rectangle {
-                    Layout.preferredWidth: 32
-                    Layout.preferredHeight: 32
+                    Layout.preferredWidth: 32; Layout.preferredHeight: 32
                     radius: 16
-                    color: settingsMouse.containsMouse
-                           ? Qt.rgba(1, 1, 1, 0.2) : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "⚙"
-                        color: Theme.ThemeConfig.textOnPrimary
-                        font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                    }
-
+                    color: settingsMouse.containsMouse ? Qt.rgba(1,1,1,0.2) : "transparent"
+                    Text { anchors.centerIn: parent; text: "⚙"; color: Theme.textOnPrimary; font.pixelSize: Theme.fontSizeHeading }
                     MouseArea {
                         id: settingsMouse
                         anchors.fill: parent
@@ -72,115 +59,54 @@ Rectangle {
             }
         }
 
-        // ── Tab Bar ─────────────────────────────────────────────
-        TabBar {
-            id: tabBar
-            Layout.fillWidth: true
-
-            TabButton {
-                text: qsTr("Chats")
-                width: implicitWidth
-            }
-            TabButton {
-                text: qsTr("Contacts")
-                width: implicitWidth
-            }
-        }
-
-        // ── Content Area (StackLayout of two ListViews) ────────
-        StackLayout {
-            id: contentStack
+        // ── AI User list (all chats are per AI user) ────────────
+        ListView {
+            id: userListView
             Layout.fillWidth: true
             Layout.fillHeight: true
-            currentIndex: tabBar.currentIndex
+            clip: true
+            spacing: 1
+            // Show all contacts (AI users); could be filtered to only
+            // those with recent messages in a "Chats" tab later.
+            model: typeof contactListModel !== "undefined" ? contactListModel : null
 
-            // Chats tab
-            ListView {
-                id: conversationListView
-                model: typeof conversationListModel !== "undefined" ? conversationListModel : null
-                clip: true
-                spacing: 1
+            delegate: C.ContactCard {
+                width: userListView.width
+                aiUserId: model.id || ""
+                aiUserName: model.name || ""
+                aiUserDescription: model.description || ""
+                aiUserAvatar: model.avatar || ""
+                // llmProvider: model.llmProvider || ""
+                // llmModel: model.llmModel || ""
 
-                delegate: C.ConversationItem {
-                    width: conversationListView.width
-                    aiUserName: model.aiUserName || model.title || qsTr("Chat")
-                    aiUserAvatar: model.aiUserAvatar || ""
-                    lastMessagePreview: model.lastMessagePreview || ""
-                    timestamp: model.updatedAt || ""
-                    unreadCount: {
-                        if (typeof unreadTracker !== "undefined" && unreadTracker.unreadMap) {
-                            var map = unreadTracker.unreadMap
-                            var key = model.aiUserId || ""
-                            return map[key] ? map[key] : 0
-                        }
-                        return 0
+                // Unread badge
+                property int unreadCount: {
+                    if (typeof unreadTracker !== "undefined" && unreadTracker.unreadMap) {
+                        var map = unreadTracker.unreadMap
+                        var key = model.id || ""
+                        return map[key] ? map[key] : 0
                     }
-
-                    onClicked: {
-                        sidebar.chatSelected(
-                            model.aiUserId || "",
-                            model.aiUserName || model.title || qsTr("Chat"),
-                            model.id || ""
-                        )
-                    }
+                    return 0
                 }
 
-                // Empty state
-                Rectangle {
-                    visible: conversationListView.count === 0
-                    anchors.fill: parent
-                    color: "transparent"
+                onChatClicked: {
+                    sidebar.chatSelected(model.id || "", model.name || "")
+                }
 
-                    Text {
-                        anchors.centerIn: parent
-                        text: qsTr("No conversations yet")
-                        color: Theme.ThemeConfig.textHint
-                        font.pixelSize: Theme.ThemeConfig.fontSizeBody
-                    }
+                onClicked: {
+                    sidebar.contactSelected(model.id || "")
                 }
             }
 
-            // Contacts tab
-            ListView {
-                id: contactListView
-                model: typeof contactListModel !== "undefined" ? contactListModel : null
-                clip: true
-                spacing: 1
-
-                delegate: C.ContactCard {
-                    width: contactListView.width
-                    aiUserId: model.id || ""
-                    aiUserName: model.name || ""
-                    aiUserDescription: model.description || ""
-                    aiUserAvatar: model.avatar || ""
-                    llmProvider: model.llmProvider || ""
-                    llmModel: model.llmModel || ""
-
-                    onClicked: {
-                        sidebar.contactSelected(model.id || "")
-                    }
-
-                    onChatClicked: {
-                        sidebar.chatSelected(
-                            model.id || "",
-                            model.name || "",
-                            ""
-                        )
-                    }
-                }
-
-                // Empty state
-                Rectangle {
-                    visible: contactListView.count === 0
-                    anchors.fill: parent
-                    color: "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: qsTr("No contacts yet")
-                        color: Theme.ThemeConfig.textHint
-                        font.pixelSize: Theme.ThemeConfig.fontSizeBody
-                    }
+            Rectangle {
+                visible: userListView.count === 0
+                anchors.fill: parent
+                color: "transparent"
+                Text {
+                    anchors.centerIn: parent
+                    text: qsTr("No contacts yet")
+                    color: Theme.textHint
+                    font.pixelSize: Theme.fontSizeBody
                 }
             }
         }
@@ -189,35 +115,28 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 48
-            color: Theme.ThemeConfig.sidebarBackground
-            border.color: Theme.ThemeConfig.dividerColor
+            color: Theme.sidebarBackground
+            border.color: Theme.dividerColor
             border.width: 1
-
             RowLayout {
                 anchors {
                     fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingLarge
+                    leftMargin: Theme.spacingLarge
+                    rightMargin: Theme.spacingLarge
                 }
-
-                // New Chat button
                 Rectangle {
-                    Layout.preferredWidth: Layout.fillWidth ? undefined : implicitWidth
-                    implicitWidth: newChatText.implicitWidth + 24
                     Layout.preferredHeight: 32
-                    radius: Theme.ThemeConfig.buttonRadius
-                    color: newChatMouse.containsMouse
-                           ? Theme.ThemeConfig.primaryLight : Theme.ThemeConfig.primaryColor
-
+                    implicitWidth: newChatText.implicitWidth + 24
+                    radius: Theme.buttonRadius
+                    color: newChatMouse.containsMouse ? Theme.primaryLight : Theme.primaryColor
                     Text {
                         id: newChatText
                         anchors.centerIn: parent
                         text: qsTr("New AI User")
-                        color: Theme.ThemeConfig.textOnPrimary
-                        font.pixelSize: Theme.ThemeConfig.fontSizeSmall
-                        font.weight: Theme.ThemeConfig.fontWeightMedium
+                        color: Theme.textOnPrimary
+                        font.pixelSize: Theme.fontSizeSmall
+                        font.weight: Theme.fontWeightMedium
                     }
-
                     MouseArea {
                         id: newChatMouse
                         anchors.fill: parent
@@ -226,7 +145,6 @@ Rectangle {
                         onClicked: sidebar.createAIUserClicked()
                     }
                 }
-
                 Item { Layout.fillWidth: true }
             }
         }

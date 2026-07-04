@@ -1,7 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
+import "../components" as C
 
 Item {
     id: settingsPage
@@ -12,52 +12,9 @@ Item {
         spacing: 0
 
         // ── Header ──────────────────────────────────────────────
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 56
-            color: Theme.ThemeConfig.surfaceColor
-            border.color: Theme.ThemeConfig.dividerColor
-            border.width: 1
-
-            RowLayout {
-                anchors {
-                    fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingMedium
-                }
-                spacing: Theme.ThemeConfig.spacingMedium
-
-                // Back button
-                Rectangle {
-                    Layout.preferredWidth: 32; Layout.preferredHeight: 32
-                    radius: 16
-                    color: backMouse.containsMouse
-                           ? Theme.ThemeConfig.sidebarHover : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "←"
-                        font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                        color: Theme.ThemeConfig.textPrimary
-                    }
-
-                    MouseArea {
-                        id: backMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: closePage()
-                    }
-                }
-
-                Text {
-                    text: qsTr("Settings")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                    font.weight: Theme.ThemeConfig.fontWeightBold
-                    Layout.fillWidth: true
-                }
-            }
+        C.BackHeader {
+            title: qsTr("Settings")
+            onBackClicked: closePage()
         }
 
         // ── Settings List ───────────────────────────────────────
@@ -124,18 +81,18 @@ Item {
             section.delegate: Rectangle {
                 width: settingsList.width
                 height: 32
-                color: Theme.ThemeConfig.backgroundColor
+                color: Theme.backgroundColor
 
                 Text {
                     anchors {
                         left: parent.left
-                        leftMargin: Theme.ThemeConfig.spacingLarge
+                        leftMargin: Theme.spacingLarge
                         verticalCenter: parent.verticalCenter
                     }
                     text: section
-                    color: Theme.ThemeConfig.textHint
-                    font.pixelSize: Theme.ThemeConfig.fontSizeCaption
-                    font.weight: Theme.ThemeConfig.fontWeightBold
+                    color: Theme.textHint
+                    font.pixelSize: Theme.fontSizeCaption
+                    font.weight: Theme.fontWeightBold
                 }
             }
 
@@ -143,26 +100,26 @@ Item {
                 width: settingsList.width
                 height: 56
                 color: rowMouse.containsMouse
-                       ? Theme.ThemeConfig.sidebarHover : Theme.ThemeConfig.surfaceColor
+                       ? Theme.sidebarHover : Theme.surfaceColor
 
                 RowLayout {
                     anchors {
                         fill: parent
-                        leftMargin: Theme.ThemeConfig.spacingLarge
-                        rightMargin: Theme.ThemeConfig.spacingMedium
+                        leftMargin: Theme.spacingLarge
+                        rightMargin: Theme.spacingMedium
                     }
-                    spacing: Theme.ThemeConfig.spacingMedium
+                    spacing: Theme.spacingMedium
 
                     // Icon
                     Rectangle {
                         Layout.preferredWidth: 36; Layout.preferredHeight: 36
                         radius: 18
-                        color: Theme.ThemeConfig.sidebarHover
+                        color: Theme.sidebarHover
 
                         Text {
                             anchors.centerIn: parent
                             text: icon
-                            font.pixelSize: Theme.ThemeConfig.fontSizeHeading
+                            font.pixelSize: Theme.fontSizeHeading
                         }
                     }
 
@@ -173,23 +130,23 @@ Item {
 
                         Text {
                             text: title
-                            color: Theme.ThemeConfig.textPrimary
-                            font.pixelSize: Theme.ThemeConfig.fontSizeBody
-                            font.weight: Theme.ThemeConfig.fontWeightMedium
+                            color: Theme.textPrimary
+                            font.pixelSize: Theme.fontSizeBody
+                            font.weight: Theme.fontWeightMedium
                         }
 
                         Text {
                             text: subtitle
-                            color: Theme.ThemeConfig.textSecondary
-                            font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                            color: Theme.textSecondary
+                            font.pixelSize: Theme.fontSizeSmall
                         }
                     }
 
                     // Arrow
                     Text {
                         text: "›"
-                        color: Theme.ThemeConfig.textHint
-                        font.pixelSize: Theme.ThemeConfig.fontSizeTitle
+                        color: Theme.textHint
+                        font.pixelSize: Theme.fontSizeTitle
                     }
                 }
 
@@ -210,7 +167,7 @@ Item {
                         leftMargin: 68
                     }
                     height: 1
-                    color: Theme.ThemeConfig.dividerColor
+                    color: Theme.dividerColor
                 }
             }
         }

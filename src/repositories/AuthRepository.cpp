@@ -16,13 +16,13 @@ Result<UserDTO> AuthRepository::login(const QString &username, const QString &pa
     // JWT parsing, token persistence to keychain, and state management.
     auto tmResult = tokenManager_->login(username, password);
     if (!tmResult)
-        return std::unexpected(tmResult.error());
+        return tl::make_unexpected(tmResult.error());
 
     // Fetch the authenticated user profile via HttpClient (which uses the now-
     // stored access token in its Authorization header).
     auto userResult = http_->get("/users/me");
     if (!userResult)
-        return std::unexpected(userResult.error());
+        return tl::make_unexpected(userResult.error());
 
     return UserDTO::fromJson(*userResult);
 }
@@ -38,7 +38,7 @@ Result<UserDTO> AuthRepository::registerUser(const QString &username,
 
     auto result = http_->post("/auth/register", body);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     // HttpClient already unwrapped the {success, data} envelope — we get the
     // data object directly.

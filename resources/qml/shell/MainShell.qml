@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
 import "../pages" as Pages
 import "../dialogs" as Dialogs
 
@@ -23,16 +22,23 @@ Item {
         Sidebar {
             id: sidebar
             Layout.fillHeight: true
-            Layout.preferredWidth: Theme.ThemeConfig.sidebarWidth
+            Layout.preferredWidth: Theme.sidebarWidth
 
-            onChatSelected: function(aiUserId, aiUserName, conversationId) {
+            onChatSelected: function(aiUserId, aiUserName) {
                 mainShell.currentAiUserId = aiUserId
                 mainShell.currentAiUserName = aiUserName
-                mainShell.currentConversationId = conversationId
-                stackView.push(chatPageComponent)
                 if (typeof unreadTracker !== "undefined") {
                     unreadTracker.clearAndMarkRead(aiUserId)
                 }
+                // Guard against concurrent StackView transitions
+                if (stackView.busy) {
+                    // Defer: wait for current transition to finish
+                    chatSelectedTimer.aiUserId = aiUserId
+                    chatSelectedTimer.aiUserName = aiUserName
+                    chatSelectedTimer.restart()
+                    return
+                }
+                navigateToChat()
             }
 
             onContactSelected: function(aiUserId) {
@@ -53,7 +59,7 @@ Item {
         Rectangle {
             Layout.fillHeight: true
             Layout.preferredWidth: 1
-            color: Theme.ThemeConfig.dividerColor
+            color: Theme.dividerColor
         }
 
         // ── Center Content (StackView) ─────────────────────────
@@ -63,21 +69,10 @@ Item {
             Layout.fillHeight: true
             clip: true
 
-            initialItem: conversationListPageComponent
+            // Empty placeholder until user selects a contact
+            initialItem: welcomePlaceholder
 
-            // Pop transition
-            popEnter: Transition {
-                XAnimator { from: -stackView.width * 0.3; to: 0; duration: Theme.ThemeConfig.animationNormal }
-            }
-            popExit: Transition {
-                XAnimator { from: 0; to: stackView.width; duration: Theme.ThemeConfig.animationNormal }
-            }
-            pushEnter: Transition {
-                XAnimator { from: stackView.width; to: 0; duration: Theme.ThemeConfig.animationNormal }
-            }
-            pushExit: Transition {
-                XAnimator { from: 0; to: -stackView.width * 0.3; duration: Theme.ThemeConfig.animationNormal }
-            }
+            // No transitions — instant page switch
         }
 
         // ── Detail Panel (right, collapsible) ───────────────────
@@ -85,31 +80,54 @@ Item {
             id: detailPanel
             visible: mainShell.detailPanelOpen
             Layout.fillHeight: true
-            Layout.preferredWidth: visible ? Theme.ThemeConfig.detailPanelWidth : 0
-            color: Theme.ThemeConfig.surfaceColor
-            border.color: Theme.ThemeConfig.dividerColor
+            Layout.preferredWidth: visible ? Theme.detailPanelWidth : 0
+            color: Theme.surfaceColor
+            border.color: Theme.dividerColor
             border.width: 1
 
             Behavior on Layout.preferredWidth {
-                NumberAnimation { duration: Theme.ThemeConfig.animationNormal }
+                NumberAnimation { duration: Theme.animationNormal }
             }
 
             // Detail content placeholder
             Text {
                 anchors.centerIn: parent
                 text: qsTr("Details")
-                color: Theme.ThemeConfig.textHint
-                font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                color: Theme.textHint
+                font.pixelSize: Theme.fontSizeBody
             }
         }
     }
 
     // ── Component cache ────────────────────────────────────────
-    Component { id: conversationListPageComponent; Pages.ConversationListPage {} }
+    // ── Welcome / empty state placeholder ───────────────────────
+    Component {
+        id: welcomePlaceholder
+        Rectangle {
+            color: Theme.backgroundColor
+            implicitWidth: 400
+            implicitHeight: 400
+            Column {
+                anchors.centerIn: parent
+                spacing: Theme.spacingMedium
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "💬"
+                    font.pixelSize: 64
+                }
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: qsTr("Select a contact to start chatting")
+                    color: Theme.textHint
+                    font.pixelSize: Theme.fontSizeBody
+                }
+            }
+        }
+    }
+
     Component { id: chatPageComponent; Pages.ChatPage {
         aiUserId: mainShell.currentAiUserId
         aiUserName: mainShell.currentAiUserName
-        conversationId: mainShell.currentConversationId
     }}
     Component { id: contactDetailPageComponent; Pages.ContactDetailPage {
         aiUserId: mainShell.currentAiUserId
@@ -117,6 +135,24 @@ Item {
     Component { id: createAIUserPageComponent; Pages.CreateAIUserPage {} }
     Component { id: settingsPageComponent; Pages.SettingsPage {} }
     Component { id: loginPageComponent; Pages.LoginPage {} }
+
+    // ── Deferred chat navigation (avoids StackView busy errors) ──
+    Timer {
+        id: chatSelectedTimer
+        interval: 50
+        repeat: false
+        property string aiUserId: ""
+        property string aiUserName: ""
+        onTriggered: navigateToChat()
+    }
+
+    function navigateToChat() {
+        if (stackView.currentItem && stackView.currentItem.objectName === "chatPage") {
+            stackView.replace(chatPageComponent)
+        } else {
+            stackView.push(chatPageComponent)
+        }
+    }
 
     // ── Confirm dialog ─────────────────────────────────────────
     Dialogs.ConfirmDialog {

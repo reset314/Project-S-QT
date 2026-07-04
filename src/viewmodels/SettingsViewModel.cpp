@@ -6,7 +6,7 @@ static const QString kTtsVoiceKey  = QStringLiteral("settings/ttsVoice");
 static const QString kTtsSpeedKey  = QStringLiteral("settings/ttsSpeed");
 
 static const QString kDefaultTheme     = QStringLiteral("system");
-static const QString kDefaultServerUrl = QStringLiteral("https://localhost:8000");
+static const QString kDefaultServerUrl = QStringLiteral("https://www.p314.top");
 static const QString kDefaultTtsVoice  = QStringLiteral("default");
 static const double  kDefaultTtsSpeed  = 1.0;
 

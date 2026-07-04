@@ -1,10 +1,12 @@
 <RCC>
     <qresource prefix="/">
+        <file>qtquickcontrols2.conf</file>
         <!-- Core -->
         <file>qml/main.qml</file>
         <file>qml/AppState.qml</file>
         <!-- Theme -->
         <file>qml/theme/ThemeConfig.qml</file>
+        <file>qml/theme/qmldir</file>
         <!-- Shell -->
         <file>qml/shell/MainShell.qml</file>
         <file>qml/shell/Sidebar.qml</file>
@@ -24,6 +26,7 @@
         <file>qml/pages/TTSVoicesPage.qml</file>
         <file>qml/pages/ExpansionPage.qml</file>
         <!-- Components -->
+        <file>qml/components/BackHeader.qml</file>
         <file>qml/components/ChatBubble.qml</file>
         <file>qml/components/MessageInput.qml</file>
         <file>qml/components/TypingIndicator.qml</file>
@@ -39,5 +42,34 @@
         <!-- Dialogs -->
         <file>qml/dialogs/ConfirmDialog.qml</file>
         <file>qml/dialogs/CallInviteDialog.qml</file>
+        <!-- Icon component -->
+        <file>qml/components/Icon.qml</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file alias="message-circle.svg">icons/message-circle.svg</file>
+        <file alias="users.svg">icons/users.svg</file>
+        <file alias="puzzle.svg">icons/puzzle.svg</file>
+        <file alias="settings.svg">icons/settings.svg</file>
+        <file alias="arrow-left.svg">icons/arrow-left.svg</file>
+        <file alias="search.svg">icons/search.svg</file>
+        <file alias="arrow-up.svg">icons/arrow-up.svg</file>
+        <file alias="paperclip.svg">icons/paperclip.svg</file>
+        <file alias="mic.svg">icons/mic.svg</file>
+        <file alias="more-horizontal.svg">icons/more-horizontal.svg</file>
+        <file alias="play.svg">icons/play.svg</file>
+        <file alias="smile.svg">icons/smile.svg</file>
+        <file alias="phone.svg">icons/phone.svg</file>
+        <file alias="plus.svg">icons/plus.svg</file>
+        <file alias="user-plus.svg">icons/user-plus.svg</file>
+        <file alias="palette.svg">icons/palette.svg</file>
+        <file alias="brain.svg">icons/brain.svg</file>
+        <file alias="image.svg">icons/image.svg</file>
+        <file alias="x.svg">icons/x.svg</file>
+        <file alias="minus.svg">icons/minus.svg</file>
+        <file alias="square.svg">icons/square.svg</file>
+        <file alias="chevron-right.svg">icons/chevron-right.svg</file>
+        <file alias="chevron-down.svg">icons/chevron-down.svg</file>
+        <file alias="panel-left-close.svg">icons/panel-left-close.svg</file>
+        <file alias="app.svg">icons/app.svg</file>
     </qresource>
 </RCC>

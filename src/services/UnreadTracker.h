@@ -30,16 +30,13 @@ public:
     void init();
 
     /// Record an incoming message for a conversation.
-    /// Increments the unread count for the associated AI user unless
-    /// that AI user is currently active.
-    void onIncomingMessage(const QString &conversationId);
+    Q_INVOKABLE void onIncomingMessage(const QString &conversationId);
 
     /// Clear the unread count for an AI user and persist the read marker.
-    void clearAndMarkRead(const QString &aiUserId);
+    Q_INVOKABLE void clearAndMarkRead(const QString &aiUserId);
 
     /// Set which AI user chat is currently visible.
-    /// Messages arriving for this user will not increment the badge.
-    void setActiveAiUser(const QString &aiUserId);
+    Q_INVOKABLE void setActiveAiUser(const QString &aiUserId);
 
     /// Return the current unread map (aiUserId → count).
     QVariantMap unreadMap() const;

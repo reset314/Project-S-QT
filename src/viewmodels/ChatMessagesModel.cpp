@@ -1,5 +1,6 @@
 #include "ChatMessagesModel.h"
 #include <QJsonArray>
+#include <algorithm>
 
 ChatMessagesModel::ChatMessagesModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -21,7 +22,7 @@ QVariant ChatMessagesModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case ServerIdRole:
-        return msg.serverId ? QVariant::fromValue(static_cast<qint64>(*msg.serverId)) : QVariant{};
+        return msg.serverId.empty() ? QVariant{} : QString::fromStdString(msg.serverId);
     case ClientUuidRole:
         return QString::fromStdString(msg.clientUuid);
     case AiUserIdRole:
@@ -66,16 +67,14 @@ QHash<int, QByteArray> ChatMessagesModel::roleNames() const
 
 void ChatMessagesModel::appendMessage(const MessageDTO &msg)
 {
-    const int row = messages_.size();
-    beginInsertRows(QModelIndex(), row, row);
-    messages_.append(msg);
+    auto parts = expandSplits({msg});
+    if (parts.isEmpty()) return;
 
-    const auto uuid = QString::fromStdString(msg.clientUuid);
-    if (!uuid.isEmpty())
-        clientUuidIndex_[uuid] = row;
-    if (msg.serverId)
-        serverIdIndex_[*msg.serverId] = row;
-
+    const int firstRow = messages_.size();
+    beginInsertRows(QModelIndex(), firstRow, firstRow + parts.size() - 1);
+    for (auto &part : parts)
+        messages_.append(part);
+    rebuildIndices();
     endInsertRows();
     emit messageAppended();
 }
@@ -97,7 +96,7 @@ void ChatMessagesModel::prependMessages(const QVector<MessageDTO> &msgs)
 void ChatMessagesModel::replaceAll(const QVector<MessageDTO> &msgs)
 {
     beginResetModel();
-    messages_ = msgs;
+    messages_ = expandSplits(msgs);
     rebuildIndices();
     endResetModel();
 }
@@ -121,12 +120,12 @@ void ChatMessagesModel::removeMessage(const QString &clientUuid)
     endRemoveRows();
 }
 
-void ChatMessagesModel::markComplete(int row, int64_t serverId)
+void ChatMessagesModel::markComplete(int row, const QString &serverId)
 {
     if (row < 0 || row >= messages_.size()) return;
 
     auto &msg = messages_[row];
-    msg.serverId = serverId;
+    msg.serverId = serverId.toStdString();
     msg.isComplete = true;
     serverIdIndex_[serverId] = row;
 
@@ -142,7 +141,7 @@ void ChatMessagesModel::clear()
     endResetModel();
 }
 
-const MessageDTO &ChatMessagesModel::at(int row) const
+const MessageDTO &ChatMessagesModel::messageAt(int row) const
 {
     return messages_.at(row);
 }
@@ -161,8 +160,8 @@ void ChatMessagesModel::rebuildIndices()
         const auto uuid = QString::fromStdString(msg.clientUuid);
         if (!uuid.isEmpty())
             clientUuidIndex_[uuid] = i;
-        if (msg.serverId)
-            serverIdIndex_[*msg.serverId] = i;
+        if (!msg.serverId.empty())
+            serverIdIndex_[QString::fromStdString(msg.serverId)] = i;
     }
 }
 
@@ -178,4 +177,109 @@ QVariant ChatMessagesModel::mediaListToVariant(const std::vector<MediaDTO> &medi
     for (const auto &m : mediaList)
         arr.append(m.toJson());
     return QVariant(arr);
+}
+
+void ChatMessagesModel::setActiveAiUserId(const QString &aiUserId)
+{
+    if (activeAiUserId_ == aiUserId)
+        return;
+    activeAiUserId_ = aiUserId;
+    emit activeAiUserIdChanged();
+    emit loadRequested(aiUserId);
+}
+
+void ChatMessagesModel::onHistoryLoaded(const QVector<MessageDTO> &messages)
+{
+    // Sort by server timestamp ascending (oldest first in model → top of ListView)
+    auto sorted = messages;
+    std::sort(sorted.begin(), sorted.end(), [](const MessageDTO &a, const MessageDTO &b) {
+        return a.timestamp < b.timestamp;
+    });
+    replaceAll(sorted);
+    // Notify QML to scroll to bottom after layout
+    emit historyLoaded();
+}
+
+void ChatMessagesModel::onOlderMessagesLoaded(const QVector<MessageDTO> &messages)
+{
+    if (messages.isEmpty()) {
+        emit olderMessagesLoaded(0);
+        return;
+    }
+    auto sorted = messages;
+    std::sort(sorted.begin(), sorted.end(), [](const MessageDTO &a, const MessageDTO &b) {
+        return a.timestamp < b.timestamp;
+    });
+    // Prepend at the top of the existing list
+    prependMessages(sorted);
+    emit olderMessagesLoaded(sorted.size());
+}
+
+void ChatMessagesModel::loadOlder()
+{
+    QString ts = oldestTimestamp();
+    emit loadOlderRequested(activeAiUserId_, ts);
+}
+
+QString ChatMessagesModel::oldestTimestamp() const
+{
+    if (messages_.isEmpty()) return {};
+    // Use serverId as the cursor (API expects message UUID for before_id)
+    // Fall back to timestamp if no serverId
+    const auto &oldest = messages_.first();
+    if (!oldest.serverId.empty())
+        return QString::fromStdString(oldest.serverId);
+    return QString::fromStdString(oldest.timestamp);
+}
+
+// ── <split> expansion ────────────────────────────────────────────────
+// Matches Flutter's _expandMessages() in chat_page.dart:
+//   splitParts = cleaned.split('<split>').where((p) => p.trim().isNotEmpty)
+// Each part becomes its own visual bubble with the same message metadata.
+
+QVector<MessageDTO> ChatMessagesModel::expandSplits(const QVector<MessageDTO> &msgs) const
+{
+    QVector<MessageDTO> result;
+    result.reserve(msgs.size()); // will grow if splits found
+
+    for (const auto &msg : msgs) {
+        // Extract response text from content JSON
+        QString responseText;
+        auto it = msg.content.find("response");
+        if (it != msg.content.end() && it->isString())
+            responseText = it->toString();
+
+        // Only expand complete messages that contain <split>
+        if (!msg.isComplete || responseText.isEmpty() || !responseText.contains("<split>")) {
+            result.append(msg);
+            continue;
+        }
+
+        const QStringList parts = responseText.split("<split>");
+        QVector<QString> nonEmpty;
+        for (const auto &p : parts) {
+            QString t = p.trimmed();
+            if (!t.isEmpty())
+                nonEmpty.append(t);
+        }
+
+        if (nonEmpty.isEmpty()) {
+            result.append(msg);
+            continue;
+        }
+
+        for (int i = 0; i < nonEmpty.size(); ++i) {
+            MessageDTO part = msg;
+            part.clientUuid = msg.clientUuid + "_s" + std::to_string(i);
+            // serverId stays with original — only first part carries it
+            if (i > 0)
+                part.serverId.clear();
+            part.content = QJsonObject{};
+            part.content["response"] = nonEmpty[i];
+            // All parts except the last are "complete"; last inherits original
+            part.isComplete = (i < nonEmpty.size() - 1) || msg.isComplete;
+            result.append(part);
+        }
+    }
+    return result;
 }

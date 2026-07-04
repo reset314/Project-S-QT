@@ -1,7 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
+import "../components" as C
 
 Item {
     id: profilePage
@@ -12,51 +12,9 @@ Item {
         spacing: 0
 
         // ── Header ──────────────────────────────────────────────
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 56
-            color: Theme.ThemeConfig.surfaceColor
-            border.color: Theme.ThemeConfig.dividerColor
-            border.width: 1
-
-            RowLayout {
-                anchors {
-                    fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingMedium
-                }
-                spacing: Theme.ThemeConfig.spacingMedium
-
-                Rectangle {
-                    Layout.preferredWidth: 32; Layout.preferredHeight: 32
-                    radius: 16
-                    color: backMouse.containsMouse
-                           ? Theme.ThemeConfig.sidebarHover : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "←"
-                        font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                        color: Theme.ThemeConfig.textPrimary
-                    }
-
-                    MouseArea {
-                        id: backMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: closePage()
-                    }
-                }
-
-                Text {
-                    text: qsTr("User Profiles")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                    font.weight: Theme.ThemeConfig.fontWeightBold
-                    Layout.fillWidth: true
-                }
-            }
+        C.BackHeader {
+            title: qsTr("User Profiles")
+            onBackClicked: closePage()
         }
 
         // ── Profile list ────────────────────────────────────────
@@ -65,8 +23,8 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
-            spacing: Theme.ThemeConfig.spacingMedium
-            topMargin: Theme.ThemeConfig.spacingLarge
+            spacing: Theme.spacingMedium
+            topMargin: Theme.spacingLarge
 
             // Placeholder model - profiles loaded via C++ repository
             model: ListModel {
@@ -74,12 +32,12 @@ Item {
             }
 
             delegate: Rectangle {
-                width: profileList.width - 2 * Theme.ThemeConfig.spacingLarge
+                width: profileList.width - 2 * Theme.spacingLarge
                 anchors.horizontalCenter: parent ? parent.horizontalCenter : undefined
                 height: profileCard.implicitHeight + 16
-                radius: Theme.ThemeConfig.cardRadius
-                color: Theme.ThemeConfig.surfaceColor
-                border.color: Theme.ThemeConfig.dividerColor
+                radius: Theme.cardRadius
+                color: Theme.surfaceColor
+                border.color: Theme.dividerColor
                 border.width: 1
 
                 ColumnLayout {
@@ -88,44 +46,44 @@ Item {
                         left: parent.left
                         right: parent.right
                         top: parent.top
-                        leftMargin: Theme.ThemeConfig.spacingLarge
-                        rightMargin: Theme.ThemeConfig.spacingLarge
-                        topMargin: Theme.ThemeConfig.spacingSmall
+                        leftMargin: Theme.spacingLarge
+                        rightMargin: Theme.spacingLarge
+                        topMargin: Theme.spacingSmall
                     }
-                    spacing: Theme.ThemeConfig.spacingSmall
+                    spacing: Theme.spacingSmall
 
                     RowLayout {
                         Layout.fillWidth: true
-                        spacing: Theme.ThemeConfig.spacingMedium
+                        spacing: Theme.spacingMedium
 
                         Text {
                             text: model.key || ""
-                            color: Theme.ThemeConfig.textPrimary
-                            font.pixelSize: Theme.ThemeConfig.fontSizeSubheading
-                            font.weight: Theme.ThemeConfig.fontWeightBold
+                            color: Theme.textPrimary
+                            font.pixelSize: Theme.fontSizeSubheading
+                            font.weight: Theme.fontWeightBold
                             Layout.fillWidth: true
                         }
 
                         Text {
                             text: model.category || ""
-                            color: Theme.ThemeConfig.textHint
-                            font.pixelSize: Theme.ThemeConfig.fontSizeCaption
+                            color: Theme.textHint
+                            font.pixelSize: Theme.fontSizeCaption
                         }
                     }
 
                     Text {
                         Layout.fillWidth: true
                         text: model.value || model.summary || ""
-                        color: Theme.ThemeConfig.textSecondary
-                        font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                        color: Theme.textSecondary
+                        font.pixelSize: Theme.fontSizeBody
                         wrapMode: Text.Wrap
                         maximumLineCount: 3
                     }
 
                     Text {
                         text: model.layer || ""
-                        color: Theme.ThemeConfig.textHint
-                        font.pixelSize: Theme.ThemeConfig.fontSizeCaption
+                        color: Theme.textHint
+                        font.pixelSize: Theme.fontSizeCaption
                     }
                 }
             }
@@ -138,7 +96,7 @@ Item {
 
                 ColumnLayout {
                     anchors.centerIn: parent
-                    spacing: Theme.ThemeConfig.spacingLarge
+                    spacing: Theme.spacingLarge
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
@@ -149,15 +107,15 @@ Item {
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("No profiles yet")
-                        color: Theme.ThemeConfig.textHint
-                        font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                        color: Theme.textHint
+                        font.pixelSize: Theme.fontSizeBody
                     }
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Profiles are extracted from conversations automatically")
-                        color: Theme.ThemeConfig.textHint
-                        font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                        color: Theme.textHint
+                        font.pixelSize: Theme.fontSizeSmall
                     }
                 }
             }

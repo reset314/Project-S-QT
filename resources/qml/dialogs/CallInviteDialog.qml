@@ -2,7 +2,6 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Window 2.15
-import "../theme/ThemeConfig.qml" as Theme
 
 Dialog {
     id: callInviteDialog
@@ -22,28 +21,23 @@ Dialog {
     y: (parent ? parent.height : 600) / 2 - height / 2
 
     background: Rectangle {
-        radius: Theme.ThemeConfig.cardRadius
-        color: Theme.ThemeConfig.surfaceColor
+        radius: Theme.cardRadius
+        color: Theme.surfaceColor
 
         layer.enabled: true
-        layer.effect: DropShadow {
-            horizontalOffset: 0; verticalOffset: 8
-            radius: 24; samples: 33
-            color: "#30000000"
-        }
     }
 
     contentItem: ColumnLayout {
-        spacing: Theme.ThemeConfig.spacingLarge
+        spacing: Theme.spacingLarge
 
         // ── Call icon ─────────────────────────────────────────────
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
-            Layout.topMargin: Theme.ThemeConfig.spacingLarge
+            Layout.topMargin: Theme.spacingLarge
             width: 56; height: 56
             radius: 28
-            color: callType === "video" ? Theme.ThemeConfig.primaryColor
-                                        : Theme.ThemeConfig.successColor
+            color: callType === "video" ? Theme.primaryColor
+                                        : Theme.successColor
 
             Text {
                 anchors.centerIn: parent
@@ -55,13 +49,13 @@ Dialog {
         // ── Message ───────────────────────────────────────────────
         Text {
             Layout.fillWidth: true
-            Layout.leftMargin: Theme.ThemeConfig.spacingLarge
-            Layout.rightMargin: Theme.ThemeConfig.spacingLarge
+            Layout.leftMargin: Theme.spacingLarge
+            Layout.rightMargin: Theme.spacingLarge
             text: qsTr("Incoming %1 call from %2")
                   .arg(callType === "video" ? qsTr("video") : qsTr("voice"))
                   .arg(callerName || qsTr("Unknown"))
-            color: Theme.ThemeConfig.textPrimary
-            font.pixelSize: Theme.ThemeConfig.fontSizeBody
+            color: Theme.textPrimary
+            font.pixelSize: Theme.fontSizeBody
             wrapMode: Text.Wrap
             horizontalAlignment: Text.AlignHCenter
         }
@@ -71,10 +65,10 @@ Dialog {
         // ── Buttons ───────────────────────────────────────────────
         RowLayout {
             Layout.fillWidth: true
-            Layout.bottomMargin: Theme.ThemeConfig.spacingLarge
-            Layout.leftMargin: Theme.ThemeConfig.spacingLarge
-            Layout.rightMargin: Theme.ThemeConfig.spacingLarge
-            spacing: Theme.ThemeConfig.spacingMedium
+            Layout.bottomMargin: Theme.spacingLarge
+            Layout.leftMargin: Theme.spacingLarge
+            Layout.rightMargin: Theme.spacingLarge
+            spacing: Theme.spacingMedium
 
             Item { Layout.fillWidth: true }
 
@@ -82,15 +76,15 @@ Dialog {
             Rectangle {
                 Layout.preferredWidth: 120
                 Layout.preferredHeight: 40
-                radius: Theme.ThemeConfig.buttonRadius
-                color: declineMouse.containsMouse ? "#E57373" : Theme.ThemeConfig.errorColor
+                radius: Theme.buttonRadius
+                color: declineMouse.containsMouse ? "#E57373" : Theme.errorColor
 
                 Text {
                     anchors.centerIn: parent
                     text: qsTr("Decline")
                     color: "white"
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
-                    font.weight: Theme.ThemeConfig.fontWeightMedium
+                    font.pixelSize: Theme.fontSizeBody
+                    font.weight: Theme.fontWeightMedium
                 }
 
                 MouseArea {
@@ -109,15 +103,15 @@ Dialog {
             Rectangle {
                 Layout.preferredWidth: 120
                 Layout.preferredHeight: 40
-                radius: Theme.ThemeConfig.buttonRadius
-                color: acceptMouse.containsMouse ? "#66BB6A" : Theme.ThemeConfig.successColor
+                radius: Theme.buttonRadius
+                color: acceptMouse.containsMouse ? "#66BB6A" : Theme.successColor
 
                 Text {
                     anchors.centerIn: parent
                     text: qsTr("Accept")
                     color: "white"
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
-                    font.weight: Theme.ThemeConfig.fontWeightMedium
+                    font.pixelSize: Theme.fontSizeBody
+                    font.weight: Theme.fontWeightMedium
                 }
 
                 MouseArea {

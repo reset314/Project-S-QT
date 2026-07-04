@@ -1,12 +1,11 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
 
 Item {
     id: chatBubble
     width: parent ? parent.width : 400
-    height: bubbleColumn.implicitHeight + Theme.ThemeConfig.spacingMedium
+    height: bubbleColumn.implicitHeight + Theme.spacingMedium
 
     property string senderType: "user"     // "user" | "ai" | "system"
     property string msgType: "text"        // "text" | "image" | "video" | "file" | "audio"
@@ -18,7 +17,13 @@ Item {
     property bool isUser: senderType === "user"
     property bool isAi: senderType === "ai"
     property bool isSystem: senderType === "system"
-    property string responseText: contentJson && contentJson.response ? contentJson.response : ""
+    property string responseText: {
+        if (!contentJson) return ""
+        if (typeof contentJson === "string") return contentJson
+        if (contentJson.response && contentJson.response !== "") return contentJson.response
+        // Fallback: server might store plain text in content
+        return ""
+    }
     property string thinkText: contentJson && contentJson.think ? contentJson.think : ""
     property string emotionText: contentJson && contentJson.emotion ? contentJson.emotion : ""
     property bool hasThinkContent: thinkText.length > 0
@@ -27,7 +32,7 @@ Item {
 
     ColumnLayout {
         id: bubbleColumn
-        spacing: Theme.ThemeConfig.spacingTiny
+        spacing: Theme.spacingTiny
 
         // ── System message ─────────────────────────────────────
         Loader {
@@ -52,14 +57,14 @@ Item {
         Rectangle {
             width: chatBubble.width
             height: sysLabel.implicitHeight + 8
-            color: Theme.ThemeConfig.systemBubbleColor
+            color: Theme.systemBubbleColor
 
             Text {
                 id: sysLabel
                 anchors.centerIn: parent
                 text: chatBubble.responseText || chatBubble.thinkText
-                color: Theme.ThemeConfig.systemBubbleText
-                font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                color: Theme.systemBubbleText
+                font.pixelSize: Theme.fontSizeSmall
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.Wrap
             }
@@ -71,17 +76,17 @@ Item {
         id: userBubbleComponent
         Item {
             width: chatBubble.width
-            height: userContent.height + Theme.ThemeConfig.spacingTiny
+            height: userContent.height + Theme.spacingTiny
 
             // Pin to right
             Rectangle {
                 id: userBubble
                 anchors.right: parent.right
-                anchors.rightMargin: Theme.ThemeConfig.spacingLarge
+                anchors.rightMargin: Theme.spacingLarge
                 width: Math.min(userContent.implicitWidth + 24, chatBubble.maxBubbleWidth)
-                height: userContent.implicitHeight + Theme.ThemeConfig.spacingMedium + 2
-                radius: Theme.ThemeConfig.bubbleRadius
-                color: Theme.ThemeConfig.userBubbleColor
+                height: userContent.implicitHeight + Theme.spacingMedium + 2
+                radius: Theme.bubbleRadius
+                color: Theme.userBubbleColor
 
                 Text {
                     id: userContent
@@ -89,16 +94,16 @@ Item {
                         left: parent.left
                         right: parent.right
                         top: parent.top
-                        leftMargin: Theme.ThemeConfig.spacingMedium
-                        rightMargin: Theme.ThemeConfig.spacingMedium
-                        topMargin: Theme.ThemeConfig.spacingSmall
+                        leftMargin: Theme.spacingMedium
+                        rightMargin: Theme.spacingMedium
+                        topMargin: Theme.spacingSmall
                     }
                     text: chatBubble.responseText
-                    color: Theme.ThemeConfig.userBubbleText
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                    color: Theme.userBubbleText
+                    font.pixelSize: Theme.fontSizeBody
                     wrapMode: Text.Wrap
                     textFormat: Text.PlainText
-                    linkColor: Theme.ThemeConfig.accentLight
+                    linkColor: Theme.accentLight
                 }
             }
 
@@ -110,8 +115,8 @@ Item {
                     topMargin: 2
                 }
                 text: formatTime(chatBubble.timestamp)
-                color: Theme.ThemeConfig.textHint
-                font.pixelSize: Theme.ThemeConfig.fontSizeCaption
+                color: Theme.textHint
+                font.pixelSize: Theme.fontSizeCaption
             }
 
             // Sending indicator
@@ -123,7 +128,7 @@ Item {
                     verticalCenter: userBubble.verticalCenter
                 }
                 width: 12; height: 12; radius: 6
-                color: Theme.ThemeConfig.textHint
+                color: Theme.textHint
 
                 RotationAnimation on rotation {
                     running: !chatBubble.isComplete
@@ -140,14 +145,14 @@ Item {
         id: aiBubbleComponent
         Item {
             width: chatBubble.width
-            height: aiContentCol.implicitHeight + Theme.ThemeConfig.spacingTiny
+            height: aiContentCol.implicitHeight + Theme.spacingTiny
 
             Column {
                 id: aiContentCol
                 anchors.left: parent.left
-                anchors.leftMargin: Theme.ThemeConfig.spacingLarge
+                anchors.leftMargin: Theme.spacingLarge
                 width: Math.min(implicitWidth, chatBubble.maxBubbleWidth)
-                spacing: Theme.ThemeConfig.spacingTiny
+                spacing: Theme.spacingTiny
 
                 // Emotion indicator
                 Rectangle {
@@ -155,14 +160,14 @@ Item {
                     width: emotionLabel.implicitWidth + 8
                     height: 18
                     radius: 9
-                    color: Theme.ThemeConfig.sidebarHover
+                    color: Theme.sidebarHover
 
                     Text {
                         id: emotionLabel
                         anchors.centerIn: parent
                         text: chatBubble.emotionText
-                        font.pixelSize: Theme.ThemeConfig.fontSizeCaption
-                        color: Theme.ThemeConfig.textSecondary
+                        font.pixelSize: Theme.fontSizeCaption
+                        color: Theme.textSecondary
                     }
                 }
 
@@ -177,10 +182,10 @@ Item {
                 Rectangle {
                     id: aiBubble
                     width: Math.max(60, aiResponseText.implicitWidth + 24)
-                    height: aiResponseText.implicitHeight + Theme.ThemeConfig.spacingMedium + 2
-                    radius: Theme.ThemeConfig.bubbleRadius
-                    color: Theme.ThemeConfig.aiBubbleColor
-                    border.color: Theme.ThemeConfig.dividerColor
+                    height: aiResponseText.implicitHeight + Theme.spacingMedium + 2
+                    radius: Theme.bubbleRadius
+                    color: Theme.aiBubbleColor
+                    border.color: Theme.dividerColor
                     border.width: 1
 
                     Text {
@@ -189,16 +194,16 @@ Item {
                             left: parent.left
                             right: parent.right
                             top: parent.top
-                            leftMargin: Theme.ThemeConfig.spacingMedium
-                            rightMargin: Theme.ThemeConfig.spacingMedium
-                            topMargin: Theme.ThemeConfig.spacingSmall
+                            leftMargin: Theme.spacingMedium
+                            rightMargin: Theme.spacingMedium
+                            topMargin: Theme.spacingSmall
                         }
                         text: chatBubble.responseText
-                        color: Theme.ThemeConfig.aiBubbleText
-                        font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                        color: Theme.aiBubbleText
+                        font.pixelSize: Theme.fontSizeBody
                         wrapMode: Text.Wrap
                         textFormat: Text.PlainText
-                        linkColor: Theme.ThemeConfig.primaryColor
+                        linkColor: Theme.primaryColor
                     }
                 }
 
@@ -206,8 +211,8 @@ Item {
                 Text {
                     anchors.left: aiBubble.left
                     text: formatTime(chatBubble.timestamp)
-                    color: Theme.ThemeConfig.textHint
-                    font.pixelSize: Theme.ThemeConfig.fontSizeCaption
+                    color: Theme.textHint
+                    font.pixelSize: Theme.fontSizeCaption
                 }
             }
         }
@@ -232,7 +237,7 @@ Item {
                     width: thinkHeaderText.implicitWidth + 12
                     height: 22
                     radius: 4
-                    color: expanded ? Theme.ThemeConfig.sidebarHover : "transparent"
+                    color: expanded ? Theme.sidebarHover : "transparent"
 
                     Text {
                         id: thinkHeaderText
@@ -240,8 +245,8 @@ Item {
                         anchors.left: parent.left
                         anchors.leftMargin: 6
                         text: expanded ? qsTr("▼ Thinking") : qsTr("▶ Thinking")
-                        font.pixelSize: Theme.ThemeConfig.fontSizeSmall
-                        color: Theme.ThemeConfig.textSecondary
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.textSecondary
                     }
 
                     MouseArea {
@@ -270,8 +275,8 @@ Item {
                             rightMargin: 8
                         }
                         text: chatBubble.thinkText
-                        color: Theme.ThemeConfig.textSecondary
-                        font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                        color: Theme.textSecondary
+                        font.pixelSize: Theme.fontSizeSmall
                         wrapMode: Text.Wrap
                         textFormat: Text.PlainText
                     }

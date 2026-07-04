@@ -85,7 +85,7 @@ Result<ChatSendResponse> ChatRepository::sendMessage(const QString &aiUserId,
 
     auto result = http_->post("/chat", body);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     return ChatSendResponse::fromJson(*result);
 }
@@ -106,7 +106,7 @@ Result<ChatMediaResponse> ChatRepository::sendFormDataMessage(
 
     auto result = http_->postFormData("/chat", fields, filePath);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     return ChatMediaResponse::fromJson(*result);
 }
@@ -122,7 +122,7 @@ Result<QVector<MessageDTO>> ChatRepository::getHistory(const QString &aiUserId,
 
     auto result = http_->get(QString("/aiusers/%1/messages").arg(aiUserId), params);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     QJsonValue data = unwrapResponse(*result);
     // data may be the unwrapped object containing {messages, has_more}
@@ -139,8 +139,15 @@ Result<QVector<MessageDTO>> ChatRepository::getHistory(const QString &aiUserId,
 
     // Persist fetched messages locally
     if (db_) {
-        for (const auto &msg : messages)
+        int upserted = 0;
+        for (const auto &msg : messages) {
             db_->upsertMessage(msg, aiUserId);
+            upserted++;
+        }
+        qDebug() << "ChatRepository::getHistory: upserted" << upserted
+                 << "messages for aiUserId" << aiUserId;
+    } else {
+        qWarning() << "ChatRepository::getHistory: db_ is NULL — messages NOT persisted!";
     }
 
     return messages;
@@ -159,7 +166,7 @@ Result<SyncResult> ChatRepository::syncMessages(const QString &aiUserId,
 
     auto result = http_->get(QString("/aiusers/%1/messages").arg(aiUserId), params);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     QJsonValue data = unwrapResponse(*result);
     QJsonObject dataObj = data.isObject() ? data.toObject() : *result;
@@ -178,12 +185,12 @@ Result<MessageDTO> ChatRepository::revokeMessage(const QString &messageId)
 {
     auto result = http_->post(QString("/messages/%1/revoke").arg(messageId));
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     MessageDTO msg = MessageDTO::fromJson(*result);
 
     // Update local DB
-    if (db_ && msg.serverId) {
+    if (db_ && !msg.serverId.empty()) {
         QVariantMap values;
         if (msg.revokedAt)
             values["revoked_at"] = msg.revokedAt->toString(Qt::ISODate);
@@ -209,7 +216,7 @@ Result<QJsonObject> ChatRepository::rollbackMessages(const QString &afterMessage
     QString path = QString("/messages/rollback?after_message_id=%1").arg(afterMessageId);
     auto result = http_->post(path, QJsonObject{});
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     return *result;
 }

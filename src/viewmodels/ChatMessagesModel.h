@@ -6,6 +6,7 @@
 
 class ChatMessagesModel : public QAbstractListModel {
     Q_OBJECT
+    Q_PROPERTY(QString activeAiUserId READ activeAiUserId NOTIFY activeAiUserIdChanged)
 public:
     enum Roles {
         ServerIdRole = Qt::UserRole + 1,
@@ -24,6 +25,32 @@ public:
 
     explicit ChatMessagesModel(QObject *parent = nullptr);
 
+    /// Set which AI user's messages are currently displayed.
+    /// Emits loadRequested() — upstream should load history + sync.
+    Q_INVOKABLE void setActiveAiUserId(const QString &aiUserId);
+    QString activeAiUserId() const { return activeAiUserId_; }
+
+    /// Called by C++ after history/sync completes for the active AI user.
+    void onHistoryLoaded(const QVector<MessageDTO> &messages);
+
+    /// Called by C++ after older messages are loaded (pagination).
+    void onOlderMessagesLoaded(const QVector<MessageDTO> &messages);
+
+    /// QML: request to load older messages (pagination — scroll to top).
+    Q_INVOKABLE void loadOlder();
+
+    /// Return the timestamp of the oldest message in the model, or empty.
+    Q_INVOKABLE QString oldestTimestamp() const;
+
+signals:
+    void activeAiUserIdChanged();
+    void loadRequested(const QString &aiUserId);
+    void loadOlderRequested(const QString &aiUserId, const QString &beforeTimestamp);
+    void olderMessagesLoaded(int prependCount);
+    void historyLoaded();
+    void messageAppended();
+
+public:
     int rowCount(const QModelIndex &parent = {}) const override;
     QVariant data(const QModelIndex &index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;
@@ -34,21 +61,23 @@ public:
     void replaceAll(const QVector<MessageDTO> &msgs);
     void updateContent(int row, const QJsonObject &content);
     void removeMessage(const QString &clientUuid);
-    void markComplete(int row, int64_t serverId);
+    void markComplete(int row, const QString &serverId);
     void clear();
 
-    const MessageDTO &at(int row) const;
+    const MessageDTO &messageAt(int row) const;
     int findByClientUuid(const QString &uuid) const;
-
-signals:
-    void messageAppended();
 
 private:
     QVector<MessageDTO> messages_;
     QHash<QString, int> clientUuidIndex_;
-    QHash<int64_t, int> serverIdIndex_;
+    QHash<QString, int> serverIdIndex_;
+    QString activeAiUserId_;
 
     void rebuildIndices();
     QVariant contentToVariant(const QJsonObject &content) const;
     QVariant mediaListToVariant(const std::vector<MediaDTO> &mediaList) const;
+
+    /// Expand messages containing <split> in response text into multiple rows.
+    /// Matches Flutter's _expandMessages() in chat_page.dart.
+    QVector<MessageDTO> expandSplits(const QVector<MessageDTO> &msgs) const;
 };

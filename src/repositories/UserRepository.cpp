@@ -13,7 +13,7 @@ Result<UserDTO> UserRepository::getCurrentUser()
 {
     auto result = http_->get("/users/me");
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     return UserDTO::fromJson(*result);
 }
@@ -22,7 +22,7 @@ Result<QVector<UserDTO>> UserRepository::listUsers()
 {
     auto result = http_->get("/users");
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     // GET /users returns {success: true, data: [...]}
     // HttpClient passes through the root when data is an array.
@@ -47,7 +47,7 @@ Result<UserDTO> UserRepository::updateUser(const QString &userId,
 {
     auto result = http_->put(QString("/users/%1").arg(userId), fields);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     return UserDTO::fromJson(*result);
 }

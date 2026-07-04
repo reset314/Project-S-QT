@@ -1,34 +1,25 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
-import "../theme/ThemeConfig.qml" as Theme
 
 Rectangle {
     id: titleBar
-    height: Theme.ThemeConfig.titleBarHeight
-    color: Theme.ThemeConfig.titleBarBackground
+    height: Theme.titleBarHeight
+    color: Theme.titleBarBackground
     z: 100
+
+    property bool isMaximized: false
 
     signal minimizeClicked()
     signal maximizeClicked()
     signal closeClicked()
 
-    // Drag to move window
+    // Drag to move window — Win32 native API (ReleaseCapture + WM_NCLBUTTONDOWN)
     MouseArea {
         anchors.fill: parent
-        property point lastMousePos: Qt.point(0, 0)
         onPressed: {
-            lastMousePos = Qt.point(mouseX, mouseY)
-        }
-        onPositionChanged: {
-            if (pressed) {
-                var dx = mouseX - lastMousePos.x
-                var dy = mouseY - lastMousePos.y
-                var win = rootWindow()
-                if (win) {
-                    win.x += dx
-                    win.y += dy
-                }
+            if (typeof windowHelper !== "undefined") {
+                windowHelper.startSystemDrag(titleBar.Window.window)
             }
         }
     }
@@ -36,16 +27,16 @@ Rectangle {
     Row {
         anchors {
             left: parent.left
-            leftMargin: Theme.ThemeConfig.spacingSmall
+            leftMargin: Theme.spacingSmall
             verticalCenter: parent.verticalCenter
         }
-        spacing: Theme.ThemeConfig.spacingTiny
+        spacing: Theme.spacingTiny
 
         Text {
-            text: "AI Chat"
-            color: Theme.ThemeConfig.textOnPrimary
-            font.pixelSize: Theme.ThemeConfig.fontSizeSmall
-            font.weight: Theme.ThemeConfig.fontWeightMedium
+            text: "Project-S"
+            color: Theme.textOnPrimary
+            font.pixelSize: Theme.fontSizeSmall
+            font.weight: Theme.fontWeightMedium
             anchors.verticalCenter: parent.verticalCenter
         }
     }
@@ -57,48 +48,97 @@ Rectangle {
             verticalCenter: parent.verticalCenter
         }
 
+        // ── Minimize ────────────────────────────────────────────
         TitleBarButton {
-            text: "─"
+            iconType: "minimize"
             onClicked: titleBar.minimizeClicked()
         }
 
+        // ── Maximize / Restore ──────────────────────────────────
         TitleBarButton {
-            text: "□"
+            iconType: titleBar.isMaximized ? "restore" : "maximize"
             onClicked: titleBar.maximizeClicked()
         }
 
+        // ── Close ───────────────────────────────────────────────
         TitleBarButton {
-            text: "✕"
+            iconType: "close"
             isClose: true
             onClicked: titleBar.closeClicked()
         }
     }
 
-    function rootWindow() {
-        var obj = titleBar
-        while (obj && !(obj instanceof Window)) {
-            obj = obj.parent
-        }
-        return obj
-    }
-
+    // ── TitleBarButton component with drawn icons ─────────────────
     component TitleBarButton: Rectangle {
-        property string text: ""
+        property string iconType: ""     // "minimize" | "maximize" | "restore" | "close"
         property bool isClose: false
 
         width: 46
-        height: Theme.ThemeConfig.titleBarHeight
+        height: Theme.titleBarHeight
         color: mouseArea.containsMouse
-               ? (isClose ? Theme.ThemeConfig.errorColor : Qt.rgba(1, 1, 1, 0.1))
+               ? (isClose ? Theme.errorColor : Qt.rgba(1, 1, 1, 0.1))
                : "transparent"
 
         signal clicked()
 
-        Text {
+        // Drawn icon — crisp at any DPI, no font dependency
+        Canvas {
             anchors.centerIn: parent
-            text: parent.text
-            color: Theme.ThemeConfig.textOnPrimary
-            font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+            width: 12; height: 12
+            scale: 1.0
+            contextType: "2d"
+            antialiasing: true
+
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.reset()
+                ctx.strokeStyle = Theme.textOnPrimary
+                ctx.fillStyle = Theme.textOnPrimary
+                ctx.lineWidth = 1.2
+                ctx.lineCap = "round"
+                ctx.lineJoin = "round"
+
+                // Center offset for 12×12 canvas
+                var s = 11  // drawable size
+                var m = 0.5 // margin
+                var d = 2.0 // restore offset
+
+                if (iconType === "minimize") {
+                    // Horizontal line at bottom
+                    ctx.beginPath()
+                    ctx.moveTo(m + 1.5, s - 3)
+                    ctx.lineTo(s - 1.5, s - 3)
+                    ctx.stroke()
+                } else if (iconType === "maximize") {
+                    // Square outline
+                    ctx.strokeRect(m + 1, m + 1, s - 3, s - 3)
+                } else if (iconType === "restore") {
+                    // Background clone (lower-right)
+                    ctx.fillStyle = Theme.titleBarBackground
+                    ctx.fillRect(m + d + 1, m - d + 1, s - 3, s - 3)
+                    ctx.strokeStyle = Theme.textOnPrimary
+                    ctx.strokeRect(m + d + 1, m - d + 1, s - 3, s - 3)
+                    // Foreground clone (upper-left)
+                    ctx.fillStyle = Theme.titleBarBackground
+                    ctx.fillRect(m - d + 1, m + d + 1, s - 3, s - 3)
+                    ctx.strokeRect(m - d + 1, m + d + 1, s - 3, s - 3)
+                } else if (iconType === "close") {
+                    // X shape — two diagonal lines
+                    ctx.beginPath()
+                    ctx.moveTo(m + 1.5, m + 1.5)
+                    ctx.lineTo(s - 1.5, s - 1.5)
+                    ctx.stroke()
+                    ctx.beginPath()
+                    ctx.moveTo(s - 1.5, m + 1.5)
+                    ctx.lineTo(m + 1.5, s - 1.5)
+                    ctx.stroke()
+                }
+            }
+
+            Connections {
+                target: parent
+                function onIconTypeChanged() { parent.repaint?.() }
+            }
         }
 
         MouseArea {

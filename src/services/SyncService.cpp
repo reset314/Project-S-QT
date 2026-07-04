@@ -77,26 +77,29 @@ void SyncService::syncMessages(const QString &aiUserId, double anchorHours)
     repo_->deleteMessagesSince(aiUserId, effectiveSince);
 
     // Build a set of server-side serverIds for reconciliation
-    QSet<int64_t> serverIds;
+    QSet<QString> serverIds;
     for (const auto &msg : sync.messages) {
-        if (msg.serverId)
-            serverIds.insert(*msg.serverId);
+        if (!msg.serverId.empty())
+            serverIds.insert(QString::fromStdString(msg.serverId));
     }
 
-    // Reconciliation: any local message (for this AI user) whose serverId
-    // is NOT in the server response and was previously synced should be
-    // soft-deleted.  We only reconcile messages that have a serverId
-    // (optimistic-only messages without serverId are handled by Layer 2).
+    // Reconciliation: only for messages within the sync window (timestamp >=
+    // effectiveSince).  Older messages are history — the sync response won't
+    // include them and they should NOT be deleted.
     if (db_) {
         QVector<MessageDTO> localMessages = db_->getLocalMessages(aiUserId, 500);
 
         for (const auto &local : localMessages) {
-            if (!local.serverId)
+            if (local.serverId.empty())
                 continue; // No serverId yet — Layer 2 handles these
             if (local.deletedAt)
                 continue; // Already soft-deleted
 
-            if (!serverIds.contains(*local.serverId)) {
+            // Only reconcile messages within the sync window
+            if (QString::fromStdString(local.timestamp) < effectiveSince)
+                continue;
+
+            if (!serverIds.contains(QString::fromStdString(local.serverId))) {
                 // This message exists locally but not on the server —
                 // it was likely deleted server-side.  Soft-delete locally.
                 QVariantMap values;
@@ -107,7 +110,7 @@ void SyncService::syncMessages(const QString &aiUserId, double anchorHours)
 
                 qDebug() << "SyncService: soft-deleted local message"
                          << QString::fromStdString(local.clientUuid)
-                         << "(serverId" << *local.serverId << ")";
+                         << "(serverId" << QString::fromStdString(local.serverId) << ")";
             }
         }
     }

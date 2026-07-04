@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
 import "../components" as C
 
 Item {
@@ -16,23 +15,23 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 56
-            color: Theme.ThemeConfig.surfaceColor
-            border.color: Theme.ThemeConfig.dividerColor
+            color: Theme.surfaceColor
+            border.color: Theme.dividerColor
             border.width: 1
 
             RowLayout {
                 anchors {
                     fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingMedium
+                    leftMargin: Theme.spacingLarge
+                    rightMargin: Theme.spacingMedium
                 }
-                spacing: Theme.ThemeConfig.spacingMedium
+                spacing: Theme.spacingMedium
 
                 Text {
                     text: qsTr("Conversations")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                    font.weight: Theme.ThemeConfig.fontWeightBold
+                    color: Theme.textPrimary
+                    font.pixelSize: Theme.fontSizeHeading
+                    font.weight: Theme.fontWeightBold
                     Layout.fillWidth: true
                 }
             }
@@ -81,7 +80,7 @@ Item {
 
                 ColumnLayout {
                     anchors.centerIn: parent
-                    spacing: Theme.ThemeConfig.spacingLarge
+                    spacing: Theme.spacingLarge
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
@@ -92,15 +91,15 @@ Item {
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("No conversations yet")
-                        color: Theme.ThemeConfig.textHint
-                        font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                        color: Theme.textHint
+                        font.pixelSize: Theme.fontSizeBody
                     }
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select a contact and start chatting!")
-                        color: Theme.ThemeConfig.textHint
-                        font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                        color: Theme.textHint
+                        font.pixelSize: Theme.fontSizeSmall
                     }
                 }
             }

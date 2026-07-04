@@ -32,7 +32,7 @@ Result<QVector<AIUserDTO>> AIUserRepository::listAIUsers()
 {
     auto result = http_->get("/aiusers/");
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     // data is {items: [...]} — HttpClient unwrapped it to just {items: [...]}
     QJsonObject data = *result;
@@ -54,7 +54,7 @@ Result<AIUserDTO> AIUserRepository::getAIUser(const QString &aiUserId)
 {
     auto result = http_->get(QString("/aiusers/%1").arg(aiUserId));
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     return AIUserDTO::fromJson(*result);
 }
@@ -88,7 +88,7 @@ Result<AIUserDTO> AIUserRepository::createAIUser(const QString &name,
 
     auto result = http_->post("/aiusers/", body);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     return AIUserDTO::fromJson(*result);
 }
@@ -119,7 +119,7 @@ Result<AIUserDTO> AIUserRepository::updateAIUser(const QString &aiUserId,
     // Best approach: send a raw request through HttpClient's internal NAM.
     auto result = http_->put(QString("/aiusers/%1").arg(aiUserId), fields);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     return AIUserDTO::fromJson(*result);
 }

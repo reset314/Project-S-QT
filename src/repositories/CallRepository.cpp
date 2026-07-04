@@ -38,7 +38,7 @@ Result<CallStartResponse> CallRepository::startCall(const QString &conversationI
 
     auto result = http_->post("/call/start", body);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     return CallStartResponse::fromJson(*result);
 }

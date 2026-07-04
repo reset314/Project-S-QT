@@ -1,12 +1,11 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
 
 Item {
     id: mediaPreview
     width: 280
-    height: mediaColumn.implicitHeight + Theme.ThemeConfig.spacingSmall
+    height: mediaColumn.implicitHeight + Theme.spacingSmall
 
     property string mediaType: ""     // "image" | "video" | "audio" | "file"
     property string mediaUrl: ""
@@ -18,7 +17,7 @@ Item {
     Column {
         id: mediaColumn
         width: parent.width
-        spacing: Theme.ThemeConfig.spacingTiny
+        spacing: Theme.spacingTiny
 
         // Image preview
         Loader {
@@ -59,8 +58,8 @@ Item {
         Rectangle {
             width: Math.min(280, imageLoader.implicitWidth)
             height: Math.min(200, imageLoader.implicitHeight)
-            radius: Theme.ThemeConfig.bubbleRadius
-            color: Theme.ThemeConfig.dividerColor
+            radius: Theme.bubbleRadius
+            color: Theme.dividerColor
             clip: true
 
             Image {
@@ -80,14 +79,14 @@ Item {
             // Loading placeholder
             Rectangle {
                 anchors.fill: parent
-                color: Theme.ThemeConfig.dividerColor
+                color: Theme.dividerColor
                 visible: imageLoader.status === Image.Loading
 
                 Text {
                     anchors.centerIn: parent
                     text: qsTr("Loading...")
-                    color: Theme.ThemeConfig.textHint
-                    font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                    color: Theme.textHint
+                    font.pixelSize: Theme.fontSizeSmall
                 }
             }
         }
@@ -99,14 +98,14 @@ Item {
         Rectangle {
             width: 280
             height: 160
-            radius: Theme.ThemeConfig.bubbleRadius
+            radius: Theme.bubbleRadius
             color: "#1A1A1A"
 
             Text {
                 anchors.centerIn: parent
                 text: "▶ " + qsTr("Play Video")
                 color: "white"
-                font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                font.pixelSize: Theme.fontSizeBody
             }
 
             MouseArea {
@@ -123,29 +122,29 @@ Item {
         Rectangle {
             width: 240
             height: 48
-            radius: Theme.ThemeConfig.bubbleRadius
-            color: Theme.ThemeConfig.aiBubbleColor
-            border.color: Theme.ThemeConfig.dividerColor
+            radius: Theme.bubbleRadius
+            color: Theme.aiBubbleColor
+            border.color: Theme.dividerColor
 
             RowLayout {
                 anchors {
                     fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingMedium
-                    rightMargin: Theme.ThemeConfig.spacingMedium
+                    leftMargin: Theme.spacingMedium
+                    rightMargin: Theme.spacingMedium
                 }
-                spacing: Theme.ThemeConfig.spacingMedium
+                spacing: Theme.spacingMedium
 
                 // Play button
                 Rectangle {
                     Layout.preferredWidth: 32; Layout.preferredHeight: 32
                     radius: 16
-                    color: Theme.ThemeConfig.primaryColor
+                    color: Theme.primaryColor
 
                     Text {
                         anchors.centerIn: parent
                         text: "▶"
                         color: "white"
-                        font.pixelSize: Theme.ThemeConfig.fontSizeSubheading
+                        font.pixelSize: Theme.fontSizeSubheading
                     }
 
                     MouseArea {
@@ -157,8 +156,8 @@ Item {
 
                 Text {
                     text: mediaPreview.mediaName || qsTr("Audio message")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                    color: Theme.textPrimary
+                    font.pixelSize: Theme.fontSizeSmall
                     Layout.fillWidth: true
                     elide: Text.ElideRight
                 }
@@ -172,28 +171,28 @@ Item {
         Rectangle {
             width: 240
             height: 56
-            radius: Theme.ThemeConfig.bubbleRadius
-            color: Theme.ThemeConfig.aiBubbleColor
-            border.color: Theme.ThemeConfig.dividerColor
+            radius: Theme.bubbleRadius
+            color: Theme.aiBubbleColor
+            border.color: Theme.dividerColor
             border.width: 1
 
             RowLayout {
                 anchors {
                     fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingMedium
-                    rightMargin: Theme.ThemeConfig.spacingMedium
+                    leftMargin: Theme.spacingMedium
+                    rightMargin: Theme.spacingMedium
                 }
-                spacing: Theme.ThemeConfig.spacingMedium
+                spacing: Theme.spacingMedium
 
                 Rectangle {
                     Layout.preferredWidth: 36; Layout.preferredHeight: 36
                     radius: 4
-                    color: Theme.ThemeConfig.primaryLight
+                    color: Theme.primaryLight
 
                     Text {
                         anchors.centerIn: parent
                         text: "📄"
-                        font.pixelSize: Theme.ThemeConfig.fontSizeHeading
+                        font.pixelSize: Theme.fontSizeHeading
                     }
                 }
 
@@ -203,16 +202,16 @@ Item {
 
                     Text {
                         text: mediaPreview.mediaName || qsTr("File attachment")
-                        color: Theme.ThemeConfig.textPrimary
-                        font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                        color: Theme.textPrimary
+                        font.pixelSize: Theme.fontSizeSmall
                         Layout.fillWidth: true
                         elide: Text.ElideRight
                     }
 
                     Text {
                         text: formatFileSize(mediaPreview.fileSize)
-                        color: Theme.ThemeConfig.textHint
-                        font.pixelSize: Theme.ThemeConfig.fontSizeCaption
+                        color: Theme.textHint
+                        font.pixelSize: Theme.fontSizeCaption
                     }
                 }
             }

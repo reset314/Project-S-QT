@@ -1,11 +1,10 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import "../theme/ThemeConfig.qml" as Theme
 
 Rectangle {
     id: statusBar
-    height: Theme.ThemeConfig.statusBarHeight
-    color: Theme.ThemeConfig.primaryDark
+    height: Theme.statusBarHeight
+    color: Theme.primaryDark
 
     property bool connected: false
     property int totalUnread: 0
@@ -13,14 +12,14 @@ Rectangle {
     Row {
         anchors {
             left: parent.left
-            leftMargin: Theme.ThemeConfig.spacingSmall
+            leftMargin: Theme.spacingSmall
             verticalCenter: parent.verticalCenter
         }
-        spacing: Theme.ThemeConfig.spacingMedium
+        spacing: Theme.spacingMedium
 
         // Connection indicator
         Row {
-            spacing: Theme.ThemeConfig.spacingTiny
+            spacing: Theme.spacingTiny
             anchors.verticalCenter: parent.verticalCenter
 
             Rectangle {
@@ -29,8 +28,8 @@ Rectangle {
                 radius: 4
                 anchors.verticalCenter: parent.verticalCenter
                 color: statusBar.connected
-                       ? Theme.ThemeConfig.onlineColor
-                       : Theme.ThemeConfig.offlineColor
+                       ? Theme.onlineColor
+                       : Theme.offlineColor
 
                 SequentialAnimation on opacity {
                     running: !statusBar.connected
@@ -42,8 +41,8 @@ Rectangle {
 
             Text {
                 text: statusBar.connected ? qsTr("Connected") : qsTr("Disconnected")
-                color: Theme.ThemeConfig.textOnPrimary
-                font.pixelSize: Theme.ThemeConfig.fontSizeCaption
+                color: Theme.textOnPrimary
+                font.pixelSize: Theme.fontSizeCaption
                 anchors.verticalCenter: parent.verticalCenter
             }
         }
@@ -52,10 +51,10 @@ Rectangle {
     Row {
         anchors {
             right: parent.right
-            rightMargin: Theme.ThemeConfig.spacingSmall
+            rightMargin: Theme.spacingSmall
             verticalCenter: parent.verticalCenter
         }
-        spacing: Theme.ThemeConfig.spacingMedium
+        spacing: Theme.spacingMedium
 
         // Unread badge
         Rectangle {
@@ -64,15 +63,15 @@ Rectangle {
             width: unreadText.implicitWidth + 8
             height: 16
             radius: 8
-            color: Theme.ThemeConfig.unreadBadgeColor
+            color: Theme.unreadBadgeColor
 
             Text {
                 id: unreadText
                 anchors.centerIn: parent
                 text: totalUnread > 99 ? "99+" : String(totalUnread)
-                color: Theme.ThemeConfig.unreadBadgeText
-                font.pixelSize: Theme.ThemeConfig.fontSizeCaption
-                font.weight: Theme.ThemeConfig.fontWeightBold
+                color: Theme.unreadBadgeText
+                font.pixelSize: Theme.fontSizeCaption
+                font.weight: Theme.fontWeightBold
             }
         }
     }

@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
-import "theme/ThemeConfig.qml" as Theme
 import "shell"
 import "pages"
 import "dialogs"
@@ -11,8 +10,10 @@ ApplicationWindow {
     width: 1280
     height: 800
     visible: true
-    title: "AI Chat"
-    color: Theme.ThemeConfig.backgroundColor
+    title: "Project-S"
+    color: Theme.backgroundColor
+    minimumWidth: 800
+    minimumHeight: 500
 
     // Frameless window flags
     flags: Qt.Window | Qt.FramelessWindowHint
@@ -26,6 +27,7 @@ ApplicationWindow {
         TitleBar {
             id: titleBar
             width: parent.width
+            isMaximized: root.visibility === Window.Maximized
 
             onMinimizeClicked: root.showMinimized()
             onMaximizeClicked: {
@@ -113,45 +115,55 @@ ApplicationWindow {
     }
 
     // ── Window resize edges ──────────────────────────────────────
-    // Frameless window needs manual resize handling
+    // Frameless window uses OS-native system resize for proper behavior
     MouseArea {
-        id: resizeLeft
         anchors { left: parent.left; top: parent.top; bottom: parent.bottom; topMargin: 8; bottomMargin: 8 }
         width: 6
         cursorShape: Qt.SizeHorCursor
-        onPositionChanged: function(mouse) {
-            if (pressed) root.width -= mouse.x
-        }
+        onPressed: root.startSystemResize(Qt.LeftEdge)
     }
     MouseArea {
-        id: resizeRight
         anchors { right: parent.right; top: parent.top; bottom: parent.bottom; topMargin: 8; bottomMargin: 8 }
         width: 6
         cursorShape: Qt.SizeHorCursor
-        onPositionChanged: function(mouse) {
-            if (pressed) root.width += mouse.x
-        }
+        onPressed: root.startSystemResize(Qt.RightEdge)
     }
     MouseArea {
-        id: resizeBottom
         anchors { bottom: parent.bottom; left: parent.left; right: parent.right; leftMargin: 8; rightMargin: 8 }
         height: 6
         cursorShape: Qt.SizeVerCursor
-        onPositionChanged: function(mouse) {
-            if (pressed) root.height += mouse.y
-        }
+        onPressed: root.startSystemResize(Qt.BottomEdge)
     }
     MouseArea {
-        id: resizeCorner
+        anchors { top: parent.top; left: parent.left; right: parent.right; leftMargin: 8; rightMargin: 8 }
+        height: 6
+        cursorShape: Qt.SizeVerCursor
+        onPressed: root.startSystemResize(Qt.TopEdge)
+    }
+    // Corners
+    MouseArea {
         anchors { right: parent.right; bottom: parent.bottom }
         width: 12; height: 12
         cursorShape: Qt.SizeFDiagCursor
-        onPositionChanged: function(mouse) {
-            if (pressed) {
-                root.width += mouse.x
-                root.height += mouse.y
-            }
-        }
+        onPressed: root.startSystemResize(Qt.RightEdge | Qt.BottomEdge)
+    }
+    MouseArea {
+        anchors { left: parent.left; bottom: parent.bottom }
+        width: 12; height: 12
+        cursorShape: Qt.SizeBDiagCursor
+        onPressed: root.startSystemResize(Qt.LeftEdge | Qt.BottomEdge)
+    }
+    MouseArea {
+        anchors { left: parent.left; top: parent.top }
+        width: 12; height: 12
+        cursorShape: Qt.SizeFDiagCursor
+        onPressed: root.startSystemResize(Qt.LeftEdge | Qt.TopEdge)
+    }
+    MouseArea {
+        anchors { right: parent.right; top: parent.top }
+        width: 12; height: 12
+        cursorShape: Qt.SizeBDiagCursor
+        onPressed: root.startSystemResize(Qt.RightEdge | Qt.TopEdge)
     }
 
 }

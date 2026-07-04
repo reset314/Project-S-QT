@@ -31,7 +31,7 @@ Result<void> Keychain::write(const QString &key, const QString &value) {
     settings.setValue("keychain/" + key, QString::fromUtf8(obfuscate(value.toUtf8())));
     settings.sync();
     if (settings.status() != QSettings::NoError)
-        return std::unexpected(ApiError::networkError("Failed to write to keychain"));
+        return tl::make_unexpected(ApiError::networkError("Failed to write to keychain"));
     return {};
 }
 
@@ -39,7 +39,7 @@ Result<QString> Keychain::read(const QString &key) {
     QSettings settings("AIChat", "AIChatDesktop");
     auto stored = settings.value("keychain/" + key).toString();
     if (stored.isEmpty())
-        return std::unexpected(ApiError{.code="NOT_FOUND", .message="Key not found"});
+        return tl::make_unexpected(ApiError{.code="NOT_FOUND", .message="Key not found"});
     return QString::fromUtf8(deobfuscate(stored.toUtf8()));
 }
 

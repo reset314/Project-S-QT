@@ -41,9 +41,9 @@ public:
 
     /// Send a text message.  If conversationId is empty the server will
     /// create (or reuse) one automatically.
-    void sendMessage(const QString &aiUserId,
-                     const QString &content,
-                     const QString &conversationId = {});
+    Q_INVOKABLE void sendMessage(const QString &aiUserId,
+                                  const QString &content,
+                                  const QString &conversationId = {});
 
     /// Send a media (image/video/audio/file) message via multipart/form-data.
     void sendMediaMessage(const QString &aiUserId,
@@ -85,6 +85,19 @@ signals:
     /// The POST /chat response indicated a conversation replacement.
     /// Upstream must update its active conversationId.
     void conversationReplaced(const QString &newConversationId);
+
+    /// Emitted whenever message state changes (send, stream_init, stream_chunk,
+    /// stream_done, stream_error).  Upstream should reload the model from DB.
+    void messagesChanged(const QString &aiUserId);
+
+    /// Incremental signals — avoid full model reset (List flicker).
+    void messageAppended(const QString &aiUserId, const MessageDTO &msg);
+    void messageContentUpdated(const QString &aiUserId,
+                               const QString &clientUuid,
+                               const QJsonObject &content);
+    void messageMarkedComplete(const QString &aiUserId,
+                               const QString &clientUuid,
+                               const QString &serverId);
 
 private slots:
     void onStreamInit(const QString &conversationId,
@@ -132,6 +145,10 @@ private:
     /// Track which aiUserId is associated with each conversationId
     /// (populated at sendMessage time so WS signals can be mapped back).
     QHash<QString, QString> convToAiUser_;
+
+    /// Track in-progress AI streaming messages by conversationId → clientUuid
+    /// so we can update content incrementally across stream_chunk frames.
+    QHash<QString, QString> streamingAiMessages_;
 
     int sendCooldownMs_ = 1500;
     int sendMaxWaitMs_  = 4500;

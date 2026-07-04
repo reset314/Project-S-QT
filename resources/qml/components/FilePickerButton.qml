@@ -1,6 +1,5 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import "../theme/ThemeConfig.qml" as Theme
 
 Item {
     id: filePicker
@@ -16,14 +15,14 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        radius: Theme.ThemeConfig.buttonRadius
+        radius: Theme.buttonRadius
         color: mouseArea.containsMouse
-               ? Theme.ThemeConfig.sidebarHover : "transparent"
+               ? Theme.sidebarHover : "transparent"
 
         Text {
             anchors.centerIn: parent
             text: "📎"
-            font.pixelSize: Theme.ThemeConfig.fontSizeTitle
+            font.pixelSize: Theme.fontSizeTitle
         }
 
         MouseArea {

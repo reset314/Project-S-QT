@@ -1,4 +1,5 @@
 #pragma once
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDateTime>
@@ -9,7 +10,7 @@
 #include "../utils/JsonHelper.h"
 
 struct MessageDTO {
-    std::optional<int64_t>  serverId;
+    std::string             serverId;        // Server uses UUID strings
     std::string             clientUuid;
     std::string             aiUserId;
     std::string             conversationId;
@@ -26,15 +27,38 @@ struct MessageDTO {
 
     static MessageDTO fromJson(const QJsonObject &obj) {
         MessageDTO m;
-        m.serverId = obj.contains("id") && !obj.value("id").isNull()
-            ? std::optional{JsonHelper::getInt(obj, "id")} : std::nullopt;
+        m.serverId = JsonHelper::getString(obj, "id");
         m.clientUuid = JsonHelper::getString(obj, "client_uuid");
         m.aiUserId = JsonHelper::getString(obj, "ai_user_id");
         m.conversationId = JsonHelper::getString(obj, "conversation_id");
         m.senderType = JsonHelper::getString(obj, "sender_type");
         m.msgType = JsonHelper::getString(obj, "msg_type");
+        // Content is always a plain string from the server.
+        // Try JSON-parse to extract structured fields (think/emotion/response/functions),
+        // fall back to wrapping raw text as {"response": raw}.
+        // Matches Flutter's tryParseStructuredContent().
         auto c = obj.value("content");
-        m.content = c.isObject() ? c.toObject() : QJsonObject{};
+        if (c.isString()) {
+            QString raw = c.toString();
+            if (raw.isEmpty()) {
+                m.content = QJsonObject{};
+            } else if (raw.trimmed().startsWith('{')) {
+                QJsonDocument doc = QJsonDocument::fromJson(raw.toUtf8());
+                if (doc.isObject()) {
+                    m.content = doc.object();
+                } else {
+                    QJsonObject wrap;
+                    wrap["response"] = raw;
+                    m.content = wrap;
+                }
+            } else {
+                QJsonObject wrap;
+                wrap["response"] = raw;
+                m.content = wrap;
+            }
+        } else {
+            m.content = QJsonObject{};
+        }
         auto ml = obj.value("media_list");
         if (ml.isArray()) {
             for (const auto &item : ml.toArray()) {
@@ -53,9 +77,13 @@ struct MessageDTO {
         return m;
     }
 
+    MessageDTO() = default;
+    MessageDTO(const MessageDTO &) = default;
+    MessageDTO &operator=(const MessageDTO &) = default;
+
     QJsonObject toJson() const {
         QJsonObject o;
-        if (serverId) o["id"] = static_cast<qint64>(*serverId);
+        if (!serverId.empty()) o["id"] = QString::fromStdString(serverId);
         o["client_uuid"] = QString::fromStdString(clientUuid);
         o["ai_user_id"] = QString::fromStdString(aiUserId);
         o["conversation_id"] = QString::fromStdString(conversationId);
@@ -70,3 +98,5 @@ struct MessageDTO {
         return o;
     }
 };
+
+Q_DECLARE_METATYPE(MessageDTO)

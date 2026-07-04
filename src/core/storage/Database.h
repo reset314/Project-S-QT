@@ -18,7 +18,7 @@ public:
     // Messages
     int64_t insertMessage(const MessageDTO &msg, const QString &aiUserId);
     void upsertMessage(const MessageDTO &msg, const QString &aiUserId);
-    std::optional<MessageDTO> findByServerId(int64_t serverId);
+    std::optional<MessageDTO> findByServerId(const QString &serverId);
     std::optional<MessageDTO> findByClientUuid(const QString &clientUuid);
     QVector<MessageDTO> getLocalMessages(const QString &aiUserId, int limit = 200);
     QVector<MessageDTO> getLocalMessagesBefore(const QString &aiUserId,

@@ -2,7 +2,6 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtMultimedia 6.5
-import "../theme/ThemeConfig.qml" as Theme
 
 Window {
     id: callWindow
@@ -54,9 +53,9 @@ Window {
                 anchors.verticalCenterOffset: -40
                 width: 120; height: 120
                 radius: 60
-                color: Theme.ThemeConfig.primaryColor
+                color: Theme.primaryColor
                 border.width: 3
-                border.color: Theme.ThemeConfig.primaryLight
+                border.color: Theme.primaryLight
 
                 Text {
                     anchors.centerIn: parent
@@ -69,17 +68,17 @@ Window {
 
             Text {
                 anchors.top: avatarCircle.bottom
-                anchors.topMargin: Theme.ThemeConfig.spacingLarge
+                anchors.topMargin: Theme.spacingLarge
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: callManager ? (callManager.remoteName || qsTr("Connecting...")) : ""
-                color: Theme.ThemeConfig.textSecondary
-                font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                color: Theme.textSecondary
+                font.pixelSize: Theme.fontSizeBody
             }
 
             // Animated waveform bars (simple pulse animation)
             Row {
                 anchors.top: avatarCircle.bottom
-                anchors.topMargin: Theme.ThemeConfig.spacingXLarge + 20
+                anchors.topMargin: Theme.spacingXLarge + 20
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 6
 
@@ -89,7 +88,7 @@ Window {
                         width: 4
                         height: 20 + Math.random() * 30
                         radius: 2
-                        color: Theme.ThemeConfig.primaryLight
+                        color: Theme.primaryLight
                         anchors.verticalCenter: parent.verticalCenter
 
                         SequentialAnimation on height {
@@ -118,11 +117,11 @@ Window {
         width: 160; height: 120
         anchors.right: parent.right
         anchors.bottom: controlBar.top
-        anchors.margins: Theme.ThemeConfig.spacingMedium
-        radius: Theme.ThemeConfig.cardRadius
+        anchors.margins: Theme.spacingMedium
+        radius: Theme.cardRadius
         color: "#2a2a3e"
         border.width: 2
-        border.color: Theme.ThemeConfig.primaryColor
+        border.color: Theme.primaryColor
         visible: !isVoiceOnly
         z: 10
 
@@ -154,7 +153,7 @@ Window {
         anchors.centerIn: parent
         width: stateLabel.implicitWidth + 40
         height: stateLabel.implicitHeight + 20
-        radius: Theme.ThemeConfig.cardRadius
+        radius: Theme.cardRadius
         color: "#cc1a1a2e"
         visible: currentState === "connecting" || currentState === "ringing"
 
@@ -165,7 +164,7 @@ Window {
                   : currentState === "ringing" ? qsTr("Ringing...")
                   : ""
             color: "white"
-            font.pixelSize: Theme.ThemeConfig.fontSizeHeading
+            font.pixelSize: Theme.fontSizeHeading
         }
     }
 
@@ -181,14 +180,14 @@ Window {
 
         RowLayout {
             anchors.centerIn: parent
-            spacing: Theme.ThemeConfig.spacingXLarge
+            spacing: Theme.spacingXLarge
 
             // ── Mute button ───────────────────────────────────
             Rectangle {
                 Layout.preferredWidth: 48; Layout.preferredHeight: 48
                 radius: 24
                 color: micBtnMouse.containsMouse
-                       ? Theme.ThemeConfig.sidebarHover
+                       ? Theme.sidebarHover
                        : "#33ffffff"
 
                 property bool isMuted: callManager && callManager.audioManager
@@ -216,7 +215,7 @@ Window {
                 Layout.preferredWidth: 48; Layout.preferredHeight: 48
                 radius: 24
                 color: videoBtnMouse.containsMouse
-                       ? Theme.ThemeConfig.sidebarHover
+                       ? Theme.sidebarHover
                        : "#33ffffff"
                 visible: !isVoiceOnly
 
@@ -244,7 +243,7 @@ Window {
             Rectangle {
                 Layout.preferredWidth: 56; Layout.preferredHeight: 56
                 radius: 28
-                color: hangupMouse.containsMouse ? "#E57373" : Theme.ThemeConfig.errorColor
+                color: hangupMouse.containsMouse ? "#E57373" : Theme.errorColor
 
                 Text {
                     anchors.centerIn: parent
@@ -269,11 +268,11 @@ Window {
     Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: controlBar.top
-        anchors.bottomMargin: Theme.ThemeConfig.spacingMedium
+        anchors.bottomMargin: Theme.spacingMedium
         width: acceptLabel.implicitWidth + 40
         height: 44
         radius: 22
-        color: acceptMouse.containsMouse ? "#66BB6A" : Theme.ThemeConfig.successColor
+        color: acceptMouse.containsMouse ? "#66BB6A" : Theme.successColor
         visible: currentState === "ringing"
         z: 15
 
@@ -282,7 +281,7 @@ Window {
             anchors.centerIn: parent
             text: qsTr("Accept Call")
             color: "white"
-            font.pixelSize: Theme.ThemeConfig.fontSizeSubheading
+            font.pixelSize: Theme.fontSizeSubheading
             font.weight: Font.Medium
         }
 

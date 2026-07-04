@@ -82,9 +82,10 @@ private slots:
         tracker.clearAndMarkRead("ai-1");
         QCOMPARE(tracker.totalUnread(), 0);
 
-        // Verify database was also updated
+        // Verify database was also updated — after markAsRead,
+        // getUnreadCounts() omits the key entirely (no unread messages).
         auto counts = db.getUnreadCounts();
-        QCOMPARE(counts.value("ai-1", -1), 0);
+        QVERIFY(!counts.contains("ai-1"));
     }
 
     void testClearAndMarkReadIdempotent()

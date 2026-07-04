@@ -9,11 +9,27 @@
 #include <QNetworkRequest>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSslError>
+#include <QSslConfiguration>
+#include <QSslSocket>
 
 HttpClient::HttpClient(QObject *parent)
     : QObject(parent)
     , nam_(new QNetworkAccessManager(this))
 {
+    // Disable certificate verification globally (development with self-signed certs)
+    QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+    sslConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
+    QSslConfiguration::setDefaultConfiguration(sslConfig);
+
+    // Log and ignore SSL errors
+    connect(nam_, &QNetworkAccessManager::sslErrors,
+            this, [](QNetworkReply *reply, const QList<QSslError> &errors) {
+        qWarning() << "SSL errors for" << reply->url().toString();
+        for (const auto &e : errors)
+            qWarning() << "  -" << e.errorString();
+        reply->ignoreSslErrors();
+    });
 }
 
 void HttpClient::setTokenManager(TokenManager *tm)

@@ -1,7 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
+import "../components" as C
 
 Item {
     id: profileEditPage
@@ -17,51 +17,9 @@ Item {
         spacing: 0
 
         // ── Header ──────────────────────────────────────────────
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 56
-            color: Theme.ThemeConfig.surfaceColor
-            border.color: Theme.ThemeConfig.dividerColor
-            border.width: 1
-
-            RowLayout {
-                anchors {
-                    fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingMedium
-                }
-                spacing: Theme.ThemeConfig.spacingMedium
-
-                Rectangle {
-                    Layout.preferredWidth: 32; Layout.preferredHeight: 32
-                    radius: 16
-                    color: backMouse.containsMouse
-                           ? Theme.ThemeConfig.sidebarHover : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "←"
-                        font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                        color: Theme.ThemeConfig.textPrimary
-                    }
-
-                    MouseArea {
-                        id: backMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: closePage()
-                    }
-                }
-
-                Text {
-                    text: profileKey ? qsTr("Edit Profile") : qsTr("New Profile")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                    font.weight: Theme.ThemeConfig.fontWeightBold
-                    Layout.fillWidth: true
-                }
-            }
+        C.BackHeader {
+            title: profileKey ? qsTr("Edit Profile") : qsTr("New Profile")
+            onBackClicked: closePage()
         }
 
         // ── Form ────────────────────────────────────────────────
@@ -73,16 +31,16 @@ Item {
             ColumnLayout {
                 width: Math.min(600, parent ? parent.width - 48 : 552)
                 anchors.horizontalCenter: parent ? parent.horizontalCenter : undefined
-                spacing: Theme.ThemeConfig.spacingLarge
+                spacing: Theme.spacingLarge
 
-                Item { Layout.preferredHeight: Theme.ThemeConfig.spacingLarge }
+                Item { Layout.preferredHeight: Theme.spacingLarge }
 
                 // Key field
                 Text {
                     text: qsTr("Key")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeSmall
-                    font.weight: Theme.ThemeConfig.fontWeightMedium
+                    color: Theme.textPrimary
+                    font.pixelSize: Theme.fontSizeSmall
+                    font.weight: Theme.fontWeightMedium
                 }
 
                 TextField {
@@ -90,27 +48,27 @@ Item {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 40
                     text: profileKey
-                    placeholderText: qsTr("e.g. user_name, user_age")
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                    placeholderText: activeFocus ? "" : qsTr("e.g. user_name, user_age")
+                    font.pixelSize: Theme.fontSizeBody
                     readOnly: profileKey.length > 0
 
                     background: Rectangle {
-                        radius: Theme.ThemeConfig.buttonRadius
+                        radius: Theme.buttonRadius
                         color: keyField.readOnly
-                               ? Theme.ThemeConfig.dividerColor
-                               : Theme.ThemeConfig.backgroundColor
+                               ? Theme.dividerColor
+                               : Theme.backgroundColor
                         border.color: keyField.activeFocus
-                                      ? Theme.ThemeConfig.primaryColor
-                                      : Theme.ThemeConfig.dividerColor
+                                      ? Theme.primaryColor
+                                      : Theme.dividerColor
                     }
                 }
 
                 // Category field
                 Text {
                     text: qsTr("Category")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeSmall
-                    font.weight: Theme.ThemeConfig.fontWeightMedium
+                    color: Theme.textPrimary
+                    font.pixelSize: Theme.fontSizeSmall
+                    font.weight: Theme.fontWeightMedium
                 }
 
                 TextField {
@@ -118,24 +76,24 @@ Item {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 40
                     text: profileCategory
-                    placeholderText: qsTr("e.g. personal, professional")
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                    placeholderText: activeFocus ? "" : qsTr("e.g. personal, professional")
+                    font.pixelSize: Theme.fontSizeBody
 
                     background: Rectangle {
-                        radius: Theme.ThemeConfig.buttonRadius
-                        color: Theme.ThemeConfig.backgroundColor
+                        radius: Theme.buttonRadius
+                        color: Theme.backgroundColor
                         border.color: categoryField.activeFocus
-                                      ? Theme.ThemeConfig.primaryColor
-                                      : Theme.ThemeConfig.dividerColor
+                                      ? Theme.primaryColor
+                                      : Theme.dividerColor
                     }
                 }
 
                 // Layer field
                 Text {
                     text: qsTr("Layer")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeSmall
-                    font.weight: Theme.ThemeConfig.fontWeightMedium
+                    color: Theme.textPrimary
+                    font.pixelSize: Theme.fontSizeSmall
+                    font.weight: Theme.fontWeightMedium
                 }
 
                 ComboBox {
@@ -150,18 +108,18 @@ Item {
                     }
 
                     background: Rectangle {
-                        radius: Theme.ThemeConfig.buttonRadius
-                        color: Theme.ThemeConfig.backgroundColor
-                        border.color: Theme.ThemeConfig.dividerColor
+                        radius: Theme.buttonRadius
+                        color: Theme.backgroundColor
+                        border.color: Theme.dividerColor
                     }
                 }
 
                 // Value/Summary field
                 Text {
                     text: qsTr("Value / Summary")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeSmall
-                    font.weight: Theme.ThemeConfig.fontWeightMedium
+                    color: Theme.textPrimary
+                    font.pixelSize: Theme.fontSizeSmall
+                    font.weight: Theme.fontWeightMedium
                 }
 
                 TextArea {
@@ -169,43 +127,43 @@ Item {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 120
                     text: profileValue
-                    placeholderText: qsTr("Profile content or value")
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                    placeholderText: activeFocus ? "" : qsTr("Profile content or value")
+                    font.pixelSize: Theme.fontSizeBody
                     wrapMode: TextArea.Wrap
                     selectByMouse: true
 
                     background: Rectangle {
-                        radius: Theme.ThemeConfig.buttonRadius
-                        color: Theme.ThemeConfig.backgroundColor
+                        radius: Theme.buttonRadius
+                        color: Theme.backgroundColor
                         border.color: valueField.activeFocus
-                                      ? Theme.ThemeConfig.primaryColor
-                                      : Theme.ThemeConfig.dividerColor
+                                      ? Theme.primaryColor
+                                      : Theme.dividerColor
                     }
                 }
 
-                Item { Layout.preferredHeight: Theme.ThemeConfig.spacingMedium }
+                Item { Layout.preferredHeight: Theme.spacingMedium }
 
                 // Save / Cancel
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: Theme.ThemeConfig.spacingMedium
+                    spacing: Theme.spacingMedium
 
                     Item { Layout.fillWidth: true }
 
                     Rectangle {
                         Layout.preferredWidth: 100
                         Layout.preferredHeight: 40
-                        radius: Theme.ThemeConfig.buttonRadius
+                        radius: Theme.buttonRadius
                         color: cancelBtnMouse.containsMouse
-                               ? Theme.ThemeConfig.sidebarHover : "transparent"
-                        border.color: Theme.ThemeConfig.dividerColor
+                               ? Theme.sidebarHover : "transparent"
+                        border.color: Theme.dividerColor
                         border.width: 1
 
                         Text {
                             anchors.centerIn: parent
                             text: qsTr("Cancel")
-                            color: Theme.ThemeConfig.textSecondary
-                            font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                            color: Theme.textSecondary
+                            font.pixelSize: Theme.fontSizeBody
                         }
 
                         MouseArea {
@@ -220,17 +178,17 @@ Item {
                     Rectangle {
                         Layout.preferredWidth: 100
                         Layout.preferredHeight: 40
-                        radius: Theme.ThemeConfig.buttonRadius
+                        radius: Theme.buttonRadius
                         color: saveBtnMouse.containsMouse
-                               ? Theme.ThemeConfig.primaryLight
-                               : Theme.ThemeConfig.primaryColor
+                               ? Theme.primaryLight
+                               : Theme.primaryColor
 
                         Text {
                             anchors.centerIn: parent
                             text: qsTr("Save")
-                            color: Theme.ThemeConfig.textOnPrimary
-                            font.pixelSize: Theme.ThemeConfig.fontSizeBody
-                            font.weight: Theme.ThemeConfig.fontWeightMedium
+                            color: Theme.textOnPrimary
+                            font.pixelSize: Theme.fontSizeBody
+                            font.weight: Theme.fontWeightMedium
                         }
 
                         MouseArea {
@@ -243,7 +201,7 @@ Item {
                     }
                 }
 
-                Item { Layout.preferredHeight: Theme.ThemeConfig.spacingXLarge }
+                Item { Layout.preferredHeight: Theme.spacingXLarge }
             }
         }
     }

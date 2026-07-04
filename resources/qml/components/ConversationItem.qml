@@ -1,12 +1,11 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
 
 Rectangle {
     id: conversationItem
     height: 68
-    color: mouseArea.containsMouse ? Theme.ThemeConfig.sidebarHover : "transparent"
+    color: mouseArea.containsMouse ? Theme.sidebarHover : "transparent"
 
     property string aiUserId: ""
     property string aiUserName: ""
@@ -20,21 +19,21 @@ Rectangle {
     RowLayout {
         anchors {
             fill: parent
-            leftMargin: Theme.ThemeConfig.spacingLarge
-            rightMargin: Theme.ThemeConfig.spacingMedium
+            leftMargin: Theme.spacingLarge
+            rightMargin: Theme.spacingMedium
         }
-        spacing: Theme.ThemeConfig.spacingMedium
+        spacing: Theme.spacingMedium
 
         // Avatar with unread badge
         Item {
-            Layout.preferredWidth: Theme.ThemeConfig.avatarSizeMedium
-            Layout.preferredHeight: Theme.ThemeConfig.avatarSizeMedium
+            Layout.preferredWidth: Theme.avatarSizeMedium
+            Layout.preferredHeight: Theme.avatarSizeMedium
 
             UserAvatar {
                 id: avatar
                 name: conversationItem.aiUserName
                 imageSource: conversationItem.aiUserAvatar
-                size: Theme.ThemeConfig.avatarSizeMedium
+                size: Theme.avatarSizeMedium
             }
 
             // Unread badge on avatar
@@ -49,7 +48,7 @@ Rectangle {
                 width: Math.max(18, unreadBadgeText.implicitWidth + 6)
                 height: 18
                 radius: 9
-                color: Theme.ThemeConfig.unreadBadgeColor
+                color: Theme.unreadBadgeColor
                 z: 2
 
                 Text {
@@ -57,9 +56,9 @@ Rectangle {
                     anchors.centerIn: parent
                     text: conversationItem.unreadCount > 99
                           ? "99+" : String(conversationItem.unreadCount)
-                    color: Theme.ThemeConfig.unreadBadgeText
-                    font.pixelSize: Theme.ThemeConfig.fontSizeCaption
-                    font.weight: Theme.ThemeConfig.fontWeightBold
+                    color: Theme.unreadBadgeText
+                    font.pixelSize: Theme.fontSizeCaption
+                    font.weight: Theme.fontWeightBold
                 }
             }
         }
@@ -72,31 +71,31 @@ Rectangle {
             // Name + timestamp row
             RowLayout {
                 Layout.fillWidth: true
-                spacing: Theme.ThemeConfig.spacingSmall
+                spacing: Theme.spacingSmall
 
                 Text {
                     text: conversationItem.aiUserName || qsTr("Chat")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                    color: Theme.textPrimary
+                    font.pixelSize: Theme.fontSizeBody
                     font.weight: conversationItem.unreadCount > 0
-                                 ? Theme.ThemeConfig.fontWeightBold
-                                 : Theme.ThemeConfig.fontWeightNormal
+                                 ? Theme.fontWeightBold
+                                 : Theme.fontWeightNormal
                     Layout.fillWidth: true
                     elide: Text.ElideRight
                 }
 
                 Text {
                     text: formatTimestamp(conversationItem.timestamp)
-                    color: Theme.ThemeConfig.textHint
-                    font.pixelSize: Theme.ThemeConfig.fontSizeCaption
+                    color: Theme.textHint
+                    font.pixelSize: Theme.fontSizeCaption
                 }
             }
 
             // Last message preview
             Text {
                 text: conversationItem.lastMessagePreview || ""
-                color: Theme.ThemeConfig.textSecondary
-                font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                color: Theme.textSecondary
+                font.pixelSize: Theme.fontSizeSmall
                 Layout.fillWidth: true
                 elide: Text.ElideRight
                 maximumLineCount: 1
@@ -120,7 +119,7 @@ Rectangle {
             leftMargin: 72  // Align with text
         }
         height: 1
-        color: Theme.ThemeConfig.dividerColor
+        color: Theme.dividerColor
     }
 
     // ── Helpers ──────────────────────────────────────────────────

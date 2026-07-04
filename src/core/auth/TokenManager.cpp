@@ -92,7 +92,7 @@ QString TokenManager::refreshToken() const {
 
 Result<void> TokenManager::login(const QString &username, const QString &password) {
     if (serverUrl_.isEmpty())
-        return std::unexpected(ApiError{.code = "CONFIG_ERROR", .message = "Server URL not set"});
+        return tl::make_unexpected(ApiError{.code = "CONFIG_ERROR", .message = "Server URL not set"});
 
     auto *mgr = new QNetworkAccessManager(this);
     QNetworkRequest request(QUrl(serverUrl_ + "/auth/login"));
@@ -111,25 +111,38 @@ Result<void> TokenManager::login(const QString &username, const QString &passwor
 
     int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     QByteArray responseData = reply->readAll();
+    auto netError = reply->error();
+    QString errorStr = reply->errorString();
     reply->deleteLater();
 
-    if (reply->error() != QNetworkReply::NoError && statusCode == 0) {
-        return std::unexpected(ApiError::networkError(
-            reply->errorString().toStdString()));
+    if (netError != QNetworkReply::NoError)
+        qWarning() << "TokenManager HTTP" << statusCode << "err:" << netError << errorStr;
+    else
+        qDebug() << "TokenManager HTTP" << statusCode << "OK"
+                 << "body:" << responseData.left(200);
+
+    if (netError != QNetworkReply::NoError && statusCode == 0) {
+        return tl::make_unexpected(ApiError::networkError(
+            errorStr.toStdString()));
     }
 
     auto doc = QJsonDocument::fromJson(responseData);
-    if (!doc.isObject())
-        return std::unexpected(ApiError{.code = "PARSE_ERROR", .message = "Invalid JSON response"});
+    if (!doc.isObject()) {
+        qWarning() << "TokenManager: not a JSON object:" << responseData.left(300);
+        return tl::make_unexpected(ApiError{.code = "PARSE_ERROR", .message = "Invalid JSON response"});
+    }
 
     auto root = doc.object();
     bool success = root.value("success").toBool(false);
 
     if (!success || statusCode >= 400) {
-        auto dataObj = root.value("data").toObject();
-        return std::unexpected(ApiError{
-            .code = dataObj.value("code").toString("LOGIN_FAILED").toStdString(),
-            .message = dataObj.value("message").toString("Login failed").toStdString(),
+        auto errorObj = root.value("error").toObject();
+        if (!errorObj.isEmpty()) {
+            return tl::make_unexpected(ApiError::fromJson(errorObj));
+        }
+        return tl::make_unexpected(ApiError{
+            .code = "LOGIN_FAILED",
+            .message = std::to_string(statusCode),
         });
     }
 
@@ -138,7 +151,7 @@ Result<void> TokenManager::login(const QString &username, const QString &passwor
     QString refresh = data.value("refresh_token").toString();
 
     if (access.isEmpty() || refresh.isEmpty())
-        return std::unexpected(ApiError{.code = "PARSE_ERROR", .message = "Missing tokens in response"});
+        return tl::make_unexpected(ApiError{.code = "PARSE_ERROR", .message = "Missing tokens in response"});
 
     accessToken_ = access;
     refreshToken_ = refresh;
@@ -147,9 +160,9 @@ Result<void> TokenManager::login(const QString &username, const QString &passwor
     auto w1 = Keychain::write(KEY_ACCESS_TOKEN, access);
     auto w2 = Keychain::write(KEY_REFRESH_TOKEN, refresh);
     if (!w1.has_value())
-        return std::unexpected(w1.error());
+        return tl::make_unexpected(w1.error());
     if (!w2.has_value())
-        return std::unexpected(w2.error());
+        return tl::make_unexpected(w2.error());
 
     if (!loggedIn_) {
         loggedIn_ = true;
@@ -162,10 +175,10 @@ Result<void> TokenManager::login(const QString &username, const QString &passwor
 
 Result<QString> TokenManager::refreshAccessToken() {
     if (serverUrl_.isEmpty())
-        return std::unexpected(ApiError{.code = "CONFIG_ERROR", .message = "Server URL not set"});
+        return tl::make_unexpected(ApiError{.code = "CONFIG_ERROR", .message = "Server URL not set"});
 
     if (refreshToken_.isEmpty())
-        return std::unexpected(ApiError{.code = "NO_REFRESH_TOKEN", .message = "No refresh token available"});
+        return tl::make_unexpected(ApiError{.code = "NO_REFRESH_TOKEN", .message = "No refresh token available"});
 
     auto *mgr = new QNetworkAccessManager(this);
     QNetworkRequest request(QUrl(serverUrl_ + "/auth/refresh"));
@@ -183,27 +196,38 @@ Result<QString> TokenManager::refreshAccessToken() {
 
     int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     QByteArray responseData = reply->readAll();
+    auto netError = reply->error();
+    QString errorStr = reply->errorString();
     reply->deleteLater();
 
-    if (reply->error() != QNetworkReply::NoError && statusCode == 0) {
-        return std::unexpected(ApiError::networkError(
-            reply->errorString().toStdString()));
+    if (netError != QNetworkReply::NoError)
+        qWarning() << "TokenManager HTTP" << statusCode << "err:" << netError << errorStr;
+    else
+        qDebug() << "TokenManager HTTP" << statusCode << "OK"
+                 << "body:" << responseData.left(200);
+
+    if (netError != QNetworkReply::NoError && statusCode == 0) {
+        return tl::make_unexpected(ApiError::networkError(
+            errorStr.toStdString()));
     }
 
     auto doc = QJsonDocument::fromJson(responseData);
-    if (!doc.isObject())
-        return std::unexpected(ApiError{.code = "PARSE_ERROR", .message = "Invalid JSON response"});
+    if (!doc.isObject()) {
+        qWarning() << "TokenManager: not a JSON object:" << responseData.left(300);
+        return tl::make_unexpected(ApiError{.code = "PARSE_ERROR", .message = "Invalid JSON response"});
+    }
 
     auto root = doc.object();
     bool success = root.value("success").toBool(false);
 
     if (!success || statusCode >= 400) {
-        auto dataObj = root.value("data").toObject();
-        // Refresh failed — clear auth state
-        logout();
-        return std::unexpected(ApiError{
-            .code = dataObj.value("code").toString("REFRESH_FAILED").toStdString(),
-            .message = dataObj.value("message").toString("Token refresh failed").toStdString(),
+        auto errorObj = root.value("error").toObject();
+        if (!errorObj.isEmpty()) {
+            return tl::make_unexpected(ApiError::fromJson(errorObj));
+        }
+        return tl::make_unexpected(ApiError{
+            .code = "REFRESH_FAILED",
+            .message = std::to_string(statusCode),
         });
     }
 
@@ -211,12 +235,12 @@ Result<QString> TokenManager::refreshAccessToken() {
     QString access = data.value("access_token").toString();
 
     if (access.isEmpty())
-        return std::unexpected(ApiError{.code = "PARSE_ERROR", .message = "Missing access_token in response"});
+        return tl::make_unexpected(ApiError{.code = "PARSE_ERROR", .message = "Missing access_token in response"});
 
     accessToken_ = access;
     auto w = Keychain::write(KEY_ACCESS_TOKEN, access);
     if (!w.has_value())
-        return std::unexpected(w.error());
+        return tl::make_unexpected(w.error());
 
     // Handle refresh token rotation: if the server returned a new refresh_token,
     // update and persist it so we don't lose the session when the old one expires.

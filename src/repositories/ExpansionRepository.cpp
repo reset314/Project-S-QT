@@ -13,7 +13,7 @@ Result<QVector<ExpansionModuleDTO>> ExpansionRepository::listModules()
 {
     auto result = http_->get("/expansion/modules");
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     // Response: {success: true, data: {modules: [...]}}
     // HttpClient unwraps data object → we get {modules: [...]}
@@ -36,7 +36,7 @@ Result<ExpansionModuleDTO> ExpansionRepository::toggleModule(const QString &name
 
     auto result = http_->post(QString("/expansion/modules/%1/toggle").arg(name), body);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     return ExpansionModuleDTO::fromJson(*result);
 }

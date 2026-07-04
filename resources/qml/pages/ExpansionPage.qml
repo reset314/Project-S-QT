@@ -1,7 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
+import "../components" as C
 
 Item {
     id: expansionPage
@@ -12,51 +12,9 @@ Item {
         spacing: 0
 
         // ── Header ──────────────────────────────────────────────
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 56
-            color: Theme.ThemeConfig.surfaceColor
-            border.color: Theme.ThemeConfig.dividerColor
-            border.width: 1
-
-            RowLayout {
-                anchors {
-                    fill: parent
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingMedium
-                }
-                spacing: Theme.ThemeConfig.spacingMedium
-
-                Rectangle {
-                    Layout.preferredWidth: 32; Layout.preferredHeight: 32
-                    radius: 16
-                    color: backMouse.containsMouse
-                           ? Theme.ThemeConfig.sidebarHover : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "←"
-                        font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                        color: Theme.ThemeConfig.textPrimary
-                    }
-
-                    MouseArea {
-                        id: backMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: closePage()
-                    }
-                }
-
-                Text {
-                    text: qsTr("Expansions")
-                    color: Theme.ThemeConfig.textPrimary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeHeading
-                    font.weight: Theme.ThemeConfig.fontWeightBold
-                    Layout.fillWidth: true
-                }
-            }
+        C.BackHeader {
+            title: qsTr("Expansions")
+            onBackClicked: closePage()
         }
 
         // ── Info Banner ─────────────────────────────────────────
@@ -70,12 +28,12 @@ Item {
                     left: parent.left
                     right: parent.right
                     verticalCenter: parent.verticalCenter
-                    leftMargin: Theme.ThemeConfig.spacingLarge
-                    rightMargin: Theme.ThemeConfig.spacingLarge
+                    leftMargin: Theme.spacingLarge
+                    rightMargin: Theme.spacingLarge
                 }
                 text: qsTr("Extension modules add capabilities to your AI assistants. Toggle modules on or off.")
-                color: Theme.ThemeConfig.primaryDark
-                font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                color: Theme.primaryDark
+                font.pixelSize: Theme.fontSizeSmall
                 wrapMode: Text.Wrap
             }
         }
@@ -97,34 +55,34 @@ Item {
             section.delegate: Rectangle {
                 width: expansionList.width
                 height: 32
-                color: Theme.ThemeConfig.backgroundColor
+                color: Theme.backgroundColor
 
                 Text {
                     anchors {
                         left: parent.left
-                        leftMargin: Theme.ThemeConfig.spacingLarge
+                        leftMargin: Theme.spacingLarge
                         verticalCenter: parent.verticalCenter
                     }
                     text: section || "Other"
-                    color: Theme.ThemeConfig.textHint
-                    font.pixelSize: Theme.ThemeConfig.fontSizeCaption
-                    font.weight: Theme.ThemeConfig.fontWeightBold
+                    color: Theme.textHint
+                    font.pixelSize: Theme.fontSizeCaption
+                    font.weight: Theme.fontWeightBold
                 }
             }
 
             delegate: Rectangle {
                 width: expansionList.width
                 height: expansionContent.implicitHeight + 16
-                color: Theme.ThemeConfig.surfaceColor
+                color: Theme.surfaceColor
 
                 RowLayout {
                     id: expansionContent
                     anchors {
                         fill: parent
-                        leftMargin: Theme.ThemeConfig.spacingLarge
-                        rightMargin: Theme.ThemeConfig.spacingMedium
+                        leftMargin: Theme.spacingLarge
+                        rightMargin: Theme.spacingMedium
                     }
-                    spacing: Theme.ThemeConfig.spacingMedium
+                    spacing: Theme.spacingMedium
 
                     // Module info
                     ColumnLayout {
@@ -133,15 +91,15 @@ Item {
 
                         Text {
                             text: model.name || model.title || qsTr("Unknown Module")
-                            color: Theme.ThemeConfig.textPrimary
-                            font.pixelSize: Theme.ThemeConfig.fontSizeBody
-                            font.weight: Theme.ThemeConfig.fontWeightMedium
+                            color: Theme.textPrimary
+                            font.pixelSize: Theme.fontSizeBody
+                            font.weight: Theme.fontWeightMedium
                         }
 
                         Text {
                             text: model.description || ""
-                            color: Theme.ThemeConfig.textSecondary
-                            font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                            color: Theme.textSecondary
+                            font.pixelSize: Theme.fontSizeSmall
                             Layout.fillWidth: true
                             wrapMode: Text.Wrap
                             maximumLineCount: 2
@@ -149,8 +107,8 @@ Item {
 
                         Text {
                             text: "v" + (model.version || "1.0.0") + " · " + (model.author || "")
-                            color: Theme.ThemeConfig.textHint
-                            font.pixelSize: Theme.ThemeConfig.fontSizeCaption
+                            color: Theme.textHint
+                            font.pixelSize: Theme.fontSizeCaption
                         }
                     }
 
@@ -171,10 +129,10 @@ Item {
                         bottom: parent.bottom
                         left: parent.left
                         right: parent.right
-                        leftMargin: Theme.ThemeConfig.spacingLarge
+                        leftMargin: Theme.spacingLarge
                     }
                     height: 1
-                    color: Theme.ThemeConfig.dividerColor
+                    color: Theme.dividerColor
                 }
             }
 
@@ -186,7 +144,7 @@ Item {
 
                 ColumnLayout {
                     anchors.centerIn: parent
-                    spacing: Theme.ThemeConfig.spacingLarge
+                    spacing: Theme.spacingLarge
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
@@ -197,15 +155,15 @@ Item {
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("No expansions installed")
-                        color: Theme.ThemeConfig.textHint
-                        font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                        color: Theme.textHint
+                        font.pixelSize: Theme.fontSizeBody
                     }
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Install extension modules to add new capabilities")
-                        color: Theme.ThemeConfig.textHint
-                        font.pixelSize: Theme.ThemeConfig.fontSizeSmall
+                        color: Theme.textHint
+                        font.pixelSize: Theme.fontSizeSmall
                     }
                 }
             }

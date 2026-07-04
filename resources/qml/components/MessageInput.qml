@@ -1,30 +1,30 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import "../theme/ThemeConfig.qml" as Theme
 
 Rectangle {
     id: messageInput
     height: Math.min(
-        Theme.ThemeConfig.chatInputMaxHeight,
-        Math.max(Theme.ThemeConfig.chatInputMinHeight, inputColumn.implicitHeight + 16)
+        Theme.chatInputMaxHeight,
+        Math.max(Theme.chatInputMinHeight, inputColumn.implicitHeight + 16)
     )
-    color: Theme.ThemeConfig.surfaceColor
-    border.color: Theme.ThemeConfig.dividerColor
+    color: Theme.surfaceColor
+    border.color: Theme.dividerColor
     border.width: 1
 
     signal sendMessage(string text)
     signal attachFile()
 
     RowLayout {
+        id: inputColumn
         anchors {
             fill: parent
-            leftMargin: Theme.ThemeConfig.spacingMedium
-            rightMargin: Theme.ThemeConfig.spacingSmall
-            topMargin: Theme.ThemeConfig.spacingSmall
-            bottomMargin: Theme.ThemeConfig.spacingSmall
+            leftMargin: Theme.spacingMedium
+            rightMargin: Theme.spacingSmall
+            topMargin: Theme.spacingSmall
+            bottomMargin: Theme.spacingSmall
         }
-        spacing: Theme.ThemeConfig.spacingSmall
+        spacing: Theme.spacingSmall
 
         // Attach button
         Rectangle {
@@ -32,12 +32,12 @@ Rectangle {
             Layout.preferredHeight: 36
             radius: 18
             color: attachMouse.containsMouse
-                   ? Theme.ThemeConfig.sidebarHover : "transparent"
+                   ? Theme.sidebarHover : "transparent"
 
             Text {
                 anchors.centerIn: parent
                 text: "📎"
-                font.pixelSize: Theme.ThemeConfig.fontSizeSubheading
+                font.pixelSize: Theme.fontSizeSubheading
             }
 
             MouseArea {
@@ -57,10 +57,10 @@ Rectangle {
 
             TextArea {
                 id: textArea
-                placeholderText: qsTr("Type a message...")
-                placeholderTextColor: Theme.ThemeConfig.textHint
-                font.pixelSize: Theme.ThemeConfig.fontSizeBody
-                color: Theme.ThemeConfig.textPrimary
+                placeholderText: activeFocus ? "" : qsTr("Type a message...")
+                placeholderTextColor: Theme.textHint
+                font.pixelSize: Theme.fontSizeBody
+                color: Theme.textPrimary
                 wrapMode: TextArea.Wrap
                 selectByMouse: true
                 persistentSelection: true
@@ -87,16 +87,16 @@ Rectangle {
             Layout.preferredHeight: 36
             radius: 18
             color: textArea.text.trim().length > 0
-                   ? Theme.ThemeConfig.primaryColor
-                   : Theme.ThemeConfig.dividerColor
+                   ? Theme.primaryColor
+                   : Theme.dividerColor
 
             Text {
                 anchors.centerIn: parent
                 text: "↑"
                 color: textArea.text.trim().length > 0
-                       ? Theme.ThemeConfig.textOnPrimary
-                       : Theme.ThemeConfig.textSecondary
-                font.pixelSize: Theme.ThemeConfig.fontSizeSubheading
+                       ? Theme.textOnPrimary
+                       : Theme.textSecondary
+                font.pixelSize: Theme.fontSizeSubheading
             }
 
             MouseArea {

@@ -27,14 +27,14 @@ Result<QByteArray> TTSRepository::synthesize(const QString &text,
     // The backend returns {success: true, data: {audio: "<base64>", format: "wav"}}.
     auto result = http_->post("/tts/synthesize", body);
     if (!result)
-        return std::unexpected(result.error());
+        return tl::make_unexpected(result.error());
 
     QJsonObject data = *result;
 
     // Extract base64-encoded audio
     QString audioB64 = data.value("audio").toString();
     if (audioB64.isEmpty())
-        return std::unexpected(ApiError{
+        return tl::make_unexpected(ApiError{
             .code = "PARSE_ERROR",
             .message = "No audio data in TTS response"
         });

@@ -1,0 +1,77 @@
+Start testing: Jul 02 21:56 中国标准时间
+----------------------------------------------------------
+1/7 Testing: test_Database
+1/7 Test: test_Database
+Command: "C:/Users/root/Documents/Programs/aaa2/_b/test_Database.exe"
+Directory: C:/Users/root/Documents/Programs/aaa2/_b
+"test_Database" start time: Jul 02 21:56 中国标准时间
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =  13.48 sec
+----------------------------------------------------------
+Test Failed.
+"test_Database" end time: Jul 02 21:56 中国标准时间
+"test_Database" time elapsed: 00:00:13
+----------------------------------------------------------
+
+2/7 Testing: test_ApiError
+2/7 Test: test_ApiError
+Command: "C:/Users/root/Documents/Programs/aaa2/_b/test_ApiError.exe"
+Directory: C:/Users/root/Documents/Programs/aaa2/_b
+"test_ApiError" start time: Jul 02 21:56 中国标准时间
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   1.82 sec
+----------------------------------------------------------
+Test Failed.
+"test_ApiError" end time: Jul 02 21:56 中国标准时间
+"test_ApiError" time elapsed: 00:00:01
+----------------------------------------------------------
+
+3/7 Testing: test_JsonHelper
+3/7 Test: test_JsonHelper
+Command: "C:/Users/root/Documents/Programs/aaa2/_b/test_JsonHelper.exe"
+Directory: C:/Users/root/Documents/Programs/aaa2/_b
+"test_JsonHelper" start time: Jul 02 21:56 中国标准时间
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   1.01 sec
+----------------------------------------------------------
+Test Failed.
+"test_JsonHelper" end time: Jul 02 21:57 中国标准时间
+"test_JsonHelper" time elapsed: 00:00:01
+----------------------------------------------------------
+
+4/7 Testing: test_UuidGenerator
+4/7 Test: test_UuidGenerator
+Command: "C:/Users/root/Documents/Programs/aaa2/_b/test_UuidGenerator.exe"
+Directory: C:/Users/root/Documents/Programs/aaa2/_b
+"test_UuidGenerator" start time: Jul 02 21:57 中国标准时间
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.51 sec
+----------------------------------------------------------
+Test Failed.
+"test_UuidGenerator" end time: Jul 02 21:57 中国标准时间
+"test_UuidGenerator" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/7 Testing: test_TokenManager
+5/7 Test: test_TokenManager
+Command: "C:/Users/root/Documents/Programs/aaa2/_b/test_TokenManager.exe"
+Directory: C:/Users/root/Documents/Programs/aaa2/_b
+"test_TokenManager" start time: Jul 02 21:57 中国标准时间
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.49 sec
+----------------------------------------------------------
+Test Failed.
+"test_TokenManager" end time: Jul 02 21:57 中国标准时间
+"test_TokenManager" time elapsed: 00:00:00
+----------------------------------------------------------
+

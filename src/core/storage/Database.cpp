@@ -48,10 +48,10 @@ void Database::runMigrations() {
         {1, R"(
             CREATE TABLE IF NOT EXISTS messages (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                server_id INTEGER UNIQUE,
+                server_id TEXT,
                 client_uuid TEXT NOT NULL,
                 ai_user_id TEXT NOT NULL,
-                conversation_id INTEGER,
+                conversation_id TEXT,
                 sender_type TEXT NOT NULL,
                 msg_type TEXT NOT NULL,
                 content TEXT,
@@ -67,9 +67,11 @@ void Database::runMigrations() {
         {2, "CREATE INDEX IF NOT EXISTS idx_messages_ai_user ON messages(ai_user_id)"},
         {3, "CREATE INDEX IF NOT EXISTS idx_messages_client ON messages(client_uuid)"},
         {4, "CREATE INDEX IF NOT EXISTS idx_messages_server ON messages(server_id)"},
+        // Note: if migration 10 fails (table locked), server_id stays as migration 1
+        // created it.  We now default to TEXT in both places for safety.
         {5, R"(
             CREATE TABLE IF NOT EXISTS conversations (
-                id INTEGER PRIMARY KEY,
+                id TEXT PRIMARY KEY,
                 ai_user_id TEXT NOT NULL,
                 title TEXT,
                 summary TEXT,
@@ -113,7 +115,7 @@ void Database::runMigrations() {
         {10, R"(
             CREATE TABLE IF NOT EXISTS messages_new (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                server_id INTEGER UNIQUE,
+                server_id TEXT,
                 client_uuid TEXT NOT NULL,
                 ai_user_id TEXT NOT NULL,
                 conversation_id TEXT,
@@ -147,10 +149,24 @@ void Database::runMigrations() {
 
     for (const auto &m : migrations) {
         if (m.version > currentVersion) {
-            q.exec(m.sql);
-            if (q.lastError().isValid())
-                qWarning() << "Migration" << m.version << "failed:" << q.lastError().text();
-            else {
+            // Split multi-statement SQL by ';' — QSqlQuery::exec() only
+            // executes one statement at a time.
+            bool ok = true;
+            const auto statements = m.sql.split(';');
+            for (const auto &stmt : statements) {
+                auto trimmed = stmt.trimmed();
+                if (trimmed.isEmpty())
+                    continue;
+                QSqlQuery stmtQ(db_);
+                if (!stmtQ.exec(trimmed)) {
+                    qWarning() << "Migration" << m.version
+                               << "statement failed:" << stmtQ.lastError().text()
+                               << "- SQL:" << trimmed.left(80);
+                    ok = false;
+                }
+                stmtQ.finish();  // release table locks before next statement
+            }
+            if (ok) {
                 QSqlQuery ins(db_);
                 ins.prepare("INSERT OR REPLACE INTO schema_version VALUES(?)");
                 ins.addBindValue(m.version);
@@ -170,10 +186,10 @@ std::optional<MessageDTO> Database::messageFromQuery(QSqlQuery &q) {
 
     MessageDTO m;
 
-    // server_id — may be NULL for optimistic inserts
+    // server_id — stored as TEXT (UUID), may be NULL for optimistic inserts
     QVariant sv = q.value("server_id");
     if (!sv.isNull())
-        m.serverId = sv.value<int64_t>();
+        m.serverId = sv.toString().toStdString();
 
     m.clientUuid     = q.value("client_uuid").toString().toStdString();
     m.aiUserId       = q.value("ai_user_id").toString().toStdString();
@@ -233,7 +249,7 @@ int64_t Database::insertMessage(const MessageDTO &msg, const QString &aiUserId) 
             source_function, revoked_at, timestamp)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     )");
-    q.addBindValue(msg.serverId ? QVariant(static_cast<qint64>(*msg.serverId)) : QVariant());
+    q.addBindValue(msg.serverId.empty() ? QVariant() : QString::fromStdString(msg.serverId));
     q.addBindValue(QString::fromStdString(msg.clientUuid));
     q.addBindValue(aiUserId);
     q.addBindValue(QString::fromStdString(msg.conversationId));
@@ -278,7 +294,7 @@ void Database::upsertMessage(const MessageDTO &msg, const QString &aiUserId) {
                 revoked_at = ?, timestamp = ?
             WHERE client_uuid = ?
         )");
-        up.addBindValue(msg.serverId ? QVariant(static_cast<qint64>(*msg.serverId)) : QVariant());
+        up.addBindValue(msg.serverId.empty() ? QVariant() : QString::fromStdString(msg.serverId));
         up.addBindValue(aiUserId);
         up.addBindValue(QString::fromStdString(msg.conversationId));
         up.addBindValue(QString::fromStdString(msg.senderType));
@@ -306,13 +322,13 @@ void Database::upsertMessage(const MessageDTO &msg, const QString &aiUserId) {
 // findByServerId
 // ---------------------------------------------------------------------------
 
-std::optional<MessageDTO> Database::findByServerId(int64_t serverId) {
+std::optional<MessageDTO> Database::findByServerId(const QString &serverId) {
     QSqlQuery q(db_);
     q.prepare(R"(
         SELECT * FROM messages
         WHERE server_id = ? AND (deleted_at IS NULL OR deleted_at = '')
     )");
-    q.addBindValue(static_cast<qint64>(serverId));
+    q.addBindValue(serverId);
     if (!q.exec()) {
         qWarning() << "findByServerId failed:" << q.lastError().text();
         return std::nullopt;
@@ -348,6 +364,24 @@ std::optional<MessageDTO> Database::findByClientUuid(const QString &clientUuid) 
 
 QVector<MessageDTO> Database::getLocalMessages(const QString &aiUserId, int limit) {
     QVector<MessageDTO> result;
+
+    // Diagnostic: count total rows and rows for this aiUserId
+    {
+        QSqlQuery diag(db_);
+        diag.exec("SELECT COUNT(*) FROM messages");
+        int total = diag.next() ? diag.value(0).toInt() : -1;
+        diag.exec("SELECT COUNT(*) FROM messages WHERE deleted_at IS NULL OR deleted_at = ''");
+        int nonDeleted = diag.next() ? diag.value(0).toInt() : -1;
+        QSqlQuery diag2(db_);
+        diag2.prepare("SELECT COUNT(*) FROM messages WHERE ai_user_id = ?");
+        diag2.addBindValue(aiUserId);
+        diag2.exec();
+        int forUser = diag2.next() ? diag2.value(0).toInt() : -1;
+        qDebug() << "getLocalMessages: total rows =" << total
+                 << "non-deleted =" << nonDeleted
+                 << "for aiUserId" << aiUserId << "=" << forUser;
+    }
+
     QSqlQuery q(db_);
     q.prepare(R"(
         SELECT * FROM messages

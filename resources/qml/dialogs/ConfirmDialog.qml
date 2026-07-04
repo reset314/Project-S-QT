@@ -2,7 +2,6 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Window 2.15
-import "../theme/ThemeConfig.qml" as Theme
 
 Dialog {
     id: confirmDialog
@@ -23,27 +22,22 @@ Dialog {
     y: (parent ? parent.height : 600) / 2 - height / 2
 
     background: Rectangle {
-        radius: Theme.ThemeConfig.cardRadius
-        color: Theme.ThemeConfig.surfaceColor
+        radius: Theme.cardRadius
+        color: Theme.surfaceColor
 
         layer.enabled: true
-        layer.effect: DropShadow {
-            horizontalOffset: 0; verticalOffset: 8
-            radius: 24; samples: 33
-            color: "#30000000"
-        }
     }
 
     contentItem: ColumnLayout {
-        spacing: Theme.ThemeConfig.spacingLarge
+        spacing: Theme.spacingLarge
 
         // Message
         Text {
             Layout.fillWidth: true
-            Layout.topMargin: Theme.ThemeConfig.spacingLarge
+            Layout.topMargin: Theme.spacingLarge
             text: confirmDialog.message
-            color: Theme.ThemeConfig.textPrimary
-            font.pixelSize: Theme.ThemeConfig.fontSizeBody
+            color: Theme.textPrimary
+            font.pixelSize: Theme.fontSizeBody
             wrapMode: Text.Wrap
             horizontalAlignment: Text.AlignHCenter
         }
@@ -53,10 +47,10 @@ Dialog {
         // Buttons
         RowLayout {
             Layout.fillWidth: true
-            Layout.bottomMargin: Theme.ThemeConfig.spacingLarge
-            Layout.leftMargin: Theme.ThemeConfig.spacingLarge
-            Layout.rightMargin: Theme.ThemeConfig.spacingLarge
-            spacing: Theme.ThemeConfig.spacingMedium
+            Layout.bottomMargin: Theme.spacingLarge
+            Layout.leftMargin: Theme.spacingLarge
+            Layout.rightMargin: Theme.spacingLarge
+            spacing: Theme.spacingMedium
 
             Item { Layout.fillWidth: true }
 
@@ -64,17 +58,17 @@ Dialog {
             Rectangle {
                 Layout.preferredWidth: 100
                 Layout.preferredHeight: 36
-                radius: Theme.ThemeConfig.buttonRadius
+                radius: Theme.buttonRadius
                 color: cancelMouseArea.containsMouse
-                       ? Theme.ThemeConfig.sidebarHover : "transparent"
-                border.color: Theme.ThemeConfig.dividerColor
+                       ? Theme.sidebarHover : "transparent"
+                border.color: Theme.dividerColor
                 border.width: 1
 
                 Text {
                     anchors.centerIn: parent
                     text: confirmDialog.cancelText
-                    color: Theme.ThemeConfig.textSecondary
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
+                    color: Theme.textSecondary
+                    font.pixelSize: Theme.fontSizeBody
                 }
 
                 MouseArea {
@@ -93,18 +87,18 @@ Dialog {
             Rectangle {
                 Layout.preferredWidth: 100
                 Layout.preferredHeight: 36
-                radius: Theme.ThemeConfig.buttonRadius
+                radius: Theme.buttonRadius
                 color: confirmDialog.destructive
-                       ? (confirmMouseArea.containsMouse ? "#E57373" : Theme.ThemeConfig.errorColor)
+                       ? (confirmMouseArea.containsMouse ? "#E57373" : Theme.errorColor)
                        : (confirmMouseArea.containsMouse
-                          ? Theme.ThemeConfig.primaryLight : Theme.ThemeConfig.primaryColor)
+                          ? Theme.primaryLight : Theme.primaryColor)
 
                 Text {
                     anchors.centerIn: parent
                     text: confirmDialog.confirmText
                     color: "white"
-                    font.pixelSize: Theme.ThemeConfig.fontSizeBody
-                    font.weight: Theme.ThemeConfig.fontWeightMedium
+                    font.pixelSize: Theme.fontSizeBody
+                    font.weight: Theme.fontWeightMedium
                 }
 
                 MouseArea {
@@ -121,10 +115,9 @@ Dialog {
         }
     }
 
-    // Close on Escape
-    Keys.onEscapePressed: {
+    // Close on Escape (Dialog handles Esc natively via standardButtons or rejected)
+    onRejected: {
         confirmDialog.cancelled()
-        confirmDialog.close()
     }
 
     // ── Static convenience functions ─────────────────────────────
