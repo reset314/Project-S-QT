@@ -342,3 +342,14 @@
 19	83	8048963232805058	C:/Users/root/Documents/Programs/aaa2/_b/AIChatDesktop_autogen/3YJK5W5UP7/qrc_qml.cpp	954cc9e1f9fb0588
 84	182	8048963232920294	CMakeFiles/AIChatDesktop.dir/AIChatDesktop_autogen/3YJK5W5UP7/qrc_qml.cpp.obj	ed6cd62bb7b1319a
 183	3290	8048963233903944	AIChatDesktop.exe	728c240efc0708b0
+20	1029	8048963872391990	AIChatDesktop_autogen/timestamp	713f04e295bf14a
+20	1029	8048963872391990	AIChatDesktop_autogen/mocs_compilation.cpp	713f04e295bf14a
+20	1029	8048963872391990	C:/Users/root/Documents/Programs/aaa2/_b/AIChatDesktop_autogen/timestamp	713f04e295bf14a
+20	1029	8048963872391990	C:/Users/root/Documents/Programs/aaa2/_b/AIChatDesktop_autogen/mocs_compilation.cpp	713f04e295bf14a
+1043	2507	8048963882620330	CMakeFiles/AIChatDesktop.dir/src/services/UnreadTracker.cpp.obj	11be729c805b57b
+1041	2582	8048963882600254	CMakeFiles/AIChatDesktop.dir/src/services/SyncService.cpp.obj	ab390abea51013c4
+1038	2642	8048963882575134	CMakeFiles/AIChatDesktop.dir/src/repositories/ConversationRepository.cpp.obj	740c2b771d8679ac
+1035	2816	8048963882550093	CMakeFiles/AIChatDesktop.dir/src/repositories/ChatRepository.cpp.obj	e3fd6c47a2af2ec8
+1033	3036	8048963882515006	CMakeFiles/AIChatDesktop.dir/src/core/storage/Database.cpp.obj	f89d38d01a8bbe69
+1030	5022	8048963882494553	CMakeFiles/AIChatDesktop.dir/src/main.cpp.obj	2a0ce4e63a41a29e
+5022	8071	8048963922410648	AIChatDesktop.exe	728c240efc0708b0

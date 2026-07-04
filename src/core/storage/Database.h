@@ -6,6 +6,7 @@
 #include <QVariantMap>
 #include <optional>
 #include "../models/MessageDTO.h"
+#include "../models/MemoryDTO.h"
 
 class Database {
 public:
@@ -38,6 +39,10 @@ public:
     // Sync tracking
     std::optional<QString> getSyncTime(const QString &aiUserId);
     void setSyncTime(const QString &aiUserId, const QString &time);
+
+    // Memories
+    QVector<MemoryDTO> getMemories(const QString &aiUserId, const QStringList &types = {"MTM","LTM"},
+                                    const QString &beforeId = {}, int limit = 30);
 
 private:
     void runMigrations();

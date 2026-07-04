@@ -145,6 +145,25 @@ void Database::runMigrations() {
         {11, "CREATE INDEX IF NOT EXISTS idx_messages_ai_user ON messages(ai_user_id)"},
         {12, "CREATE INDEX IF NOT EXISTS idx_messages_client ON messages(client_uuid)"},
         {13, "CREATE INDEX IF NOT EXISTS idx_messages_server ON messages(server_id)"},
+        // Memory table
+        {14, R"(
+            CREATE TABLE IF NOT EXISTS memories (
+                id TEXT PRIMARY KEY,
+                ai_user_id TEXT NOT NULL,
+                content TEXT NOT NULL,
+                summary TEXT,
+                memory_type TEXT DEFAULT 'STM',
+                category TEXT DEFAULT 'general',
+                importance INTEGER DEFAULT 5,
+                confidence REAL DEFAULT 1.0,
+                is_archived INTEGER DEFAULT 0,
+                source_memory_id TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_mem_ai_user ON memories(ai_user_id);
+            CREATE INDEX IF NOT EXISTS idx_mem_type ON memories(memory_type);
+        )"},
     };
 
     for (const auto &m : migrations) {
@@ -586,4 +605,44 @@ void Database::setSyncTime(const QString &aiUserId, const QString &time) {
     q.addBindValue(time);
     if (!q.exec())
         qWarning() << "setSyncTime failed:" << q.lastError().text();
+}
+
+// ── Memories ────────────────────────────────────────────────────────
+QVector<MemoryDTO> Database::getMemories(const QString &aiUserId,
+                                          const QStringList &types,
+                                          const QString &beforeId, int limit) {
+    QVector<MemoryDTO> result;
+    QString sql = "SELECT * FROM memories WHERE ai_user_id = ?";
+    if (!types.isEmpty()) {
+        QStringList placeholders;
+        for (const auto &t : types) placeholders.append("?");
+        sql += " AND memory_type IN (" + placeholders.join(",") + ")";
+    }
+    if (!beforeId.isEmpty()) sql += " AND id < ?";
+    sql += " ORDER BY created_at DESC LIMIT ?";
+
+    QSqlQuery q(db_); q.prepare(sql);
+    q.addBindValue(aiUserId);
+    for (const auto &t : types) q.addBindValue(t);
+    if (!beforeId.isEmpty()) q.addBindValue(beforeId);
+    q.addBindValue(limit);
+
+    if (!q.exec()) { qWarning() << "getMemories failed:" << q.lastError().text(); return result; }
+    while (q.next()) {
+        MemoryDTO m;
+        m.id = q.value("id").toString().toStdString();
+        m.aiUserId = q.value("ai_user_id").toString().toStdString();
+        m.content = q.value("content").toString().toStdString();
+        if (!q.value("summary").isNull()) m.summary = q.value("summary").toString().toStdString();
+        m.memoryType = q.value("memory_type").toString().toStdString();
+        m.category = q.value("category").toString().toStdString();
+        m.importance = q.value("importance").toInt();
+        m.confidence = q.value("confidence").toDouble();
+        m.isArchived = q.value("is_archived").toBool();
+        if (!q.value("source_memory_id").isNull()) m.sourceMemoryId = q.value("source_memory_id").toString().toStdString();
+        m.createdAt = q.value("created_at").toString().toStdString();
+        m.updatedAt = q.value("updated_at").toString().toStdString();
+        result.append(m);
+    }
+    return result;
 }
