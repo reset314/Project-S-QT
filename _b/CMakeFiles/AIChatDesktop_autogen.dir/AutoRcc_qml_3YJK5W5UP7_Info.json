@@ -10,9 +10,13 @@
 	"INPUTS" : 
 	[
 		"C:/Users/root/Documents/Programs/aaa2/resources/qtquickcontrols2.conf",
+		"C:/Users/root/Documents/Programs/aaa2/resources/themes/glass.css",
+		"C:/Users/root/Documents/Programs/aaa2/resources/themes/light.css",
+		"C:/Users/root/Documents/Programs/aaa2/resources/themes/dark.css",
 		"C:/Users/root/Documents/Programs/aaa2/resources/qml/AppState.qml",
 		"C:/Users/root/Documents/Programs/aaa2/resources/qml/main.qml",
 		"C:/Users/root/Documents/Programs/aaa2/resources/qml/pages/ProfileEditPage.qml",
+		"C:/Users/root/Documents/Programs/aaa2/resources/qml/pages/ThemeSettingsPage.qml",
 		"C:/Users/root/Documents/Programs/aaa2/resources/qml/pages/ConversationListPage.qml",
 		"C:/Users/root/Documents/Programs/aaa2/resources/qml/pages/CallPage.qml",
 		"C:/Users/root/Documents/Programs/aaa2/resources/qml/pages/ChatPage.qml",

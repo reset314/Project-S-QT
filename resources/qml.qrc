@@ -25,6 +25,7 @@
         <file>qml/pages/ProfileEditPage.qml</file>
         <file>qml/pages/TTSVoicesPage.qml</file>
         <file>qml/pages/ExpansionPage.qml</file>
+        <file>qml/pages/ThemeSettingsPage.qml</file>
         <!-- Components -->
         <file>qml/components/BackHeader.qml</file>
         <file>qml/components/ChatBubble.qml</file>
