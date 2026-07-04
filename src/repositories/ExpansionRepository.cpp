@@ -40,3 +40,17 @@ Result<ExpansionModuleDTO> ExpansionRepository::toggleModule(const QString &name
 
     return ExpansionModuleDTO::fromJson(*result);
 }
+
+QJsonObject ExpansionRepository::listModulesJson() {
+    auto r = listModules();
+    if (!r) { QJsonObject e; e["error"] = QString::fromStdString(r.error().message); return e; }
+    QJsonObject o; QJsonArray arr;
+    for (const auto &m : *r) arr.append(m.toJson());
+    o["modules"] = arr; return o;
+}
+
+QJsonObject ExpansionRepository::toggleModuleJson(const QString &name, bool enabled) {
+    auto r = toggleModule(name, enabled);
+    if (!r) { QJsonObject e; e["error"] = QString::fromStdString(r.error().message); return e; }
+    return r->toJson();
+}

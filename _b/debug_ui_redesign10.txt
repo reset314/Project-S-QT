@@ -9,3 +9,19 @@
 [WARN] qrc:/qml/shell/TitleBar.qml:138:13: QML Connections: Detected function "onIconTypeChanged" in Connections element. This is probably intended to be a signal handler but no signal of the target matches the name.
 [WARN] qrc:/qml/shell/TitleBar.qml:138:13: QML Connections: Detected function "onIconTypeChanged" in Connections element. This is probably intended to be a signal handler but no signal of the target matches the name.
 [WARN] qrc:/qml/shell/TitleBar.qml:138:13: QML Connections: Detected function "onIconTypeChanged" in Connections element. This is probably intended to be a signal handler but no signal of the target matches the name.
+[DEBUG] TokenManager HTTP 200 OK body: "{\"success\":true,\"data\":{\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkNGJiNjk4MS0wMTllLTcwMDAtYjAxMy05ZWViYTQ2YzRkZGYiLCJpYXQiOjE3ODMxOTQ2NzcsImV4cCI6MTc4Mzc5OTQ3N30.iVL1u1vdEVPtCYA"
+[WARN] stream 1 finished with error: "主机需要验证"
+[WARN] TokenManager HTTP 500 err: QNetworkReply::InternalServerError "Error transferring https://www.p314.top/auth/refresh - server replied with status code 500"
+[DEBUG] TokenManager HTTP 200 OK body: "{\"success\":true,\"data\":{\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkNGJiNjk4MS0wMTllLTcwMDAtYjAxMy05ZWViYTQ2YzRkZGYiLCJpYXQiOjE3ODMxOTQ2ODYsImV4cCI6MTc4Mzc5OTQ4Nn0.45tuc1DaKrLOn9V"
+[DEBUG] ChatStreamClient: connecting to "wss://www.p314.top/ws/connect"
+[DEBUG] ChatStreamClient: WebSocket connected, sending auth
+[DEBUG] Loaded 279 conversations
+[WARN] qrc:/qml/components/ChatListDelegate.qml:33:21: Unable to assign [undefined] to QColor
+[DEBUG] Loaded 5 AI users
+[WARN] qrc:/qml/components/ChatListDelegate.qml:33:21: Unable to assign [undefined] to QColor
+[WARN] qrc:/qml/components/ChatListDelegate.qml:33:21: Unable to assign [undefined] to QColor
+[WARN] qrc:/qml/components/ChatListDelegate.qml:33:21: Unable to assign [undefined] to QColor
+[WARN] qrc:/qml/components/ChatListDelegate.qml:33:21: Unable to assign [undefined] to QColor
+[WARN] QObject::startTimer: current thread's event dispatcher has already been destroyed
+[WARN] QObject::startTimer: current thread's event dispatcher has already been destroyed
+[DEBUG] CallSignalingClient: intentional disconnect

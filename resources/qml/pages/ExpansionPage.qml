@@ -4,213 +4,63 @@ import QtQuick.Layouts 1.15
 import "../components" as C
 
 Item {
-    id: expansionPage
-    anchors.fill: parent
+    id: page; anchors.fill: parent
 
     ColumnLayout {
-        anchors.fill: parent
-        spacing: 0
+        anchors.fill: parent; spacing: 0
+        C.BackHeader { title: qsTr("Extensions"); onBackClicked: closePage() }
 
-        // ── Header ──────────────────────────────────────────────
-        C.BackHeader {
-            title: qsTr("Expansions")
-            onBackClicked: closePage()
-        }
-
-        // ── Info Banner ─────────────────────────────────────────
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 40
-            color: "#E3F2FD"
-
-            Text {
-                anchors {
-                    left: parent.left
-                    right: parent.right
-                    verticalCenter: parent.verticalCenter
-                    leftMargin: Theme.spacingLarge
-                    rightMargin: Theme.spacingLarge
-                }
-                text: qsTr("Extension modules add capabilities to your AI assistants. Toggle modules on or off.")
-                color: Theme.primaryDark
-                font.pixelSize: Theme.fontSizeSmall
-                wrapMode: Text.Wrap
-            }
-        }
-
-        // ── Expansion list ──────────────────────────────────────
         ListView {
-            id: expansionList
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            clip: true
-            spacing: 1
-
-            // Placeholder model — loaded from C++ ExpansionRepository
-            model: ListModel {
-                id: expansionModel
-            }
-
-            section.property: "category"
-            section.delegate: Rectangle {
-                width: expansionList.width
-                height: 32
-                color: Theme.backgroundColor
-
-                Text {
-                    anchors {
-                        left: parent.left
-                        leftMargin: Theme.spacingLarge
-                        verticalCenter: parent.verticalCenter
-                    }
-                    text: section || "Other"
-                    color: Theme.textHint
-                    font.pixelSize: Theme.fontSizeCaption
-                    font.weight: Theme.fontWeightBold
-                }
-            }
+            id: expList; Layout.fillWidth: true; Layout.fillHeight: true; clip: true; spacing: 1
+            model: ListModel { id: moduleModel }
 
             delegate: Rectangle {
-                width: expansionList.width
-                height: expansionContent.implicitHeight + 16
+                width: expList.width; height: cardCol.implicitHeight + 16
                 color: Theme.surfaceColor
-
-                RowLayout {
-                    id: expansionContent
-                    anchors {
-                        fill: parent
-                        leftMargin: Theme.spacingLarge
-                        rightMargin: Theme.spacingMedium
-                    }
-                    spacing: Theme.spacingMedium
-
-                    // Module info
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 2
-
-                        Text {
-                            text: model.name || model.title || qsTr("Unknown Module")
-                            color: Theme.textPrimary
-                            font.pixelSize: Theme.fontSizeBody
-                            font.weight: Theme.fontWeightMedium
-                        }
-
-                        Text {
-                            text: model.description || ""
-                            color: Theme.textSecondary
-                            font.pixelSize: Theme.fontSizeSmall
-                            Layout.fillWidth: true
-                            wrapMode: Text.Wrap
-                            maximumLineCount: 2
-                        }
-
-                        Text {
-                            text: "v" + (model.version || "1.0.0") + " · " + (model.author || "")
-                            color: Theme.textHint
-                            font.pixelSize: Theme.fontSizeCaption
-                        }
-                    }
-
-                    // Toggle switch
-                    Switch {
-                        id: toggleSwitch
-                        checked: model.enabled !== undefined ? model.enabled : true
-
-                        onCheckedChanged: {
-                            toggleModule(model.moduleId || model.id || "", checked)
-                        }
-                    }
-                }
-
-                // Divider
-                Rectangle {
-                    anchors {
-                        bottom: parent.bottom
-                        left: parent.left
-                        right: parent.right
-                        leftMargin: Theme.spacingLarge
-                    }
-                    height: 1
-                    color: Theme.dividerColor
-                }
-            }
-
-            // Empty state
-            Rectangle {
-                visible: expansionList.count === 0
-                anchors.fill: parent
-                color: "transparent"
-
                 ColumnLayout {
-                    anchors.centerIn: parent
-                    spacing: Theme.spacingLarge
-
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: "🧩"
-                        font.pixelSize: 48
+                    id: cardCol; anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 }; spacing: 4
+                    RowLayout {
+                        Text { text: model.name || qsTr("Unknown"); font.pixelSize: Theme.fontSizeBody; font.weight: Font.Bold; color: Theme.textPrimary; Layout.fillWidth: true }
+                        Rectangle { color: model.review_status === "approved" ? Theme.successColor : (model.review_status === "rejected" ? Theme.errorColor : Theme.warningColor)
+                            radius: 4; width: statusText.implicitWidth + 12; height: 20
+                            Text { id: statusText; anchors.centerIn: parent; text: model.review_status || "pending"; font.pixelSize: 10; color: "white" }
+                        }
                     }
-
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("No expansions installed")
-                        color: Theme.textHint
-                        font.pixelSize: Theme.fontSizeBody
-                    }
-
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Install extension modules to add new capabilities")
-                        color: Theme.textHint
-                        font.pixelSize: Theme.fontSizeSmall
+                    Text { text: model.description || ""; font.pixelSize: Theme.fontSizeSmall; color: Theme.textSecondary; Layout.fillWidth: true; wrapMode: Text.Wrap; maximumLineCount: 2 }
+                    RowLayout { spacing: 8
+                        Text { text: "v" + (model.version || "1.0.0"); font.pixelSize: Theme.fontSizeCaption; color: Theme.textHint }
+                        Text { text: "· "+ (model.author || ""); font.pixelSize: Theme.fontSizeCaption; color: Theme.textHint }
+                        Item { Layout.fillWidth: true }
+                        Switch { checked: model.enabled !== false; onClicked: toggleModule(model.name || "", checked) }
                     }
                 }
             }
-        }
-    }
 
-    // ── Actions ──────────────────────────────────────────────────
-    function toggleModule(moduleId, enabled) {
-        console.log("Toggle module:", moduleId, enabled)
-        if (typeof expansionRepo !== "undefined") {
-            expansionRepo.setEnabled(moduleId, enabled)
+            Rectangle { visible: expList.count === 0; anchors.fill: parent; color: "transparent"
+                ColumnLayout { anchors.centerIn: parent; spacing: Theme.spacingMedium
+                    C.Icon { name: "puzzle"; size: 48; anchors.horizontalCenter: parent.horizontalCenter; color: Theme.textHint }
+                    Text { text: qsTr("No extensions installed"); color: Theme.textHint; font.pixelSize: Theme.fontSizeBody; anchors.horizontalCenter: parent.horizontalCenter }
+                }
+            }
         }
-    }
-
-    Component.onCompleted: {
-        loadModules()
     }
 
     function loadModules() {
-        if (typeof expansionRepo !== "undefined") {
-            expansionRepo.getAllModules(function(success, data) {
-                if (success && data) {
-                    expansionModel.clear()
-                    try {
-                        var modules = JSON.parse(data)
-                        for (var i = 0; i < modules.length; i++) {
-                            expansionModel.append(modules[i])
-                        }
-                    } catch (e) {
-                        console.error("Failed to parse modules:", e)
-                    }
-                }
-            })
-        }
+        if (typeof expansionRepo === "undefined") return
+        var json = expansionRepo.listModulesJson()
+        moduleModel.clear()
+        if (!json || json.error) return
+        var modules = json.modules || []
+        for (var i = 0; i < modules.length; i++) moduleModel.append(modules[i])
     }
 
-    function closePage() {
-        var sv = findStackView()
-        if (sv) sv.pop()
+    function toggleModule(name, enabled) {
+        if (typeof expansionRepo === "undefined") return
+        expansionRepo.toggleModuleJson(name, enabled)
     }
 
-    function findStackView() {
-        var obj = expansionPage.parent
-        while (obj) {
-            if (obj instanceof StackView) return obj
-            obj = obj.parent
-        }
-        return null
-    }
+    Component.onCompleted: loadModules()
+
+    function closePage() { var sv = findStackView(); if (sv) sv.pop() }
+    function findStackView() { var o = page.parent; while (o) { if (o instanceof StackView) return o; o = o.parent } return null }
 }

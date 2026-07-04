@@ -38,10 +38,22 @@ template <> constexpr inline auto ExpansionRepository::qt_create_metaobjectdata<
 {
     namespace QMC = QtMocConstants;
     QtMocHelpers::StringRefStorage qt_stringData {
-        "ExpansionRepository"
+        "ExpansionRepository",
+        "listModulesJson",
+        "QJsonObject",
+        "",
+        "toggleModuleJson",
+        "name",
+        "enabled"
     };
 
     QtMocHelpers::UintData qt_methods {
+        // Method 'listModulesJson'
+        QtMocHelpers::MethodData<QJsonObject()>(1, 3, QMC::AccessPublic, 0x80000000 | 2),
+        // Method 'toggleModuleJson'
+        QtMocHelpers::MethodData<QJsonObject(const QString &, bool)>(4, 3, QMC::AccessPublic, 0x80000000 | 2, {{
+            { QMetaType::QString, 5 }, { QMetaType::Bool, 6 },
+        }}),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -63,10 +75,15 @@ Q_CONSTINIT const QMetaObject ExpansionRepository::staticMetaObject = { {
 void ExpansionRepository::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     auto *_t = static_cast<ExpansionRepository *>(_o);
-    (void)_t;
-    (void)_c;
-    (void)_id;
-    (void)_a;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        switch (_id) {
+        case 0: { QJsonObject _r = _t->listModulesJson();
+            if (_a[0]) *reinterpret_cast<QJsonObject*>(_a[0]) = std::move(_r); }  break;
+        case 1: { QJsonObject _r = _t->toggleModuleJson((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<bool>>(_a[2])));
+            if (_a[0]) *reinterpret_cast<QJsonObject*>(_a[0]) = std::move(_r); }  break;
+        default: ;
+        }
+    }
 }
 
 const QMetaObject *ExpansionRepository::metaObject() const
@@ -85,6 +102,18 @@ void *ExpansionRepository::qt_metacast(const char *_clname)
 int ExpansionRepository::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
     _id = QObject::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        if (_id < 2)
+            qt_static_metacall(this, _c, _id, _a);
+        _id -= 2;
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+        if (_id < 2)
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
+        _id -= 2;
+    }
     return _id;
 }
 QT_WARNING_POP

@@ -11,11 +11,11 @@ class ExpansionRepository : public QObject {
 public:
     explicit ExpansionRepository(HttpClient *http, QObject *parent = nullptr);
 
-    /// GET /expansion/modules
     Result<QVector<ExpansionModuleDTO>> listModules();
-
-    /// POST /expansion/modules/{name}/toggle
     Result<ExpansionModuleDTO> toggleModule(const QString &name, bool enabled);
+
+    Q_INVOKABLE QJsonObject listModulesJson();
+    Q_INVOKABLE QJsonObject toggleModuleJson(const QString &name, bool enabled);
 
 private:
     HttpClient *http_;

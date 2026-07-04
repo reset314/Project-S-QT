@@ -9,3 +9,31 @@
 [WARN] qrc:/qml/shell/TitleBar.qml:138:13: QML Connections: Detected function "onIconTypeChanged" in Connections element. This is probably intended to be a signal handler but no signal of the target matches the name.
 [WARN] qrc:/qml/shell/TitleBar.qml:138:13: QML Connections: Detected function "onIconTypeChanged" in Connections element. This is probably intended to be a signal handler but no signal of the target matches the name.
 [WARN] qrc:/qml/shell/TitleBar.qml:138:13: QML Connections: Detected function "onIconTypeChanged" in Connections element. This is probably intended to be a signal handler but no signal of the target matches the name.
+[DEBUG] TokenManager HTTP 200 OK body: "{\"success\":true,\"data\":{\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkNGJiNjk4MS0wMTllLTcwMDAtYjAxMy05ZWViYTQ2YzRkZGYiLCJpYXQiOjE3ODMxOTQ1MTgsImV4cCI6MTc4Mzc5OTMxOH0.hcUUXB1oOWJaR98"
+[DEBUG] ChatStreamClient: connecting to "wss://www.p314.top/ws/connect"
+[DEBUG] ChatStreamClient: WebSocket connected, sending auth
+[DEBUG] Loaded 279 conversations
+[WARN] qrc:/qml/components/ChatListDelegate.qml:33:21: Unable to assign [undefined] to QColor
+[DEBUG] Loaded 5 AI users
+[WARN] qrc:/qml/components/ChatListDelegate.qml:33:21: Unable to assign [undefined] to QColor
+[WARN] qrc:/qml/components/ChatListDelegate.qml:33:21: Unable to assign [undefined] to QColor
+[WARN] qrc:/qml/components/ChatListDelegate.qml:33:21: Unable to assign [undefined] to QColor
+[WARN] qrc:/qml/components/ChatListDelegate.qml:33:21: Unable to assign [undefined] to QColor
+[WARN] qrc:/qml/shell/MainShell.qml:115:44: QML SettingsPage: StackView has detected conflicting anchors. Transitions may not execute properly.
+[WARN] qrc:/qml/shell/MainShell.qml:115:44: QML SettingsPage: StackView has detected conflicting anchors. Transitions may not execute properly.
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"ping\"}"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"pong\"}"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"ping\"}"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"pong\"}"
+[WARN] QIODevice::read (QSslSocket): device not open
+[WARN] QIODevice::read (QSslSocket): device not open
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"ping\"}"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"pong\"}"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"ping\"}"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"pong\"}"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"ping\"}"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"pong\"}"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"ping\"}"
+[WARN] QObject::startTimer: current thread's event dispatcher has already been destroyed
+[WARN] QObject::startTimer: current thread's event dispatcher has already been destroyed
+[DEBUG] CallSignalingClient: intentional disconnect
