@@ -13,9 +13,24 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS
 find_package(nlohmann_json REQUIRED)
 find_package(LibDataChannel QUIET)
 
+find_package(Boost REQUIRED)
+
 set(SOURCES
     src/main.cpp
     src/core/utils/UuidGenerator.cpp
+    src/core/theme/ThemeManager.cpp
+    # aqt-stylesheets vendor sources
+    src/core/vendor/aqt-stylesheets/src/Convert.cpp
+    src/core/vendor/aqt-stylesheets/src/CssParser.cpp
+    src/core/vendor/aqt-stylesheets/src/StyleChecker.cpp
+    src/core/vendor/aqt-stylesheets/src/StyleEngine.cpp
+    src/core/vendor/aqt-stylesheets/src/StyleEngineSetup.cpp
+    src/core/vendor/aqt-stylesheets/src/StyleMatchTree.cpp
+    src/core/vendor/aqt-stylesheets/src/StylePlugin.cpp
+    src/core/vendor/aqt-stylesheets/src/StyleSet.cpp
+    src/core/vendor/aqt-stylesheets/src/StyleSetProps.cpp
+    src/core/vendor/aqt-stylesheets/src/StylesDirWatcher.cpp
+    src/core/vendor/aqt-stylesheets/src/UrlUtils.cpp
     src/core/storage/Database.cpp
     src/core/auth/Keychain.cpp
     src/core/auth/TokenManager.cpp
@@ -65,7 +80,12 @@ set(RESOURCES
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
 
-target_include_directories(${PROJECT_NAME} PRIVATE src src/core/vendor)
+target_include_directories(${PROJECT_NAME} PRIVATE
+    src
+    src/core/vendor
+    ${Boost_INCLUDE_DIRS}
+    src/core/vendor/aqt-stylesheets/src
+)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Quick
@@ -78,6 +98,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Widgets
     Qt6::Concurrent
     nlohmann_json::nlohmann_json
+    ${Boost_LIBRARIES}
 )
 
 # Windows-specific system libraries

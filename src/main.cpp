@@ -34,6 +34,7 @@
 #include "core/auth/TokenManager.h"
 #include "core/network/HttpClient.h"
 #include "core/network/ChatStreamClient.h"
+#include "core/theme/ThemeManager.h"
 
 // Repositories
 #include "repositories/AuthRepository.h"
@@ -451,6 +452,15 @@ int main(int argc, char *argv[])
     }
 
     auto ctx = engine.rootContext();
+
+    // ── ThemeManager ─────────────────────────────────────────────
+    auto themeManager = new ThemeManager(&app);
+    ctx->setContextProperty("themeManager", themeManager);
+
+    // Read saved theme from QSettings, fall back to built-in light.css
+    QString savedTheme = QSettings("Project-S", "Project-S")
+        .value("settings/themePath", ":/themes/light.css").toString();
+    themeManager->loadTheme(savedTheme);
 
 #ifdef Q_OS_WIN
     auto windowHelper = new WindowHelper(&app);
