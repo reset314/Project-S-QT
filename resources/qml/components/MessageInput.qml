@@ -13,20 +13,20 @@ Rectangle {
 
     RowLayout {
         id: inputColumn
-        anchors { fill: parent; leftMargin: 8; rightMargin: 4; topMargin: 6; bottomMargin: 6 }
+        anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 4; anchors.topMargin: 6; anchors.bottomMargin: 6
         spacing: 4
 
         // [📎] Upload
         Rectangle { width: 36; height: 36; radius: 18
             color: attachMouse.containsMouse ? Theme.sidebarHover : "transparent"
-            C.Icon { anchors.centerIn: parent; name: "paperclip"; size: 20 }
+            Icon { anchors.centerIn: parent; name: "paperclip"; size: 20 }
             MouseArea { id: attachMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: messageInput.attachFile() }
         }
 
         // [🎤] Voice toggle
         Rectangle { width: 36; height: 36; radius: 18
             color: voiceMouse.containsMouse ? Theme.sidebarHover : "transparent"
-            C.Icon { anchors.centerIn: parent; name: "mic"; size: 20 }
+            Icon { anchors.centerIn: parent; name: "mic"; size: 20 }
             MouseArea { id: voiceMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor }
         }
 
@@ -51,7 +51,7 @@ Rectangle {
         // [↑] Send
         Rectangle { width: 36; height: 36; radius: 18
             color: textArea.text.trim().length > 0 ? Theme.primaryColor : Theme.dividerColor
-            C.Icon { anchors.centerIn: parent; name: "arrow-up"; size: 20
+            Icon { anchors.centerIn: parent; name: "arrow-up"; size: 20
                 color: textArea.text.trim().length > 0 ? Theme.textOnPrimary : Theme.textSecondary }
             MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor
                 enabled: textArea.text.trim().length > 0; onClicked: sendCurrentText() }
@@ -60,7 +60,7 @@ Rectangle {
         // [···] More menu
         Rectangle { width: 36; height: 36; radius: 18
             color: moreMouse.containsMouse ? Theme.sidebarHover : "transparent"
-            C.Icon { anchors.centerIn: parent; name: "more-horizontal"; size: 20 }
+            Icon { anchors.centerIn: parent; name: "more-horizontal"; size: 20 }
             MouseArea { id: moreMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: moreMenu.open() }
         }
     }
@@ -83,8 +83,8 @@ Rectangle {
         signal clicked()
         width: 140; height: 36; radius: 4
         color: mbMouse.containsMouse ? Theme.sidebarHover : "transparent"
-        RowLayout { anchors { fill: parent; leftMargin: 8; rightMargin: 8 }; spacing: 8
-            C.Icon { name: iconName; size: 18 }
+        RowLayout { anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8; spacing: 8
+            Icon { name: iconName; size: 18 }
             Text { text: parent.text; font.pixelSize: Theme.fontSizeSmall; color: Theme.textPrimary }
         }
         MouseArea { id: mbMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: parent.clicked() }

@@ -14,7 +14,7 @@ Popup {
 
         // Zone 1: Top bar
         Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 44; color: "transparent"
-            RowLayout { anchors { fill: parent; leftMargin: 12; rightMargin: 8 }
+            RowLayout { anchors.fill: parent; anchors.leftMargin: 12; anchors.rightMargin: 8
                 Text { text: qsTr("Memories"); font.pixelSize: Theme.fontSizeSubheading; font.weight: Font.Bold; color: Theme.textPrimary; Layout.fillWidth: true }
                 Rectangle { width: 28; height: 28; radius: 14; color: closeMouse.containsMouse ? Theme.errorColor : "transparent"
                     C.Icon { anchors.centerIn: parent; name: "x"; size: 16; color: closeMouse.containsMouse ? "white" : Theme.textSecondary }
@@ -25,7 +25,7 @@ Popup {
 
         // Zone 2: Filter
         Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 40; color: Theme.backgroundColor
-            RowLayout { anchors { fill: parent; leftMargin: 12; rightMargin: 12 }
+            RowLayout { anchors.fill: parent; anchors.leftMargin: 12; anchors.rightMargin: 12
                 Text { text: qsTr("Layer:"); font.pixelSize: Theme.fontSizeSmall; color: Theme.textSecondary }
                 CheckBox { id: cbStm; text: "STM"; checked: false; font.pixelSize: Theme.fontSizeSmall }
                 CheckBox { id: cbMtm; text: "MTM"; checked: true; font.pixelSize: Theme.fontSizeSmall }
@@ -43,7 +43,7 @@ Popup {
                 width: memList.width; height: memCard.implicitHeight + 12
                 color: Theme.surfaceColor; border.color: Theme.dividerColor; border.width: 1; radius: 6
                 ColumnLayout {
-                    id: memCard; anchors { left: parent.left; right: parent.right; top: parent.top; margins: 8 }; spacing: 4
+                    id: memCard; anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top; anchors.margins: 8; spacing: 4
                     Text { text: model.summary || model.content.substring(0, 100); font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; Layout.fillWidth: true; wrapMode: Text.Wrap }
                     RowLayout { spacing: 8
                         Rectangle { color: typeColor(model.memoryType); radius: 4; width: typeLabel.implicitWidth + 8; height: 18

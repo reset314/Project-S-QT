@@ -12,10 +12,10 @@ Rectangle {
     color: itemMouse.containsMouse ? Theme.sidebarHover : "transparent"
 
     RowLayout {
-        anchors { fill: parent; leftMargin: 12; rightMargin: 8; topMargin: 8; bottomMargin: 8 }
+        anchors.fill: parent; anchors.leftMargin: 12; anchors.rightMargin: 8; anchors.topMargin: 8; anchors.bottomMargin: 8
         spacing: 10
 
-        C.UserAvatar { Layout.preferredWidth: 44; Layout.preferredHeight: 44; name: item.name; imageSource: item.avatar }
+        UserAvatar { Layout.preferredWidth: 44; Layout.preferredHeight: 44; name: item.name; imageSource: item.avatar }
 
         ColumnLayout {
             Layout.fillWidth: true; spacing: 2

@@ -24,7 +24,7 @@ Rectangle {
             Layout.fillWidth: true; Layout.preferredHeight: 48
             color: "transparent"
             RowLayout {
-                anchors { fill: parent; leftMargin: 12; rightMargin: 8 }
+                anchors.fill: parent; anchors.leftMargin: 12; anchors.rightMargin: 8
                 C.UserAvatar { Layout.preferredWidth: 32; Layout.preferredHeight: 32; name: "Me" }
                 Item { Layout.fillWidth: true }
                 Rectangle { width: 32; height: 32; radius: 16; color: parentMouse.containsMouse ? Theme.sidebarHover : "transparent"
@@ -42,17 +42,17 @@ Rectangle {
         Item {
             Layout.fillWidth: true; Layout.fillHeight: true
 
-            // Chats list
+            // Chats list — shows AI users (same as contacts, click → chat)
             ListView {
                 id: chatList; anchors.fill: parent; visible: sidebar.currentTab === 0; clip: true; spacing: 1
-                model: typeof conversationListModel !== "undefined" ? conversationListModel : null
+                model: typeof contactListModel !== "undefined" ? contactListModel : null
                 delegate: C.ChatListDelegate {
                     width: chatList.width
-                    aiUserId: model.aiUserId || ""; name: model.aiUserName || model.title || ""
-                    avatar: model.aiUserAvatar || ""; lastMessage: model.lastMessagePreview || ""
-                    lastTime: formatTime(model.updatedAt || "")
-                    unread: { if (typeof unreadTracker !== "undefined" && unreadTracker.unreadMap) return unreadTracker.unreadMap[model.aiUserId] || 0; return 0 }
-                    onClicked: sidebar.chatSelected(model.aiUserId, model.aiUserName || model.title)
+                    aiUserId: model.id || ""; name: model.name || ""
+                    avatar: model.avatar || ""; lastMessage: model.description || ""
+                    lastTime: ""
+                    unread: { if (typeof unreadTracker !== "undefined" && unreadTracker.unreadMap) return unreadTracker.unreadMap[model.id] || 0; return 0 }
+                    onClicked: sidebar.chatSelected(model.id, model.name)
                 }
             }
 

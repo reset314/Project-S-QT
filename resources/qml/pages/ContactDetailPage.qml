@@ -37,7 +37,7 @@ Item {
                 Repeater {
                     model: fields
                     delegate: FieldRow { label: model.label; value: model.value; isEdit: editing; fieldKey: model.key
-                        onValueChanged: function(k, v) { fieldValues[k] = v }
+                        onFieldValueChanged: function(k, v) { fieldValues[k] = v }
                     }
                 }
 
@@ -86,15 +86,15 @@ Item {
 
     component FieldRow: Rectangle {
         property string label: ""; property string value: ""; property bool isEdit: false; property string fieldKey: ""
-        signal valueChanged(string key, string val)
+        signal fieldValueChanged(string key, string val)
         Layout.fillWidth: true; Layout.preferredHeight: rowCol.implicitHeight + 16; Layout.margins: Theme.spacingLarge
         radius: Theme.cardRadius; color: Theme.surfaceColor; border.color: Theme.dividerColor; border.width: 1
         ColumnLayout {
-            id: rowCol; anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: 12 }; spacing: 4
+            id: rowCol; anchors.left: parent.left; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; anchors.margins: 12; spacing: 4
             Text { text: label; font.pixelSize: Theme.fontSizeCaption; color: Theme.textHint }
             Text { visible: !isEdit; text: value || qsTr("N/A"); font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; Layout.fillWidth: true; wrapMode: Text.Wrap }
             TextField { visible: isEdit; text: value; font.pixelSize: Theme.fontSizeBody; Layout.fillWidth: true
-                onTextChanged: valueChanged(fieldKey, text) }
+                onTextChanged: fieldValueChanged(fieldKey, text) }
         }
     }
 
