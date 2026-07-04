@@ -35,6 +35,7 @@
 #include "core/network/HttpClient.h"
 #include "core/network/ChatStreamClient.h"
 #include "core/theme/ThemeManager.h"
+#include "core/utils/SecondaryWindow.h"
 
 // Repositories
 #include "repositories/AuthRepository.h"
@@ -461,6 +462,9 @@ int main(int argc, char *argv[])
     QString savedTheme = QSettings("Project-S", "Project-S")
         .value("settings/themePath", ":/themes/light.css").toString();
     themeManager->setTheme(savedTheme);
+
+    auto secondaryWindow = new SecondaryWindow(&engine, &app);
+    ctx->setContextProperty("secondaryWindow", secondaryWindow);
 
 #ifdef Q_OS_WIN
     auto windowHelper = new WindowHelper(&app);

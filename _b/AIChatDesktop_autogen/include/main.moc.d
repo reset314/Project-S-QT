@@ -17,6 +17,7 @@ C:/Users/root/Documents/Programs/aaa2/_b/AIChatDesktop_autogen/include/main.moc:
   C:/Users/root/Documents/Programs/aaa2/src/core/theme/ThemeManager.h \
   C:/Users/root/Documents/Programs/aaa2/src/core/utils/ApiError.h \
   C:/Users/root/Documents/Programs/aaa2/src/core/utils/JsonHelper.h \
+  C:/Users/root/Documents/Programs/aaa2/src/core/utils/SecondaryWindow.h \
   C:/Users/root/Documents/Programs/aaa2/src/core/vendor/tl/expected.hpp \
   C:/Users/root/Documents/Programs/aaa2/src/platform/LinuxDesktop.h \
   C:/Users/root/Documents/Programs/aaa2/src/platform/MacDock.h \
@@ -84,9 +85,12 @@ C:/Users/root/Documents/Programs/aaa2/_b/AIChatDesktop_autogen/include/main.moc:
   D:/QT/6.11.1/mingw_64/include/QtCore/QMutex \
   D:/QT/6.11.1/mingw_64/include/QtCore/QObject \
   D:/QT/6.11.1/mingw_64/include/QtCore/QRect \
+  D:/QT/6.11.1/mingw_64/include/QtCore/QRectF \
   D:/QT/6.11.1/mingw_64/include/QtCore/QSet \
   D:/QT/6.11.1/mingw_64/include/QtCore/QSettings \
   D:/QT/6.11.1/mingw_64/include/QtCore/QSharedDataPointer \
+  D:/QT/6.11.1/mingw_64/include/QtCore/QSize \
+  D:/QT/6.11.1/mingw_64/include/QtCore/QSizeF \
   D:/QT/6.11.1/mingw_64/include/QtCore/QStandardPaths \
   D:/QT/6.11.1/mingw_64/include/QtCore/QString \
   D:/QT/6.11.1/mingw_64/include/QtCore/QStringList \
@@ -383,31 +387,41 @@ C:/Users/root/Documents/Programs/aaa2/_b/AIChatDesktop_autogen/include/main.moc:
   D:/QT/6.11.1/mingw_64/include/QtGui/QAction \
   D:/QT/6.11.1/mingw_64/include/QtGui/QIcon \
   D:/QT/6.11.1/mingw_64/include/QtGui/QKeySequence \
+  D:/QT/6.11.1/mingw_64/include/QtGui/QMatrix4x4 \
   D:/QT/6.11.1/mingw_64/include/QtGui/QShortcut \
+  D:/QT/6.11.1/mingw_64/include/QtGui/QTransform \
   D:/QT/6.11.1/mingw_64/include/QtGui/QWindow \
   D:/QT/6.11.1/mingw_64/include/QtGui/qaction.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qbitmap.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qbrush.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qcolor.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qcursor.h \
+  D:/QT/6.11.1/mingw_64/include/QtGui/qevent.h \
+  D:/QT/6.11.1/mingw_64/include/QtGui/qeventpoint.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qfont.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qfontinfo.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qfontmetrics.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qfontvariableaxis.h \
+  D:/QT/6.11.1/mingw_64/include/QtGui/qgenericmatrix.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qguiapplication.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qguiapplication_platform.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qicon.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qimage.h \
+  D:/QT/6.11.1/mingw_64/include/QtGui/qinputdevice.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qinputmethod.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qkeysequence.h \
+  D:/QT/6.11.1/mingw_64/include/QtGui/qmatrix4x4.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qpaintdevice.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qpalette.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qpixelformat.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qpixmap.h \
+  D:/QT/6.11.1/mingw_64/include/QtGui/qpointingdevice.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qpolygon.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qregion.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qrgb.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qrgba64.h \
+  D:/QT/6.11.1/mingw_64/include/QtGui/qscreen.h \
+  D:/QT/6.11.1/mingw_64/include/QtGui/qscreen_platform.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qshortcut.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qsurface.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qsurfaceformat.h \
@@ -415,6 +429,10 @@ C:/Users/root/Documents/Programs/aaa2/_b/AIChatDesktop_autogen/include/main.moc:
   D:/QT/6.11.1/mingw_64/include/QtGui/qtguiexports.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qtguiglobal.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qtransform.h \
+  D:/QT/6.11.1/mingw_64/include/QtGui/qvector2d.h \
+  D:/QT/6.11.1/mingw_64/include/QtGui/qvector3d.h \
+  D:/QT/6.11.1/mingw_64/include/QtGui/qvector4d.h \
+  D:/QT/6.11.1/mingw_64/include/QtGui/qvectornd.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qwindow.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qwindowdefs.h \
   D:/QT/6.11.1/mingw_64/include/QtGui/qwindowdefs_win.h \
@@ -475,6 +493,7 @@ C:/Users/root/Documents/Programs/aaa2/_b/AIChatDesktop_autogen/include/main.moc:
   D:/QT/6.11.1/mingw_64/include/QtQml/qqmldebug.h \
   D:/QT/6.11.1/mingw_64/include/QtQml/qqmlengine.h \
   D:/QT/6.11.1/mingw_64/include/QtQml/qqmlerror.h \
+  D:/QT/6.11.1/mingw_64/include/QtQml/qqmlinfo.h \
   D:/QT/6.11.1/mingw_64/include/QtQml/qqmllist.h \
   D:/QT/6.11.1/mingw_64/include/QtQml/qqmlparserstatus.h \
   D:/QT/6.11.1/mingw_64/include/QtQml/qqmlprivate.h \
@@ -484,6 +503,14 @@ C:/Users/root/Documents/Programs/aaa2/_b/AIChatDesktop_autogen/include/main.moc:
   D:/QT/6.11.1/mingw_64/include/QtQml/qtqmlexports.h \
   D:/QT/6.11.1/mingw_64/include/QtQml/qtqmlglobal.h \
   D:/QT/6.11.1/mingw_64/include/QtQmlIntegration/qqmlintegration.h \
+  D:/QT/6.11.1/mingw_64/include/QtQuick/QQuickWindow \
+  D:/QT/6.11.1/mingw_64/include/QtQuick/qquickwindow.h \
+  D:/QT/6.11.1/mingw_64/include/QtQuick/qsggeometry.h \
+  D:/QT/6.11.1/mingw_64/include/QtQuick/qsgnode.h \
+  D:/QT/6.11.1/mingw_64/include/QtQuick/qsgrendererinterface.h \
+  D:/QT/6.11.1/mingw_64/include/QtQuick/qtquick-config.h \
+  D:/QT/6.11.1/mingw_64/include/QtQuick/qtquickexports.h \
+  D:/QT/6.11.1/mingw_64/include/QtQuick/qtquickglobal.h \
   D:/QT/6.11.1/mingw_64/include/QtSql/QSqlDatabase \
   D:/QT/6.11.1/mingw_64/include/QtSql/qsqldatabase.h \
   D:/QT/6.11.1/mingw_64/include/QtSql/qtsql-config.h \
@@ -772,6 +799,7 @@ C:/Users/root/Documents/Programs/aaa2/_b/AIChatDesktop_autogen/include/main.moc:
   D:/QT/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/emmintrin.h \
   D:/QT/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/enqcmdintrin.h \
   D:/QT/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/f16cintrin.h \
+  D:/QT/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/float.h \
   D:/QT/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/fma4intrin.h \
   D:/QT/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/fmaintrin.h \
   D:/QT/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/fxsrintrin.h \

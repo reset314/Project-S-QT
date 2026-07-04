@@ -4,6 +4,7 @@
 #include "4XH6SOYG2C/moc_ChatStreamClient.cpp"
 #include "4XH6SOYG2C/moc_HttpClient.cpp"
 #include "STUJMRYCEW/moc_ThemeManager.cpp"
+#include "QWNOQLMVAQ/moc_SecondaryWindow.cpp"
 #include "CDHPDT4PZW/moc_StyleChecker.cpp"
 #include "CDHPDT4PZW/moc_StyleEngine.cpp"
 #include "CDHPDT4PZW/moc_StyleEngineSetup.cpp"

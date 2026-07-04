@@ -16,6 +16,7 @@ find_package(LibDataChannel QUIET)
 set(SOURCES
     src/main.cpp
     src/core/utils/UuidGenerator.cpp
+    src/core/utils/SecondaryWindow.cpp
     src/core/theme/ThemeManager.cpp
     # aqt-stylesheets vendor sources
     src/core/vendor/aqt-stylesheets/src/Convert.cpp

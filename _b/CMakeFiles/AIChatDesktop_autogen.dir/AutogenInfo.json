@@ -1270,6 +1270,12 @@
 			null
 		],
 		[
+			"C:/Users/root/Documents/Programs/aaa2/src/core/utils/SecondaryWindow.h",
+			"Mu",
+			"QWNOQLMVAQ/moc_SecondaryWindow.cpp",
+			null
+		],
+		[
 			"C:/Users/root/Documents/Programs/aaa2/src/core/utils/UuidGenerator.h",
 			"Mu",
 			"QWNOQLMVAQ/moc_UuidGenerator.cpp",
@@ -1642,6 +1648,11 @@
 		],
 		[
 			"C:/Users/root/Documents/Programs/aaa2/src/core/theme/ThemeManager.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/root/Documents/Programs/aaa2/src/core/utils/SecondaryWindow.cpp",
 			"Mu",
 			null
 		],
