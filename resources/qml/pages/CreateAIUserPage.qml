@@ -85,12 +85,18 @@ Item {
                     placeholder: qsTr("Optional")
                 }
 
-                FormField {
-                    id: systemPromptField
-                    label: qsTr("System Prompt")
-                    placeholder: qsTr("Custom system prompt for this AI")
-                    multiline: true
-                }
+                FormField { id: multiProvField; label: qsTr("Multimodal Provider"); placeholder: qsTr("Optional") }
+                FormField { id: multiModelField; label: qsTr("Multimodal Model"); placeholder: qsTr("Optional") }
+                FormField { id: transProvField; label: qsTr("Transcribe Provider"); placeholder: qsTr("Optional") }
+                FormField { id: transModelField; label: qsTr("Transcribe Model"); placeholder: qsTr("Optional") }
+                FormField { id: underProvField; label: qsTr("Understand Provider"); placeholder: qsTr("Optional") }
+                FormField { id: underModelField; label: qsTr("Understand Model"); placeholder: qsTr("Optional") }
+                FormField { id: systemPromptField; label: qsTr("System Prompt"); placeholder: qsTr("Custom system prompt for this AI"); multiline: true }
+                FormField { id: ttsField; label: qsTr("TTS Voice ID"); placeholder: qsTr("Optional") }
+
+                SectionHeader { text: qsTr("Chat Config") }
+                SwitchRow { id: thinkSwitch; label: qsTr("Display Think") }
+                SwitchRow { id: emotionSwitch; label: qsTr("Display Emotion") }
 
                 // Error message
                 Rectangle {
@@ -235,6 +241,13 @@ Item {
         }
     }
 
+    component SwitchRow: RowLayout {
+        property string label: ""; property alias checked: sw.checked
+        Layout.fillWidth: true; Layout.margins: Theme.spacingSmall
+        Text { text: label; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; Layout.fillWidth: true }
+        Switch { id: sw; checked: true }
+    }
+
     // ── Actions ──────────────────────────────────────────────────
     function createAIUser() {
         if (!nameField.text.trim()) return
@@ -252,7 +265,15 @@ Item {
         if (llmModelField.text.trim()) payload.llm_model = llmModelField.text.trim()
         if (imageProviderField.text.trim()) payload.llm_image_provider = imageProviderField.text.trim()
         if (imageModelField.text.trim()) payload.llm_image_model = imageModelField.text.trim()
+        if (multiProvField.text.trim()) payload.llm_multimodal_provider = multiProvField.text.trim()
+        if (multiModelField.text.trim()) payload.llm_multimodal_model = multiModelField.text.trim()
+        if (transProvField.text.trim()) payload.llm_audio_transcribe_provider = transProvField.text.trim()
+        if (transModelField.text.trim()) payload.llm_audio_transcribe_model = transModelField.text.trim()
+        if (underProvField.text.trim()) payload.llm_audio_understanding_provider = underProvField.text.trim()
+        if (underModelField.text.trim()) payload.llm_audio_understanding_model = underModelField.text.trim()
         if (systemPromptField.text.trim()) payload.system_prompt = systemPromptField.text.trim()
+        if (ttsField.text.trim()) payload.tts_id = ttsField.text.trim()
+        payload.chat_config = { is_display_think: thinkSwitch.checked, is_display_emotion: emotionSwitch.checked }
 
         console.log("Creating AI user:", JSON.stringify(payload))
 

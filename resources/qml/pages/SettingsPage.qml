@@ -38,7 +38,7 @@ Item {
                     title: "Appearance"
                     subtitle: "Theme, font size, and display"
                     icon: "palette"
-                    page: "AppearanceSection"
+                    page: "ThemeSettingsPage"
                 }
                 ListElement {
                     section: "Voice"
@@ -166,42 +166,8 @@ Item {
 
     // ── Navigation ───────────────────────────────────────────────
     function navigateToPage(page) {
-        switch (page) {
-            case "AccountPage":
-                navigateToComponent("AccountPage")
-                break
-            case "TTSVoicesPage":
-                navigateToComponent("TTSVoicesPage")
-                break
-            case "ProfilePage":
-                navigateToComponent("ProfilePage")
-                break
-            case "ExpansionPage":
-                navigateToComponent("ExpansionPage")
-                break
-            default:
-                console.log("Page not yet implemented:", page)
-                break
-        }
-    }
-
-    function navigateToComponent(componentName) {
-        var sv = findStackView()
-        if (!sv) return
-
-        switch (componentName) {
-            case "AccountPage":
-                sv.push(accountPageComponent)
-                break
-            case "TTSVoicesPage":
-                sv.push(ttsVoicesPageComponent)
-                break
-            case "ProfilePage":
-                sv.push(profilePageComponent)
-                break
-            case "ExpansionPage":
-                sv.push(expansionPageComponent)
-                break
+        if (typeof secondaryWindow !== "undefined") {
+            secondaryWindow.open("qrc:/qml/pages/" + page + ".qml", {})
         }
     }
 
