@@ -17,7 +17,7 @@ Popup {
             RowLayout { anchors.fill: parent; anchors.leftMargin: 12; anchors.rightMargin: 8
                 Text { text: qsTr("Memories"); font.pixelSize: Theme.fontSizeSubheading; font.weight: Font.Bold; color: Theme.textPrimary; Layout.fillWidth: true }
                 Rectangle { width: 28; height: 28; radius: 14; color: closeMouse.containsMouse ? Theme.errorColor : "transparent"
-                    C.Icon { anchors.centerIn: parent; name: "x"; size: 16; color: closeMouse.containsMouse ? "white" : Theme.textSecondary }
+                    Icon { anchors.centerIn: parent; name: "x"; size: 16; color: closeMouse.containsMouse ? "white" : Theme.textSecondary }
                     MouseArea { id: closeMouse; anchors.fill: parent; hoverEnabled: true; onClicked: viewer.close() }
                 }
             }
@@ -61,6 +61,7 @@ Popup {
     function loadMemories() {
         var types = []; if (cbStm.checked) types.push("STM"); if (cbMtm.checked) types.push("MTM"); if (cbLtm.checked) types.push("LTM")
         memoryModel.clear()
-        // Call C++ MemoryRepository — placeholder for now
+        if (typeof memoryRepo === "undefined" || !aiUserId) return
+        // TODO: call memoryRepo.getMemoriesJson(aiUserId, types) when added
     }
 }

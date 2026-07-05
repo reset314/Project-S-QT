@@ -62,13 +62,13 @@ private slots:
         // Old synced should remain
         auto synced = db.findByClientUuid("old-synced-1");
         QVERIFY(synced.has_value());
-        QVERIFY(synced->serverId.has_value());
-        QCOMPARE(*synced->serverId, static_cast<int64_t>(42));
+        QVERIFY(!synced->serverId.empty());
+        QCOMPARE(synced->serverId, std::string("42"));
 
         // Recent unsynced should remain
         auto recent = db.findByClientUuid("recent-unsynced-1");
         QVERIFY(recent.has_value());
-        QVERIFY(!recent->serverId.has_value());
+        QVERIFY(recent->serverId.empty());
     }
 
     void testDeleteMessagesSincePreservesOld()

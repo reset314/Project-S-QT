@@ -35,15 +35,15 @@ Item {
 
                 // ── Fields ────────────────────────────────────────────
                 Repeater {
-                    model: fields
-                    delegate: FieldRow { label: model.label; value: model.value; isEdit: editing; fieldKey: model.key
+                    model: fieldModel
+                    delegate: FieldRow { label: model.label; value: model.val; isEdit: editing; fieldKey: model.key
                         onFieldValueChanged: function(k, v) { fieldValues[k] = v }
                     }
                 }
 
                 // View Memories button
                 Button { Layout.margins: Theme.spacingLarge; text: qsTr("View Memories");
-                    onClicked: { /* Memory viewer — Task 12 */ } }
+                    onClicked: { memoryViewer.aiUserId = aiUserId; memoryViewer.loadMemories(); memoryViewer.open() } }
             }
         }
     }
@@ -60,29 +60,34 @@ Item {
     property bool detailDisplayThink: true; property bool detailDisplayEmotion: true
     property string detailCreated: ""; property string detailUpdated: ""
 
-    property var fields: [
-        {key:"avatar", label:qsTr("Avatar URL"), value:detailAvatar},
-        {key:"name", label:qsTr("Name"), value:detailName},
-        {key:"description", label:qsTr("Description"), value:detailDescription},
-        {key:"llm_provider", label:qsTr("LLM Provider"), value:detailLlmProvider},
-        {key:"llm_model", label:qsTr("LLM Model"), value:detailLlmModel},
-        {key:"image_provider", label:qsTr("Image Provider"), value:detailImageProvider},
-        {key:"image_model", label:qsTr("Image Model"), value:detailImageModel},
-        {key:"multi_provider", label:qsTr("Multimodal Provider"), value:detailMultiProvider},
-        {key:"multi_model", label:qsTr("Multimodal Model"), value:detailMultiModel},
-        {key:"transcribe_provider", label:qsTr("Transcribe Provider"), value:detailTranscribeProvider},
-        {key:"transcribe_model", label:qsTr("Transcribe Model"), value:detailTranscribeModel},
-        {key:"understand_provider", label:qsTr("Understand Provider"), value:detailUnderstandProvider},
-        {key:"understand_model", label:qsTr("Understand Model"), value:detailUnderstandModel},
-        {key:"system_prompt", label:qsTr("System Prompt"), value:detailSystemPrompt},
-        {key:"tts_id", label:qsTr("TTS Voice"), value:detailTtsId},
-        {key:"created", label:qsTr("Created"), value:detailCreated},
-        {key:"updated", label:qsTr("Updated"), value:detailUpdated},
-    ]
-    property var chatConfigFields: [
-        {key:"is_display_think", label:qsTr("Display Think"), value:detailDisplayThink},
-        {key:"is_display_emotion", label:qsTr("Display Emotion"), value:detailDisplayEmotion}
-    ]
+    ListModel { id: fieldModel }
+
+    function buildFieldModel() {
+        fieldModel.clear()
+        var items = [
+            {key:"avatar", label:qsTr("Avatar URL"), val:detailAvatar},
+            {key:"name", label:qsTr("Name"), val:detailName},
+            {key:"description", label:qsTr("Description"), val:detailDescription},
+            {key:"llm_provider", label:qsTr("LLM Provider"), val:detailLlmProvider},
+            {key:"llm_model", label:qsTr("LLM Model"), val:detailLlmModel},
+            {key:"image_provider", label:qsTr("Image Provider"), val:detailImageProvider},
+            {key:"image_model", label:qsTr("Image Model"), val:detailImageModel},
+            {key:"multi_provider", label:qsTr("Multimodal Provider"), val:detailMultiProvider},
+            {key:"multi_model", label:qsTr("Multimodal Model"), val:detailMultiModel},
+            {key:"transcribe_provider", label:qsTr("Transcribe Provider"), val:detailTranscribeProvider},
+            {key:"transcribe_model", label:qsTr("Transcribe Model"), val:detailTranscribeModel},
+            {key:"understand_provider", label:qsTr("Understand Provider"), val:detailUnderstandProvider},
+            {key:"understand_model", label:qsTr("Understand Model"), val:detailUnderstandModel},
+            {key:"system_prompt", label:qsTr("System Prompt"), val:detailSystemPrompt},
+            {key:"tts_id", label:qsTr("TTS Voice"), val:detailTtsId},
+            {key:"is_display_think", label:qsTr("Display Think"), val:detailDisplayThink ? "true" : "false"},
+            {key:"is_display_emotion", label:qsTr("Display Emotion"), val:detailDisplayEmotion ? "true" : "false"},
+            {key:"created", label:qsTr("Created"), val:detailCreated},
+            {key:"updated", label:qsTr("Updated"), val:detailUpdated},
+        ]
+        for (var i = 0; i < items.length; i++)
+            fieldModel.append(items[i])
+    }
 
     component FieldRow: Rectangle {
         property string label: ""; property string value: ""; property bool isEdit: false; property string fieldKey: ""
@@ -108,8 +113,10 @@ Item {
     }
 
     function lookupContact() {
+        console.warn("ContactDetail: aiUserRepo=" + (typeof aiUserRepo) + " aiUserId=" + aiUserId)
         if (typeof aiUserRepo === "undefined" || !aiUserId) return
         var json = aiUserRepo.getAIUserJson(aiUserId)
+        console.warn("ContactDetail: getAIUserJson returned " + JSON.stringify(json))
         if (!json || json.error) return
         detailName = json.name || ""; detailDescription = json.description || ""; detailAvatar = json.avatar || ""
         detailLlmProvider = json.llm_provider || ""; detailLlmModel = json.llm_model || ""
@@ -122,9 +129,12 @@ Item {
         var cc = json.chat_config || {}
         detailDisplayThink = cc.is_display_think !== undefined ? cc.is_display_think : true
         detailDisplayEmotion = cc.is_display_emotion !== undefined ? cc.is_display_emotion : true
+        buildFieldModel()
     }
     Component.onCompleted: { lookupContact() }
 
     function closeDetail() { var sv = findStackView(); if (sv) sv.pop() }
     function findStackView() { var o = page.parent; while (o) { if (o instanceof StackView) return o; o = o.parent } return null }
+
+    C.MemoryViewer { id: memoryViewer }
 }

@@ -48,10 +48,10 @@ private slots:
 
         db.insertMessage(msg, "ai-1");
 
-        auto found = db.findByServerId(42);
+        auto found = db.findByServerId("42");
         QVERIFY(found.has_value());
-        QVERIFY(found->serverId.has_value());
-        QCOMPARE(*found->serverId, static_cast<int64_t>(42));
+        QVERIFY(!found->serverId.empty());
+        QCOMPARE(found->serverId, std::string("42"));
         QCOMPARE(found->clientUuid, std::string("with-server-id"));
     }
 
@@ -60,7 +60,7 @@ private slots:
         Database db;
         QVERIFY(db.open(":memory:"));
 
-        auto found = db.findByServerId(99999);
+        auto found = db.findByServerId("99999");
         QVERIFY(!found.has_value());
     }
 
@@ -262,8 +262,8 @@ private slots:
         QVERIFY(found.has_value());
         QCOMPARE(found->senderType, std::string("ai"));
         QVERIFY(found->isComplete);
-        QVERIFY(found->serverId.has_value());
-        QCOMPARE(*found->serverId, static_cast<int64_t>(42));
+        QVERIFY(!found->serverId.empty());
+        QCOMPARE(found->serverId, std::string("42"));
     }
 
     void testGetLocalMessages()
@@ -456,8 +456,8 @@ private slots:
 
         auto found = db.findByClientUuid("to-update");
         QVERIFY(found.has_value());
-        QVERIFY(found->serverId.has_value());
-        QCOMPARE(*found->serverId, static_cast<int64_t>(99));
+        QVERIFY(!found->serverId.empty());
+        QCOMPARE(found->serverId, std::string("99"));
         QVERIFY(found->isComplete);
     }
 

@@ -58,7 +58,10 @@ Item {
             }
             onContactSelected: function(aiUserId) {
                 mainShell.currentAiUserId = aiUserId
-                stackView.push(contactDetailPageComponent)
+                if (stackView.currentItem && stackView.currentItem.objectName === "contactDetail")
+                    stackView.replace(contactDetailPageComponent)
+                else
+                    stackView.push(contactDetailPageComponent)
             }
             onSettingsClicked: { if (typeof secondaryWindow !== "undefined") secondaryWindow.open("qrc:/qml/pages/SettingsPage.qml") }
             onCreateAIUserClicked: { if (typeof secondaryWindow !== "undefined") secondaryWindow.open("qrc:/qml/pages/CreateAIUserPage.qml") }

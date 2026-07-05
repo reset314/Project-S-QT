@@ -1,0 +1,33 @@
+[DEBUG] WinTaskbar: initialised (stub ¡ª ITaskbarList3 not linked)
+[DEBUG] UnreadTracker::init loaded 1 entries
+[DEBUG] WebRtcEngine: libdatachannel NOT available
+[] Using Qt multimedia with FFmpeg version 7.1.3 LGPL version 2.1 or later
+[DEBUG] AudioManager: default mic: "Voicemeeter Out B1 (VB-Audio Voicemeeter VAIO)" default speaker: "Voicemeeter AUX Input (VB-Audio Voicemeeter VAIO)"
+[DEBUG] VideoManager: initialized
+[DEBUG] CallManager: initialized
+[DEBUG] ThemeManager: set theme ":/themes/light.css"
+[WARN] qrc:/qml/shell/TitleBar.qml:138:13: QML Connections: Detected function "onIconTypeChanged" in Connections element. This is probably intended to be a signal handler but no signal of the target matches the name.
+[WARN] qrc:/qml/shell/TitleBar.qml:138:13: QML Connections: Detected function "onIconTypeChanged" in Connections element. This is probably intended to be a signal handler but no signal of the target matches the name.
+[WARN] qrc:/qml/shell/TitleBar.qml:138:13: QML Connections: Detected function "onIconTypeChanged" in Connections element. This is probably intended to be a signal handler but no signal of the target matches the name.
+[DEBUG] TokenManager HTTP 200 OK body: "{\"success\":true,\"data\":{\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkNGJiNjk4MS0wMTllLTcwMDAtYjAxMy05ZWViYTQ2YzRkZGYiLCJpYXQiOjE3ODMyNDMzNDQsImV4cCI6MTc4Mzg0ODE0NH0.KA1MnTfxCVJ0tnc"
+[DEBUG] ChatStreamClient: connecting to "wss://www.p314.top/ws/connect"
+[DEBUG] ChatStreamClient: WebSocket connected, sending auth
+[DEBUG] Loaded 279 conversations
+[DEBUG] Loaded 5 AI users
+[DEBUG] ChatRepository::getHistory: upserted 50 messages for aiUserId "d4bb6988-019e-7000-b81d-8fde4976ed57"
+[DEBUG] ChatMessagesModel: loaded 50 messages for "d4bb6988-019e-7000-b81d-8fde4976ed57"
+[WARN] qrc:/qml/components/MessageInput.qml:88:20: Unable to assign [undefined] to QString
+[DEBUG] ChatRepository::getHistory: upserted 42 messages for aiUserId "d4bb6988-019e-7000-81f1-f188b433b74f"
+[DEBUG] ChatMessagesModel: loadOlder before "d4bb756c-019e-7000-8946-dc5e2218099f"
+[DEBUG] ChatRepository::getHistory: upserted 0 messages for aiUserId "d4bb6988-019e-7000-81f1-f188b433b74f"
+[DEBUG] ChatMessagesModel: loaded 0 older messages for "d4bb6988-019e-7000-81f1-f188b433b74f"
+[DEBUG] ChatMessagesModel: loadOlder before "d4bb756c-019e-7000-8946-dc5e2218099f"
+[DEBUG] ChatRepository::getHistory: upserted 0 messages for aiUserId "d4bb6988-019e-7000-81f1-f188b433b74f"
+[DEBUG] ChatMessagesModel: loaded 0 older messages for "d4bb6988-019e-7000-81f1-f188b433b74f"
+[DEBUG] ChatMessagesModel: loaded 42 messages for "d4bb6988-019e-7000-81f1-f188b433b74f"
+[WARN] qrc:/qml/components/MessageInput.qml:88:20: Unable to assign [undefined] to QString
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"ping\"}"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"pong\"}"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"ping\"}"
+[DEBUG] ChatStreamClient: raw frame: "{\"type\": \"pong\"}"
+[WARN] QIODevice::read (QSslSocket): device not open

@@ -1,0 +1,14 @@
+[DEBUG] WinTaskbar: initialised (stub — ITaskbarList3 not linked)
+[DEBUG] UnreadTracker::init loaded 1 entries
+[DEBUG] WebRtcEngine: libdatachannel NOT available
+[] Using Qt multimedia with FFmpeg version 7.1.3 LGPL version 2.1 or later
+[DEBUG] AudioManager: default mic: "Voicemeeter Out B1 (VB-Audio Voicemeeter VAIO)" default speaker: "Voicemeeter AUX Input (VB-Audio Voicemeeter VAIO)"
+[DEBUG] VideoManager: initialized
+[DEBUG] CallManager: initialized
+[DEBUG] ThemeManager: set theme ":/themes/light.css"
+[WARN] QQmlApplicationEngine failed to load component
+[WARN] qrc:/qml/main.qml:86:9: 类型 MainShell 不可用
+[WARN] qrc:/qml/shell/MainShell.qml:110:49: 类型 Pages.ContactDetailPage 不可用
+[WARN] qrc:/qml/pages/ContactDetailPage.qml:139:5: 类型 C.MemoryViewer 不可用
+[WARN] qrc:/qml/components/MemoryViewer.qml:20:21: C.Icon - C is neither a type nor a namespace
+[DEBUG] CallSignalingClient: intentional disconnect
