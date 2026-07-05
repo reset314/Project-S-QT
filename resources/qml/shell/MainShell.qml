@@ -49,13 +49,6 @@ Item {
             id: sidebar
             Layout.preferredWidth: sidebar.width
             Layout.fillHeight: true
-            visible: {
-                var item = stackView.currentItem
-                if (!item) return true
-                var n = item.objectName || ""
-                // Show list for chat/contact/expansion pages + welcome
-                return n === "chatPage" || n === "contactDetail" || n === "" || n === "expansionPage"
-            }
 
             onChatSelected: function(aiUserId, aiUserName) {
                 mainShell.currentAiUserId = aiUserId
@@ -67,8 +60,8 @@ Item {
                 mainShell.currentAiUserId = aiUserId
                 stackView.push(contactDetailPageComponent)
             }
-            onSettingsClicked: { stackView.push(settingsPageComponent) }
-            onCreateAIUserClicked: { stackView.push(createAIUserPageComponent) }
+            onSettingsClicked: { if (typeof secondaryWindow !== "undefined") secondaryWindow.open("qrc:/qml/pages/SettingsPage.qml") }
+            onCreateAIUserClicked: { if (typeof secondaryWindow !== "undefined") secondaryWindow.open("qrc:/qml/pages/CreateAIUserPage.qml") }
 
             // Tab switch resets content to welcome
             onCurrentTabChanged: { if (stackView.depth > 0) stackView.pop(null) }
@@ -117,9 +110,6 @@ Item {
     Component { id: contactDetailPageComponent; Pages.ContactDetailPage {
         aiUserId: mainShell.currentAiUserId; objectName: "contactDetail"
     }}
-    Component { id: createAIUserPageComponent; Pages.CreateAIUserPage {} }
-    Component { id: settingsPageComponent; Pages.SettingsPage {} }
-
     function navigateToChat() {
         if (stackView.currentItem && stackView.currentItem.objectName === "chatPage")
             stackView.replace(chatPageComponent)
