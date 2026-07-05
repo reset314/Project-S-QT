@@ -76,6 +76,11 @@ Rectangle {
         }
     }
 
+    Component.onCompleted: {
+        if (typeof appState !== "undefined")
+            statusBar.connected = appState.connectionStatus === "connected"
+    }
+
     Connections {
         target: typeof unreadTracker !== "undefined" ? unreadTracker : null
         enabled: typeof unreadTracker !== "undefined"
