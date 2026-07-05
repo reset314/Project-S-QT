@@ -1,0 +1,3 @@
+D:\QT\Tools\CMake_64\bin\cmake.exe -E rm -f CMakeFiles\test_JsonHelper.dir/objects.a
+D:\QT\Tools\mingw1310_64\bin\ar.exe qc CMakeFiles\test_JsonHelper.dir/objects.a @CMakeFiles\test_JsonHelper.dir\objects1.rsp
+D:\QT\Tools\mingw1310_64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\test_JsonHelper.dir/objects.a -Wl,--no-whole-archive -o test_JsonHelper.exe -Wl,--out-implib,libtest_JsonHelper.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\test_JsonHelper.dir\linkLibs.rsp

@@ -1,11 +1,11 @@
 import qbs
 
 Project {
-    name: "AIChatDesktop"
+    name: "Project-S"
     minimumQbsVersion: "2.0"
 
     CppApplication {
-        name: "AIChatDesktop"
+        name: "Project-S"
         consoleApplication: false
         type: ["application"]
 
@@ -67,7 +67,6 @@ Project {
             "src/core/models/AIUserDTO.h",
             "src/core/models/ConversationDTO.h",
             "src/core/models/ExpansionModuleDTO.h",
-            "src/core/models/ContactDTO.h",
             // Repositories
             "src/repositories/AuthRepository.cpp",
             "src/repositories/AuthRepository.h",

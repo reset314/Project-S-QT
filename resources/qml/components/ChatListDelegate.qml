@@ -30,7 +30,7 @@ Rectangle {
                     Layout.fillWidth: true; elide: Text.ElideRight; maximumLineCount: 1 }
                 Rectangle {
                     visible: item.unread > 0; width: unreadText.implicitWidth + 8; height: 18; radius: 9
-                    color: Theme.badgeColor
+                    color: Theme.unreadBadgeColor
                     Text { id: unreadText; anchors.centerIn: parent; text: item.unread > 99 ? "99+" : item.unread
                         font.pixelSize: 10; color: "white" }
                 }

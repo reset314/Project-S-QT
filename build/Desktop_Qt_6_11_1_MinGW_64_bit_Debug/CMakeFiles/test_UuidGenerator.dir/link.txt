@@ -1,0 +1,3 @@
+D:\QT\Tools\CMake_64\bin\cmake.exe -E rm -f CMakeFiles\test_UuidGenerator.dir/objects.a
+D:\QT\Tools\mingw1310_64\bin\ar.exe qc CMakeFiles\test_UuidGenerator.dir/objects.a @CMakeFiles\test_UuidGenerator.dir\objects1.rsp
+D:\QT\Tools\mingw1310_64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\test_UuidGenerator.dir/objects.a -Wl,--no-whole-archive -o test_UuidGenerator.exe -Wl,--out-implib,libtest_UuidGenerator.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\test_UuidGenerator.dir\linkLibs.rsp

@@ -1,0 +1,267 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "AIChatDesktop",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "AIChatDesktop::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-AIChatDesktop-Debug-9f1832a59cb204f070b4.json",
+					"name" : "AIChatDesktop",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "AIChatDesktop_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-AIChatDesktop_autogen-Debug-0d554bbfb0469397ab40.json",
+					"name" : "AIChatDesktop_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "AIChatDesktop_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-AIChatDesktop_autogen_timestamp_deps-Debug-d1a9844a6e1c3785b2c2.json",
+					"name" : "AIChatDesktop_autogen_timestamp_deps",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_ApiError::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_ApiError-Debug-bb83f557c6a6f0aeb916.json",
+					"name" : "test_ApiError",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_ApiError_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_ApiError_autogen-Debug-7ed0cb5ae724efaa10e5.json",
+					"name" : "test_ApiError_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_ApiError_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_ApiError_autogen_timestamp_deps-Debug-a89528d0af4fedf01379.json",
+					"name" : "test_ApiError_autogen_timestamp_deps",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_Database::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_Database-Debug-87a95e74120466f8cbd3.json",
+					"name" : "test_Database",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_Database_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_Database_autogen-Debug-2ba4c692349bdc905559.json",
+					"name" : "test_Database_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_Database_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_Database_autogen_timestamp_deps-Debug-519eee8b91c209b92f68.json",
+					"name" : "test_Database_autogen_timestamp_deps",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_JsonHelper::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_JsonHelper-Debug-6317ae308852bd1585ed.json",
+					"name" : "test_JsonHelper",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_JsonHelper_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_JsonHelper_autogen-Debug-aa176e37712a91a2d9ce.json",
+					"name" : "test_JsonHelper_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_JsonHelper_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_JsonHelper_autogen_timestamp_deps-Debug-e0505d766cfeecb5d901.json",
+					"name" : "test_JsonHelper_autogen_timestamp_deps",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_SyncService::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_SyncService-Debug-982eb52b08e7752d99e2.json",
+					"name" : "test_SyncService",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_SyncService_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_SyncService_autogen-Debug-e951afec7fec971aae4e.json",
+					"name" : "test_SyncService_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_SyncService_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_SyncService_autogen_timestamp_deps-Debug-ac8a5a52593642116aeb.json",
+					"name" : "test_SyncService_autogen_timestamp_deps",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_TokenManager::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_TokenManager-Debug-dbaaed7b9fafa283c25e.json",
+					"name" : "test_TokenManager",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_TokenManager_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_TokenManager_autogen-Debug-c0067af42e705c4666bc.json",
+					"name" : "test_TokenManager_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_TokenManager_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_TokenManager_autogen_timestamp_deps-Debug-146b51a21452bdb3837a.json",
+					"name" : "test_TokenManager_autogen_timestamp_deps",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_UnreadTracker::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_UnreadTracker-Debug-e960095a81b2666f1e47.json",
+					"name" : "test_UnreadTracker",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_UnreadTracker_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_UnreadTracker_autogen-Debug-e9c855cf7d841ff5bd5c.json",
+					"name" : "test_UnreadTracker_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_UnreadTracker_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_UnreadTracker_autogen_timestamp_deps-Debug-225c03f030f5048969a5.json",
+					"name" : "test_UnreadTracker_autogen_timestamp_deps",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_UuidGenerator::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_UuidGenerator-Debug-d5b1a282b60b16dad5b1.json",
+					"name" : "test_UuidGenerator",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_UuidGenerator_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_UuidGenerator_autogen-Debug-cfa477846c95036fa4ac.json",
+					"name" : "test_UuidGenerator_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_UuidGenerator_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_UuidGenerator_autogen_timestamp_deps-Debug-bf72eba16316b110f7cf.json",
+					"name" : "test_UuidGenerator_autogen_timestamp_deps",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/root/Documents/Programs/aaa2/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug",
+		"source" : "C:/Users/root/Documents/Programs/aaa2"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}
