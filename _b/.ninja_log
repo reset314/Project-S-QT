@@ -385,3 +385,9 @@
 18	79	8049467535831739	C:/Users/root/Documents/Programs/aaa2/_b/AIChatDesktop_autogen/3YJK5W5UP7/qrc_qml.cpp	954cc9e1f9fb0588
 79	181	8049467535949604	CMakeFiles/AIChatDesktop.dir/AIChatDesktop_autogen/3YJK5W5UP7/qrc_qml.cpp.obj	ed6cd62bb7b1319a
 181	3343	8049467536962894	AIChatDesktop.exe	f17fa9e88283170d
+18	185	8049468169463645	AIChatDesktop_autogen/timestamp	713f04e295bf14a
+18	185	8049468169463645	AIChatDesktop_autogen/mocs_compilation.cpp	713f04e295bf14a
+18	185	8049468169463645	C:/Users/root/Documents/Programs/aaa2/_b/AIChatDesktop_autogen/timestamp	713f04e295bf14a
+18	185	8049468169463645	C:/Users/root/Documents/Programs/aaa2/_b/AIChatDesktop_autogen/mocs_compilation.cpp	713f04e295bf14a
+186	2609	8049468171147774	CMakeFiles/AIChatDesktop.dir/src/core/network/ChatStreamClient.cpp.obj	1937fee87a85495f
+2609	5812	8049468195365648	AIChatDesktop.exe	f17fa9e88283170d

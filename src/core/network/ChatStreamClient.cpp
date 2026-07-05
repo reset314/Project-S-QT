@@ -158,17 +158,12 @@ void ChatStreamClient::onTextMessageReceived(const QString &text)
         return;
     }
 
-    // Defer authenticated_ / connected() until the server sends back any
-    // valid frame (other than pong/ping) after the auth frame was sent.
-    // This ensures the server actually accepted the auth before we signal
-    // readiness upstream.
+    // Mark as authenticated on any server frame after auth (including pong).
+    // If the server rejected auth it sends close code 1008 — we never get here.
     if (!authenticated_) {
-        QString type = doc.object().value("type").toString();
-        if (type != "pong" && type != "ping") {
-            authenticated_ = true;
-            qDebug() << "ChatStreamClient: authenticated by server frame type:" << type;
-            emit connected();
-        }
+        authenticated_ = true;
+        qDebug() << "ChatStreamClient: authenticated by server frame";
+        emit connected();
     }
 
     handleFrame(doc.object());
