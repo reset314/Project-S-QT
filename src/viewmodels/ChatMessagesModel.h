@@ -64,6 +64,12 @@ public:
     void markComplete(int row, const QString &serverId);
     void clear();
 
+    // Event-driven updates
+    Q_INVOKABLE void markRevoked(const QString &serverId);
+    Q_INVOKABLE void markDeleted(const QString &serverId);
+    Q_INVOKABLE void updateContentByServerId(const QString &serverId, const QString &content);
+    Q_INVOKABLE void rollbackToAnchor(const QString &anchorServerId);
+
     const MessageDTO &messageAt(int row) const;
     int findByClientUuid(const QString &uuid) const;
 

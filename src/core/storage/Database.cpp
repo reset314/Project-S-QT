@@ -164,6 +164,21 @@ void Database::runMigrations() {
             CREATE INDEX IF NOT EXISTS idx_mem_ai_user ON memories(ai_user_id);
             CREATE INDEX IF NOT EXISTS idx_mem_type ON memories(memory_type);
         )"},
+        // Migration 11: device_info table (stable device_id)
+        {11, R"(
+            CREATE TABLE IF NOT EXISTS device_info (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            )
+        )"},
+        // Migration 12: event_seq_tracker (per-user last event seq)
+        {12, R"(
+            CREATE TABLE IF NOT EXISTS event_seq_tracker (
+                user_id TEXT PRIMARY KEY,
+                last_seq INTEGER DEFAULT 0,
+                updated_at TEXT
+            )
+        )"},
     };
 
     for (const auto &m : migrations) {
@@ -645,4 +660,48 @@ QVector<MemoryDTO> Database::getMemories(const QString &aiUserId,
         result.append(m);
     }
     return result;
+}
+
+// ---------------------------------------------------------------------------
+// Device info
+// ---------------------------------------------------------------------------
+
+QString Database::getDeviceInfo(const QString &key, const QString &defaultValue) {
+    QSqlQuery q(db_);
+    q.prepare("SELECT value FROM device_info WHERE key = ?");
+    q.addBindValue(key);
+    if (q.exec() && q.next())
+        return q.value(0).toString();
+    return defaultValue;
+}
+
+void Database::setDeviceInfo(const QString &key, const QString &value) {
+    QSqlQuery q(db_);
+    q.prepare("INSERT OR REPLACE INTO device_info (key, value) VALUES (?, ?)");
+    q.addBindValue(key);
+    q.addBindValue(value);
+    q.exec();
+}
+
+// ---------------------------------------------------------------------------
+// Event seq tracking
+// ---------------------------------------------------------------------------
+
+int Database::getLastEventSeq(const QString &userId) {
+    QSqlQuery q(db_);
+    q.prepare("SELECT last_seq FROM event_seq_tracker WHERE user_id = ?");
+    q.addBindValue(userId);
+    if (q.exec() && q.next())
+        return q.value(0).toInt();
+    return 0;
+}
+
+void Database::setLastEventSeq(const QString &userId, int seq) {
+    QSqlQuery q(db_);
+    q.prepare("INSERT OR REPLACE INTO event_seq_tracker (user_id, last_seq, updated_at) "
+              "VALUES (?, ?, ?)");
+    q.addBindValue(userId);
+    q.addBindValue(seq);
+    q.addBindValue(QDateTime::currentDateTimeUtc().toString(Qt::ISODate));
+    q.exec();
 }

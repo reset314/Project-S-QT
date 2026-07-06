@@ -141,6 +141,50 @@ void ChatMessagesModel::clear()
     endResetModel();
 }
 
+void ChatMessagesModel::markRevoked(const QString &serverId)
+{
+    auto it = serverIdIndex_.find(serverId);
+    if (it == serverIdIndex_.end()) return;
+    int row = it.value();
+    messages_[row].revokedAt = QDateTime::currentDateTimeUtc()
+                                    .toString(Qt::ISODate).toStdString();
+    emit dataChanged(index(row), index(row), {RevokedAtRole});
+}
+
+void ChatMessagesModel::markDeleted(const QString &serverId)
+{
+    auto it = serverIdIndex_.find(serverId);
+    if (it == serverIdIndex_.end()) return;
+    int row = it.value();
+    messages_[row].deletedAt = QDateTime::currentDateTimeUtc()
+                                    .toString(Qt::ISODate).toStdString();
+    emit dataChanged(index(row), index(row), {});
+}
+
+void ChatMessagesModel::updateContentByServerId(const QString &serverId, const QString &content)
+{
+    auto it = serverIdIndex_.find(serverId);
+    if (it == serverIdIndex_.end()) return;
+    int row = it.value();
+    messages_[row].content = content.toStdString();
+    emit dataChanged(index(row), index(row), {ContentRole});
+}
+
+void ChatMessagesModel::rollbackToAnchor(const QString &anchorServerId)
+{
+    auto it = serverIdIndex_.find(anchorServerId);
+    if (it == serverIdIndex_.end()) return;
+
+    int anchorRow = it.value();
+    // Remove all messages after the anchor
+    int removeCount = messages_.size() - anchorRow - 1;
+    if (removeCount <= 0) return;
+    beginRemoveRows({}, anchorRow + 1, messages_.size() - 1);
+    messages_.resize(anchorRow + 1);
+    rebuildIndices();
+    endRemoveRows();
+}
+
 const MessageDTO &ChatMessagesModel::messageAt(int row) const
 {
     return messages_.at(row);

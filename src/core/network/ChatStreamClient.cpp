@@ -44,10 +44,13 @@ ChatStreamClient::~ChatStreamClient()
     }
 }
 
-void ChatStreamClient::connectToServer(const QString &wsUrl, const QString &token)
+void ChatStreamClient::connectToServer(const QString &wsUrl, const QString &token,
+                                        const QString &deviceId, const QString &deviceType)
 {
     wsUrl_ = wsUrl;
     token_ = token;
+    deviceId_ = deviceId;
+    deviceType_ = deviceType;
 
     // Stop any pending reconnect
     reconnectTimer_.stop();
@@ -93,24 +96,35 @@ void ChatStreamClient::sendPong()
     }
 }
 
+void ChatStreamClient::sendSync(int lastSeq)
+{
+    if (ws_.state() != QAbstractSocket::ConnectedState) return;
+    QJsonObject sync;
+    sync["type"] = QStringLiteral("sync");
+    sync["last_seq"] = lastSeq;
+    ws_.sendTextMessage(QJsonDocument(sync).toJson(QJsonDocument::Compact));
+    qDebug() << "ChatStreamClient: sent sync request from seq" << lastSeq;
+}
+
 // --- Private slots ---
 
 void ChatStreamClient::onConnected()
 {
     qDebug() << "ChatStreamClient: WebSocket connected, sending auth";
-    // Send auth frame
+    // Send auth frame with device info
     QJsonObject auth;
     auth["type"] = QStringLiteral("auth");
     auth["token"] = token_;
+    if (!deviceId_.isEmpty()) {
+        auth["device_id"] = deviceId_;
+        auth["device_type"] = deviceType_;
+    }
     ws_.sendTextMessage(QJsonDocument(auth).toJson(QJsonDocument::Compact));
 
     reconnectAttempts_ = 0;
 
     // Start heartbeat
     startHeartbeat();
-
-    // NOTE: authenticated_ and connected() are deferred until the server
-    // responds with the first non-pong frame (see onTextMessageReceived).
 }
 
 void ChatStreamClient::onDisconnected()
@@ -158,7 +172,7 @@ void ChatStreamClient::onTextMessageReceived(const QString &text)
         return;
     }
 
-    // Mark as authenticated on any server frame after auth (including pong).
+    // Mark as authenticated on any server frame after auth.
     // If the server rejected auth it sends close code 1008 — we never get here.
     if (!authenticated_) {
         authenticated_ = true;
@@ -194,23 +208,54 @@ void ChatStreamClient::handleFrame(const QJsonObject &frame)
 {
     QString type = frame.value("type").toString();
 
-    // Server wraps data in a "payload" sub-object — extract it.
-    // Fall back to the top-level frame if no payload exists.
+    // Extract payload sub-object, fall back to top-level.
     QJsonObject data = frame.value("payload").toObject();
     if (data.isEmpty())
         data = frame;
 
+    // ── Auth OK ───────────────────────────────────────────────
+    if (type == "auth_ok") {
+        int seq = frame.value("current_seq").toInt();
+        serverCurrentSeq_ = seq;
+        qDebug() << "ChatStreamClient: auth_ok, server seq =" << seq;
+        emit ready(seq);
+        return;
+    }
+
+    // ── Heartbeat ─────────────────────────────────────────────
     if (type == "pong") {
         resetPongTimeout();
         return;
     }
 
     if (type == "ping") {
-        // Server-initiated heartbeat — respond with pong
-        sendPong();
+        // Server-initiated ping with server_seq
+        int serverSeq = frame.value("server_seq").toInt();
+        serverCurrentSeq_ = serverSeq;
+        QJsonObject pong;
+        pong["type"] = QStringLiteral("pong");
+        ws_.sendTextMessage(QJsonDocument(pong).toJson(QJsonDocument::Compact));
         return;
     }
 
+    // ── Sync info ─────────────────────────────────────────────
+    if (type == "sync_info") {
+        qDebug() << "ChatStreamClient: sync_info, remaining="
+                 << frame.value("remaining").toInt();
+        return;
+    }
+
+    // ── Event ─────────────────────────────────────────────────
+    if (type == "event") {
+        int seq = frame.value("seq").toInt();
+        QJsonObject eventObj = frame.value("event").toObject();
+        QString eventType = eventObj.value("type").toString();
+        QJsonObject payload = eventObj.value("payload").toObject();
+        emit eventReceived(seq, eventType, payload);
+        return;
+    }
+
+    // ── Streaming ─────────────────────────────────────────────
     if (type == "stream_message_init") {
         QString conversationId = data.value("conversation_id").toString();
         QString messageId = data.value("message_id").toString();
@@ -221,7 +266,6 @@ void ChatStreamClient::handleFrame(const QJsonObject &frame)
 
     if (type == "stream_chunk") {
         QString conversationId = data.value("conversation_id").toString();
-        // The chunk field contains the full accumulated content, not just the delta
         QString chunk = data.value("chunk").toString();
         emit streamChunk(conversationId, chunk);
         return;
@@ -256,7 +300,6 @@ void ChatStreamClient::handleFrame(const QJsonObject &frame)
 
 void ChatStreamClient::startHeartbeat()
 {
-    // Send ping every 30 seconds
     heartbeatTimer_.start(30000);
     resetPongTimeout();
 }
@@ -269,13 +312,11 @@ void ChatStreamClient::stopHeartbeat()
 
 void ChatStreamClient::resetPongTimeout()
 {
-    // Expect pong within 60 seconds
     pongTimeoutTimer_.start(60000);
 }
 
 void ChatStreamClient::scheduleReconnect()
 {
-    // Guard: don't schedule if already connecting/connected or intentionally closed
     if (ws_.state() == QAbstractSocket::ConnectingState ||
         ws_.state() == QAbstractSocket::ConnectedState) {
         return;
@@ -283,11 +324,11 @@ void ChatStreamClient::scheduleReconnect()
 
     int delayMs;
     if (reconnectAttempts_ < 3) {
-        delayMs = 1000; // 1s for first 3 attempts
+        delayMs = 1000;
     } else if (reconnectAttempts_ < 5) {
-        delayMs = 3000; // 3s for next 2 attempts
+        delayMs = 3000;
     } else {
-        delayMs = 30000; // 30s thereafter
+        delayMs = 30000;
     }
 
     qDebug() << "ChatStreamClient: scheduling reconnect in" << delayMs << "ms"

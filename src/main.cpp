@@ -13,6 +13,8 @@
 #include <QFileInfo>
 #include <QWindow>
 #include <QSettings>
+#include <QDateTime>
+#include <QUuid>
 #include <QtConcurrent>
 #ifdef Q_OS_WIN
 #ifndef NOMINMAX
@@ -184,6 +186,14 @@ int main(int argc, char *argv[])
 
     auto wsClient = new ChatStreamClient(&app);
 
+    // Read / generate stable device ID
+    QString deviceId = database->getDeviceInfo("device_id");
+    if (deviceId.isEmpty()) {
+        deviceId = QUuid::createUuid().toString(QUuid::Id128);
+        database->setDeviceInfo("device_id", deviceId);
+    }
+    wsClient->setDeviceId(deviceId);
+
     // Read server URL from persistent settings (set in registry or .ini)
     QString serverUrl = QSettings("Project-S", "Project-S")
                             .value("settings/serverUrl", "https://www.p314.top").toString();
@@ -244,12 +254,26 @@ int main(int argc, char *argv[])
     // Wire ChatStreamClient → AppState connection status
     QObject::connect(wsClient, &ChatStreamClient::connected,
                      appState, [appState]() {
+                         qDebug() << "AppState: WS connected, setting connectionStatus";
                          appState->setConnectionStatus(QStringLiteral("connected"));
+                         qDebug() << "AppState: connectionStatus now" << appState->connectionStatus();
                      });
     QObject::connect(wsClient, &ChatStreamClient::disconnected,
                      appState, [appState]() {
+                         qDebug() << "AppState: WS disconnected, setting connectionStatus";
                          appState->setConnectionStatus(QStringLiteral("disconnected"));
                      });
+
+    // Wire ChatStreamClient → ready signal → sync on reconnect
+    QObject::connect(wsClient, &ChatStreamClient::ready,
+                     &app, [wsClient]() {
+        QSettings settings;
+        int lastSeq = settings.value("event/last_seq", 0).toInt();
+        if (lastSeq > 0) {
+            qDebug() << "Main: auth_ok, sending sync from seq" << lastSeq;
+            wsClient->sendSync(lastSeq);
+        }
+    });
 
     // Wire UnreadTracker → tray icon
     QObject::connect(unreadTracker, &UnreadTracker::totalUnreadChanged,
@@ -341,6 +365,68 @@ int main(int argc, char *argv[])
     auto loginViewModel       = new LoginViewModel(authRepo, tokenManager, &app);
     auto settingsViewModel    = new SettingsViewModel(&app);
 
+    // Wire ChatStreamClient → eventReceived → handle events
+    QObject::connect(wsClient, &ChatStreamClient::eventReceived,
+                     &app, [chatMessagesModel, chatRepo, database, unreadTracker](
+                                int seq, const QString &eventType,
+                                const QJsonObject &payload) {
+        // Process event
+        if (eventType == "message.sent") {
+            QString aiUserId = payload.value("ai_user_id").toString();
+            QString messageId = payload.value("message_id").toString();
+            QString content = payload.value("content").toString();
+            QString msgType = payload.value("msg_type").toString();
+
+            if (!aiUserId.isEmpty() && !messageId.isEmpty()) {
+                MessageDTO msg;
+                msg.id = messageId.toStdString();
+                msg.aiUserId = aiUserId.toStdString();
+                msg.content = content.toStdString();
+                msg.msgType = msgType.toStdString();
+                msg.senderType = "user";
+                msg.timestamp = QDateTime::currentDateTimeUtc()
+                                    .toString(Qt::ISODate).toStdString();
+                msg.isComplete = true;
+
+                chatRepo->upsertMessage(msg, aiUserId);
+                if (chatMessagesModel->activeAiUserId() == aiUserId)
+                    chatMessagesModel->appendMessage(msg);
+            }
+        }
+        else if (eventType == "message.revoked") {
+            QString messageId = payload.value("message_id").toString();
+            if (!messageId.isEmpty())
+                chatMessagesModel->markRevoked(messageId);
+        }
+        else if (eventType == "message.edited") {
+            QString messageId = payload.value("message_id").toString();
+            QString newContent = payload.value("new_content").toString();
+            if (!messageId.isEmpty() && !newContent.isEmpty())
+                chatMessagesModel->updateContentByServerId(messageId, newContent);
+        }
+        else if (eventType == "message.deleted") {
+            QString messageId = payload.value("message_id").toString();
+            if (!messageId.isEmpty())
+                chatMessagesModel->markDeleted(messageId);
+        }
+        else if (eventType == "messages.rolled_back") {
+            QString anchorId = payload.value("anchor_message_id").toString();
+            if (!anchorId.isEmpty())
+                chatMessagesModel->rollbackToAnchor(anchorId);
+        }
+        else if (eventType == "aiuser.created" ||
+                 eventType == "aiuser.updated" ||
+                 eventType == "aiuser.deleted") {
+            qDebug() << "Main: AI user changed (" << eventType << "), will refresh on next page load";
+        }
+
+        // Update event seq in QSettings
+        if (seq > 0) {
+            QSettings settings;
+            settings.setValue("event/last_seq", seq);
+        }
+    });
+
     // ── Post-login initialization pipeline ────────────────────────
     QObject::connect(loginViewModel, &LoginViewModel::loginSuccess,
                      &app, [wsClient, tokenManager, httpClient,
@@ -352,7 +438,8 @@ int main(int argc, char *argv[])
         QString wsUrl = httpUrl;
         wsUrl.replace("https://", "wss://").replace("http://", "ws://");
         wsUrl += "/ws/connect";
-        wsClient->connectToServer(wsUrl, tokenManager->accessToken());
+        wsClient->connectToServer(wsUrl, tokenManager->accessToken(),
+                                    database->getDeviceInfo("device_id"), "qt");
 
         // 2. Load conversations — populate sidebar
         auto convResult = convRepo->listConversations();

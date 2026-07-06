@@ -40,6 +40,14 @@ public:
     std::optional<QString> getSyncTime(const QString &aiUserId);
     void setSyncTime(const QString &aiUserId, const QString &time);
 
+    // Device info
+    QString getDeviceInfo(const QString &key, const QString &defaultValue = {});
+    void setDeviceInfo(const QString &key, const QString &value);
+
+    // Event seq tracking
+    int getLastEventSeq(const QString &userId);
+    void setLastEventSeq(const QString &userId, int seq);
+
     // Memories
     QVector<MemoryDTO> getMemories(const QString &aiUserId, const QStringList &types = {"MTM","LTM"},
                                     const QString &beforeId = {}, int limit = 30);
