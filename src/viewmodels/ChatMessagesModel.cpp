@@ -331,8 +331,9 @@ QVector<MessageDTO> ChatMessagesModel::expandSplits(const QVector<MessageDTO> &m
             // serverId stays with original — only first part carries it
             if (i > 0)
                 part.serverId.clear();
-            part.content = QJsonObject{};
-            part.content["response"] = nonEmpty[i];
+            QJsonObject partContent;
+            partContent["response"] = nonEmpty[i];
+            part.content = QString::fromUtf8(QJsonDocument(partContent).toJson(QJsonDocument::Compact)).toStdString();
             // All parts except the last are "complete"; last inherits original
             part.isComplete = (i < nonEmpty.size() - 1) || msg.isComplete;
             result.append(part);
