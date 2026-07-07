@@ -100,15 +100,15 @@ signals:
                                const QString &serverId);
 
 private slots:
-    void onStreamInit(const QString &conversationId,
+    void onStreamInit(const QString &aiUserId,
                       const QString &messageId,
                       const QString &timestamp);
-    void onStreamChunk(const QString &conversationId,
+    void onStreamChunk(const QString &aiUserId,
                        const QString &chunk);
-    void onStreamDone(const QString &conversationId,
+    void onStreamDone(const QString &aiUserId,
                       const QString &messageId,
                       const QString &content);
-    void onStreamError(const QString &conversationId,
+    void onStreamError(const QString &aiUserId,
                        const QString &code,
                        const QString &message);
 

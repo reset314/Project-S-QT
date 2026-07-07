@@ -319,22 +319,17 @@ QString ChatService::resolveAiUserId(const QString &conversationId) const
     return convToAiUser_.value(conversationId);
 }
 
-void ChatService::onStreamInit(const QString &conversationId,
+void ChatService::onStreamInit(const QString &aiUserId,
                                const QString &messageId,
                                const QString &timestamp)
 {
-    QString aiUserId = resolveAiUserId(conversationId);
-    qDebug() << "ChatService::onStreamInit" << "conv:" << conversationId
-             << "aiUserId:" << aiUserId << "msgId:" << messageId;
+    qDebug() << "ChatService::onStreamInit" << "aiUserId:" << aiUserId << "msgId:" << messageId;
 
-    // Reset watchdog on every stream event so long-running streams don't
-    // time out prematurely.
+    if (aiUserId.isEmpty()) return;
+
     resetWatchdog(aiUserId);
 
-    // Create an optimistic AI message in the local DB so it appears in the
-    // message list immediately (shown as "typing..." with isComplete=false).
-    // Subsequent stream_chunk frames will update its content.
-    if (!aiUserId.isEmpty() && !streamingAiMessages_.contains(conversationId)) {
+    if (!streamingAiMessages_.contains(aiUserId)) {
         MessageDTO aiMsg;
         aiMsg.clientUuid = UuidGenerator::generate().toStdString();
         aiMsg.aiUserId = aiUserId.toStdString();
@@ -349,28 +344,21 @@ void ChatService::onStreamInit(const QString &conversationId,
             aiMsg.serverId = messageId.toStdString();
 
         repo_->insertMessage(aiMsg, aiUserId);
-        streamingAiMessages_[conversationId]
-            = QString::fromStdString(aiMsg.clientUuid);
+        streamingAiMessages_[aiUserId] = QString::fromStdString(aiMsg.clientUuid);
 
-        // Incremental model update — add placeholder bubble
         emit messageAppended(aiUserId, aiMsg);
     }
 
-    emit streamInitReceived(aiUserId, conversationId, messageId);
+    emit streamInitReceived(aiUserId, QString(), messageId);
     emit messagesChanged(aiUserId);
 }
 
-void ChatService::onStreamChunk(const QString &conversationId,
+void ChatService::onStreamChunk(const QString &aiUserId,
                                 const QString &chunk)
 {
-    QString aiUserId = resolveAiUserId(conversationId);
-
-    // Reset watchdog on every chunk so long-running streams don't time out.
     resetWatchdog(aiUserId);
 
-    // Update the optimistic AI message content in the local DB so the
-    // model reflects the latest streaming text on each chunk.
-    QString clientUuid = streamingAiMessages_.value(conversationId);
+    QString clientUuid = streamingAiMessages_.value(aiUserId);
     if (!clientUuid.isEmpty()) {
         QVariantMap values;
         QJsonObject contentObj;

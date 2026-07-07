@@ -256,41 +256,41 @@ void ChatStreamClient::handleFrame(const QJsonObject &frame)
 
     // ── Streaming ─────────────────────────────────────────────
     if (type == "stream_message_init") {
-        QString conversationId = data.value("conversation_id").toString();
+        QString aiUserId = data.value("ai_user_id").toString();
         QString messageId = data.value("message_id").toString();
         QString timestamp = data.value("timestamp").toString();
-        emit streamInit(conversationId, messageId, timestamp);
+        emit streamInit(aiUserId, messageId, timestamp);
         return;
     }
 
     if (type == "stream_chunk") {
-        QString conversationId = data.value("conversation_id").toString();
+        QString aiUserId = data.value("ai_user_id").toString();
         QString chunk = data.value("chunk").toString();
-        emit streamChunk(conversationId, chunk);
+        emit streamChunk(aiUserId, chunk);
         return;
     }
 
     if (type == "stream_message_done") {
-        QString conversationId = data.value("conversation_id").toString();
+        QString aiUserId = data.value("ai_user_id").toString();
         QString messageId = data.value("message_id").toString();
         QString content = data.value("content").toString();
-        qDebug() << "ChatStreamClient: stream_message_done conv:" << conversationId
+        qDebug() << "ChatStreamClient: stream_message_done aiUser:" << aiUserId
                  << "msgId:" << messageId << "contentLen:" << content.size();
-        emit streamDone(conversationId, messageId, content);
+        emit streamDone(aiUserId, messageId, content);
         return;
     }
 
     if (type == "stream_error") {
-        QString conversationId = data.value("conversation_id").toString();
+        QString aiUserId = data.value("ai_user_id").toString();
         QString code = data.value("code").toString();
         QString message = data.value("message").toString();
-        emit streamError(conversationId, code, message);
+        emit streamError(aiUserId, code, message);
         return;
     }
 
     if (type == "proactive_message") {
-        QString conversationId = data.value("conversation_id").toString();
-        emit proactiveMessage(conversationId, frame);
+        QString aiUserId = data.value("ai_user_id").toString();
+        emit proactiveMessage(aiUserId, frame);
         return;
     }
 

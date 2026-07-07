@@ -25,14 +25,14 @@ public:
 signals:
     void connected();
     void disconnected();
-    void streamInit(const QString &conversationId, const QString &messageId,
+    void streamInit(const QString &aiUserId, const QString &messageId,
                     const QString &timestamp);
-    void streamChunk(const QString &conversationId, const QString &chunk);
-    void streamDone(const QString &conversationId, const QString &messageId,
+    void streamChunk(const QString &aiUserId, const QString &chunk);
+    void streamDone(const QString &aiUserId, const QString &messageId,
                     const QString &content);
-    void streamError(const QString &conversationId, const QString &code,
+    void streamError(const QString &aiUserId, const QString &code,
                      const QString &message);
-    void proactiveMessage(const QString &conversationId, const QJsonObject &payload);
+    void proactiveMessage(const QString &aiUserId, const QJsonObject &payload);
     /// Fired when an event payload arrives from the server.
     void eventReceived(int seq, const QString &eventType,
                        const QJsonObject &payload);
