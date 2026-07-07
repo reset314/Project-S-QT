@@ -378,15 +378,13 @@ int main(int argc, char *argv[])
             QString msgType = payload.value("msg_type").toString();
 
             if (!aiUserId.isEmpty() && !messageId.isEmpty()) {
-                // 防重复：检查是否已有同内容的乐观消息（无 server_id）
-                // 避免发消息者收到自己的广播后重复渲染
+                // 防重复：检查是否有未确认的乐观消息（无 server_id）
+                // 避免批处理合并后 content 不匹配导致漏判
                 if (chatMessagesModel->activeAiUserId() == aiUserId) {
                     bool found = false;
                     for (int i = 0; i < chatMessagesModel->rowCount(); ++i) {
                         const auto &m = chatMessagesModel->messageAt(i);
-                        if (m.serverId.empty() &&
-                            m.senderType == "user" &&
-                            m.content == content.toStdString()) {
+                        if (m.serverId.empty() && m.senderType == "user") {
                             found = true;
                             break;
                         }
