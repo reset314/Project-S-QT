@@ -403,8 +403,18 @@ int main(int argc, char *argv[])
                 msg.isComplete = true;
 
                 chatRepo->upsertMessage(msg, aiUserId);
-                if (chatMessagesModel->activeAiUserId() == aiUserId)
-                    chatMessagesModel->appendMessage(msg);
+                if (chatMessagesModel->activeAiUserId() == aiUserId) {
+                    // 防重复：检查是否已存在同 serverId 的消息
+                    bool exists = false;
+                    for (int i = 0; i < chatMessagesModel->rowCount(); ++i) {
+                        if (chatMessagesModel->messageAt(i).serverId == messageId.toStdString()) {
+                            exists = true;
+                            break;
+                        }
+                    }
+                    if (!exists)
+                        chatMessagesModel->appendMessage(msg);
+                }
             }
         }
         else if (eventType == "message.revoked") {
