@@ -1,6 +1,7 @@
 #include "TTSRepository.h"
 #include "../core/network/HttpClient.h"
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -11,6 +12,21 @@ TTSRepository::TTSRepository(HttpClient *http, QObject *parent)
     : QObject(parent)
     , http_(http)
 {
+}
+
+QJsonObject TTSRepository::getVoicesJson()
+{
+    auto result = http_->get("/tts/voices");
+    if (!result) {
+        QJsonObject e; e["error"] = QString::fromStdString(result.error().message); return e;
+    }
+    // response data is an array of voice objects
+    QJsonValue dataVal = result->value("data");
+    QJsonArray arr;
+    if (dataVal.isArray()) arr = dataVal.toArray();
+    else if (result->contains("success")) arr = result->value("data").toArray();
+
+    QJsonObject o; o["voices"] = arr; return o;
 }
 
 Result<QByteArray> TTSRepository::synthesize(const QString &text,

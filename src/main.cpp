@@ -379,7 +379,7 @@ int main(int argc, char *argv[])
 
             if (!aiUserId.isEmpty() && !messageId.isEmpty()) {
                 MessageDTO msg;
-                msg.id = messageId.toStdString();
+                msg.serverId = messageId.toStdString();
                 msg.aiUserId = aiUserId.toStdString();
                 msg.content = content.toStdString();
                 msg.msgType = msgType.toStdString();

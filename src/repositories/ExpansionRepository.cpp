@@ -16,7 +16,7 @@ Result<QVector<ExpansionModuleDTO>> ExpansionRepository::listModules()
         return tl::make_unexpected(result.error());
 
     // Response: {success: true, data: {modules: [...]}}
-    // HttpClient unwraps data object → we get {modules: [...]}
+    // HttpClient unwraps data object → {modules: [...]}
     QJsonObject data = *result;
     QJsonArray modules = data.value("modules").toArray();
 

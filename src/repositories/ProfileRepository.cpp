@@ -9,6 +9,17 @@ ProfileRepository::ProfileRepository(HttpClient *http, QObject *parent)
 {
 }
 
+QJsonObject ProfileRepository::getProfilesJson()
+{
+    auto r = getProfiles();
+    if (!r) {
+        QJsonObject e; e["error"] = QString::fromStdString(r.error().message); return e;
+    }
+    QJsonObject o; QJsonArray arr;
+    for (const auto &p : *r) arr.append(p.toJson());
+    o["profiles"] = arr; return o;
+}
+
 Result<QVector<UserProfileDTO>> ProfileRepository::getProfiles()
 {
     auto result = http_->get("/profiles");

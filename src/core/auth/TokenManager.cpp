@@ -3,6 +3,8 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QSslError>
+#include <QSslSocket>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QEventLoop>
@@ -95,6 +97,14 @@ Result<void> TokenManager::login(const QString &username, const QString &passwor
         return tl::make_unexpected(ApiError{.code = "CONFIG_ERROR", .message = "Server URL not set"});
 
     auto *mgr = new QNetworkAccessManager(this);
+
+    // Ignore SSL errors for self-signed certs (matches HttpClient behavior)
+    QObject::connect(mgr, &QNetworkAccessManager::sslErrors,
+                     mgr, [](QNetworkReply *reply, const QList<QSslError> &errors) {
+        Q_UNUSED(errors)
+        reply->ignoreSslErrors();
+    });
+
     QNetworkRequest request(QUrl(serverUrl_ + "/auth/login"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Accept", "application/json");

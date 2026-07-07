@@ -15,6 +15,9 @@ public:
     /// GET /profiles
     Result<QVector<UserProfileDTO>> getProfiles();
 
+    /// QML wrapper — returns { "profiles": [...] }
+    Q_INVOKABLE QJsonObject getProfilesJson();
+
     /// POST /profiles
     Result<UserProfileDTO> createProfile(const QString &key,
                                           const QString &content,

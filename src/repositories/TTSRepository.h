@@ -17,6 +17,9 @@ public:
                                    const QString &voice = {},
                                    double speed = 1.0);
 
+    /// QML wrapper — returns { "voices": [...] }
+    Q_INVOKABLE QJsonObject getVoicesJson();
+
 private:
     HttpClient *http_;
 };

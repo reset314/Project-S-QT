@@ -16,6 +16,11 @@ public:
                                               const QString &query = {},
                                               int limit = 50);
 
+    /// QML wrapper — returns { "memories": [...] }
+    Q_INVOKABLE QJsonObject getMemoriesJson(const QString &aiUserId,
+                                             const QStringList &types = {},
+                                             int limit = 50);
+
 private:
     HttpClient *http_;
 };

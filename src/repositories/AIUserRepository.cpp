@@ -62,3 +62,10 @@ QJsonObject AIUserRepository::updateAIUserJson(const QString &aiUserId, const QJ
     if (r) return r->toJson();
     QJsonObject err; err["error"] = QString::fromStdString(r.error().message); return err;
 }
+QJsonObject AIUserRepository::createAIUserJson(const QJsonObject &payload) {
+    auto result = http_->post("/aiusers/", payload);
+    if (!result) {
+        QJsonObject err; err["error"] = QString::fromStdString(result.error().message); return err;
+    }
+    return AIUserDTO::fromJson(*result).toJson();
+}

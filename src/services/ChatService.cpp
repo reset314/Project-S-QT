@@ -480,7 +480,7 @@ QString ChatService::optimisticInsert(const QString &aiUserId,
     // Wrap plain text in the canonical content JSON envelope
     QJsonObject contentObj;
     contentObj[QStringLiteral("response")] = content;
-    msg.content = contentObj;
+    msg.content = QString::fromUtf8(QJsonDocument(contentObj).toJson(QJsonDocument::Compact)).toStdString();
 
     msg.isComplete = false; // Will be set to true when server confirms
     msg.timestamp = QDateTime::currentDateTimeUtc()

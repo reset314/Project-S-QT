@@ -10,6 +10,26 @@ MemoryRepository::MemoryRepository(HttpClient *http, QObject *parent)
 {
 }
 
+QJsonObject MemoryRepository::getMemoriesJson(const QString &aiUserId,
+                                                const QStringList &types,
+                                                int limit)
+{
+    auto r = queryMemories(aiUserId, {}, limit);
+    if (!r) {
+        QJsonObject e; e["error"] = QString::fromStdString(r.error().message); return e;
+    }
+    QJsonObject o; QJsonArray arr;
+    for (const auto &m : *r) {
+        // Filter by memory_type if types specified
+        if (!types.isEmpty()) {
+            QString mType = QString::fromStdString(m.memoryType);
+            if (!types.contains(mType)) continue;
+        }
+        arr.append(m.toJson());
+    }
+    o["memories"] = arr; return o;
+}
+
 Result<QVector<MemoryDTO>> MemoryRepository::queryMemories(const QString &aiUserId,
                                                             const QString &query,
                                                             int limit)

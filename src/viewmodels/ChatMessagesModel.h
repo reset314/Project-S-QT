@@ -80,7 +80,7 @@ private:
     QString activeAiUserId_;
 
     void rebuildIndices();
-    QVariant contentToVariant(const QJsonObject &content) const;
+    QVariant contentToVariant(const std::string &content) const;
     QVariant mediaListToVariant(const std::vector<MediaDTO> &mediaList) const;
 
     /// Expand messages containing <split> in response text into multiple rows.

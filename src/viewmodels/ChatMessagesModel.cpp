@@ -209,9 +209,14 @@ void ChatMessagesModel::rebuildIndices()
     }
 }
 
-QVariant ChatMessagesModel::contentToVariant(const QJsonObject &content) const
+QVariant ChatMessagesModel::contentToVariant(const std::string &content) const
 {
-    return content.isEmpty() ? QVariant{} : QVariant(content);
+    // Content is a raw string. If it's valid JSON, return parsed object for QML.
+    // Otherwise return the raw string.
+    QJsonDocument doc = QJsonDocument::fromJson(QString::fromStdString(content).toUtf8());
+    if (doc.isObject() && !doc.object().isEmpty())
+        return QVariant(doc.object());
+    return QVariant(QString::fromStdString(content));
 }
 
 QVariant ChatMessagesModel::mediaListToVariant(const std::vector<MediaDTO> &mediaList) const
@@ -287,11 +292,19 @@ QVector<MessageDTO> ChatMessagesModel::expandSplits(const QVector<MessageDTO> &m
     result.reserve(msgs.size()); // will grow if splits found
 
     for (const auto &msg : msgs) {
-        // Extract response text from content JSON
+        // Extract response text from content (may be JSON string or plain text)
         QString responseText;
-        auto it = msg.content.find("response");
-        if (it != msg.content.end() && it->isString())
-            responseText = it->toString();
+        QString rawContent = QString::fromStdString(msg.content);
+        if (rawContent.trimmed().startsWith('{')) {
+            QJsonDocument doc = QJsonDocument::fromJson(rawContent.toUtf8());
+            if (doc.isObject()) {
+                auto it = doc.object().find("response");
+                if (it != doc.object().end() && it->isString())
+                    responseText = it->toString();
+            }
+        }
+        if (responseText.isEmpty())
+            responseText = rawContent;
 
         // Only expand complete messages that contain <split>
         if (!msg.isComplete || responseText.isEmpty() || !responseText.contains("<split>")) {

@@ -234,9 +234,7 @@ std::optional<MessageDTO> Database::messageFromQuery(QSqlQuery &q) {
     // content — stored as compact JSON text
     QString contentStr = q.value("content").toString();
     if (!contentStr.isEmpty()) {
-        QJsonDocument doc = QJsonDocument::fromJson(contentStr.toUtf8());
-        if (doc.isObject())
-            m.content = doc.object();
+        m.content = contentStr.toStdString();
     }
 
     // media_list — stored as compact JSON array text
@@ -289,7 +287,7 @@ int64_t Database::insertMessage(const MessageDTO &msg, const QString &aiUserId) 
     q.addBindValue(QString::fromStdString(msg.conversationId));
     q.addBindValue(QString::fromStdString(msg.senderType));
     q.addBindValue(QString::fromStdString(msg.msgType));
-    q.addBindValue(QString::fromUtf8(QJsonDocument(msg.content).toJson(QJsonDocument::Compact)));
+    q.addBindValue(QString::fromStdString(msg.content));
     QJsonArray ml;
     for (const auto &m : msg.mediaList)
         ml.append(m.toJson());

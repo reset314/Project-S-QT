@@ -15,14 +15,20 @@ Result<UserDTO> AuthRepository::login(const QString &username, const QString &pa
     // Delegate the full login flow to TokenManager, which handles the HTTP call,
     // JWT parsing, token persistence to keychain, and state management.
     auto tmResult = tokenManager_->login(username, password);
-    if (!tmResult)
+    if (!tmResult) {
+        qWarning() << "AuthRepository: TokenManager login failed:"
+                   << tmResult.error().code.c_str() << tmResult.error().message.c_str();
         return tl::make_unexpected(tmResult.error());
+    }
 
     // Fetch the authenticated user profile via HttpClient (which uses the now-
     // stored access token in its Authorization header).
     auto userResult = http_->get("/users/me");
-    if (!userResult)
+    if (!userResult) {
+        qWarning() << "AuthRepository: /users/me fetch failed:"
+                   << userResult.error().code.c_str() << userResult.error().message.c_str();
         return tl::make_unexpected(userResult.error());
+    }
 
     return UserDTO::fromJson(*userResult);
 }

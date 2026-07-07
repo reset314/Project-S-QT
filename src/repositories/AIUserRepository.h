@@ -33,6 +33,9 @@ public:
     /// QML-friendly: PUT /aiusers/{id} → QJsonObject
     Q_INVOKABLE QJsonObject updateAIUserJson(const QString &aiUserId, const QJsonObject &fields);
 
+    /// QML-friendly: POST /aiusers/ → QJsonObject
+    Q_INVOKABLE QJsonObject createAIUserJson(const QJsonObject &payload);
+
 private:
     HttpClient *http_;
 };
