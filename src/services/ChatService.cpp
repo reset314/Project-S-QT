@@ -305,18 +305,13 @@ void ChatService::onStreamInit(const QString &aiUserId,
                                const QString &messageId,
                                const QString &timestamp)
 {
-    qDebug() << "ChatService::onStreamInit" << "aiUserId:" << aiUserId << "msgId:" << messageId;
+    if (aiUserId.isEmpty()) return;
 
-    if (aiUserId.isEmpty()) { qDebug() << "  -> empty aiUserId, return"; return; }
-    qDebug() << "  -> step 1: resetWatchdog";
     resetWatchdog(aiUserId);
-    qDebug() << "  -> step 2: check streamingAiMessages_";
 
     if (!streamingAiMessages_.contains(aiUserId)) {
-        qDebug() << "  -> step 3: create aiMsg";
         MessageDTO aiMsg;
         aiMsg.clientUuid = UuidGenerator::generate().toStdString();
-        qDebug() << "  -> step 4: set fields";
         aiMsg.aiUserId = aiUserId.toStdString();
         aiMsg.senderType = "ai";
         aiMsg.msgType = "text";
@@ -327,21 +322,15 @@ void ChatService::onStreamInit(const QString &aiUserId,
             : timestamp.toStdString();
         if (!messageId.isEmpty())
             aiMsg.serverId = messageId.toStdString();
-        qDebug() << "  -> step 5: insertMessage";
 
         repo_->insertMessage(aiMsg, aiUserId);
-        qDebug() << "  -> step 6: update streamingAiMessages_";
         streamingAiMessages_[aiUserId] = QString::fromStdString(aiMsg.clientUuid);
-        qDebug() << "  -> step 7: emit messageAppended";
 
         emit messageAppended(aiUserId, aiMsg);
     }
-    qDebug() << "  -> step 8: emit streamInitReceived";
 
     emit streamInitReceived(aiUserId, QString(), messageId);
-    qDebug() << "  -> step 9: emit messagesChanged";
     emit messagesChanged(aiUserId);
-    qDebug() << "  -> DONE";
 }
 
 void ChatService::onStreamChunk(const QString &aiUserId,

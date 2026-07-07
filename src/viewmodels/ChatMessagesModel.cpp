@@ -67,25 +67,17 @@ QHash<int, QByteArray> ChatMessagesModel::roleNames() const
 
 void ChatMessagesModel::appendMessage(const MessageDTO &msg)
 {
-    qDebug() << "  [appendMessage] expandSplits";
-    auto parts = expandSplits({msg});
-    qDebug() << "  [appendMessage] parts=" << parts.size() << "size=" << messages_.size();
-    if (parts.isEmpty()) return;
-
-    const int firstRow = messages_.size();
-    qDebug() << "  [appendMessage] beginInsertRows";
-    beginInsertRows(QModelIndex(), firstRow, firstRow + parts.size() - 1);
-    for (auto &part : parts) {
-        qDebug() << "  [appendMessage] append part";
-        messages_.append(part);
-    }
-    qDebug() << "  [appendMessage] rebuildIndices";
-    rebuildIndices();
-    qDebug() << "  [appendMessage] endInsertRows";
+    // 直接添加，不经过 expandSplits（临时 QVector 传参导致崩溃）
+    // expandSplits 在上游 onHistoryLoaded 中已经处理过
+    const int row = messages_.size();
+    beginInsertRows(QModelIndex(), row, row);
+    messages_.append(msg);
+    if (!msg.clientUuid.empty())
+        clientUuidIndex_[QString::fromStdString(msg.clientUuid)] = row;
+    if (!msg.serverId.empty())
+        serverIdIndex_[QString::fromStdString(msg.serverId)] = row;
     endInsertRows();
-    qDebug() << "  [appendMessage] emit";
     emit messageAppended();
-    qDebug() << "  [appendMessage] DONE";
 }
 
 void ChatMessagesModel::prependMessages(const QVector<MessageDTO> &msgs)
