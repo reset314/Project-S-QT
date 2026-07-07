@@ -67,16 +67,25 @@ QHash<int, QByteArray> ChatMessagesModel::roleNames() const
 
 void ChatMessagesModel::appendMessage(const MessageDTO &msg)
 {
+    qDebug() << "  [appendMessage] expandSplits";
     auto parts = expandSplits({msg});
+    qDebug() << "  [appendMessage] parts=" << parts.size() << "size=" << messages_.size();
     if (parts.isEmpty()) return;
 
     const int firstRow = messages_.size();
+    qDebug() << "  [appendMessage] beginInsertRows";
     beginInsertRows(QModelIndex(), firstRow, firstRow + parts.size() - 1);
-    for (auto &part : parts)
+    for (auto &part : parts) {
+        qDebug() << "  [appendMessage] append part";
         messages_.append(part);
+    }
+    qDebug() << "  [appendMessage] rebuildIndices";
     rebuildIndices();
+    qDebug() << "  [appendMessage] endInsertRows";
     endInsertRows();
+    qDebug() << "  [appendMessage] emit";
     emit messageAppended();
+    qDebug() << "  [appendMessage] DONE";
 }
 
 void ChatMessagesModel::prependMessages(const QVector<MessageDTO> &msgs)
