@@ -221,7 +221,7 @@ private slots:
         msg.aiUserId = "ai-1";
         msg.senderType = "user";
         msg.msgType = "text";
-        msg.content = QJsonObject{{"text", "hello"}};
+    msg.content = QString::fromUtf8(QJsonDocument(QJsonObject{{"text", "hello"}}).toJson(QJsonDocument::Compact)).toStdString();
         msg.isComplete = true;
         msg.timestamp = QDateTime::currentDateTimeUtc().toString(Qt::ISODate).toStdString();
 
