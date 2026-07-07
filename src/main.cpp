@@ -429,7 +429,7 @@ int main(int argc, char *argv[])
 
     // ── Post-login initialization pipeline ────────────────────────
     QObject::connect(loginViewModel, &LoginViewModel::loginSuccess,
-                     &app, [wsClient, tokenManager, httpClient,
+                     &app, [wsClient, tokenManager, httpClient, database,
                             convRepo, aiUserRepo,
                             conversationListModel, contactListModel,
                             chatService, syncService, unreadTracker]() {
