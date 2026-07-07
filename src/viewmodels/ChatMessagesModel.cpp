@@ -104,7 +104,7 @@ void ChatMessagesModel::replaceAll(const QVector<MessageDTO> &msgs)
 void ChatMessagesModel::updateContent(int row, const QJsonObject &content)
 {
     if (row < 0 || row >= messages_.size()) return;
-    messages_[row].content = content;
+    messages_[row].content = QString::fromUtf8(QJsonDocument(content).toJson(QJsonDocument::Compact)).toStdString();
     emit dataChanged(index(row), index(row), {ContentRole});
 }
 
@@ -146,8 +146,7 @@ void ChatMessagesModel::markRevoked(const QString &serverId)
     auto it = serverIdIndex_.find(serverId);
     if (it == serverIdIndex_.end()) return;
     int row = it.value();
-    messages_[row].revokedAt = QDateTime::currentDateTimeUtc()
-                                    .toString(Qt::ISODate).toStdString();
+    messages_[row].revokedAt = QDateTime::currentDateTimeUtc();
     emit dataChanged(index(row), index(row), {RevokedAtRole});
 }
 
@@ -156,8 +155,7 @@ void ChatMessagesModel::markDeleted(const QString &serverId)
     auto it = serverIdIndex_.find(serverId);
     if (it == serverIdIndex_.end()) return;
     int row = it.value();
-    messages_[row].deletedAt = QDateTime::currentDateTimeUtc()
-                                    .toString(Qt::ISODate).toStdString();
+    messages_[row].deletedAt = QDateTime::currentDateTimeUtc();
     emit dataChanged(index(row), index(row), {});
 }
 
