@@ -122,8 +122,6 @@ private:
     /// Stop and delete the watchdog timer for a given AI user.
     void stopWatchdog(const QString &aiUserId);
 
-    /// Resolve conversationId → aiUserId via the local conversations cache.
-    QString resolveAiUserId(const QString &conversationId) const;
 
     /// Perform an optimistic insert and return the generated clientUuid.
     QString optimisticInsert(const QString &aiUserId,
@@ -142,9 +140,6 @@ private:
     /// Batching state keyed by aiUserId.
     QHash<QString, BatchState> batchers_;
 
-    /// Track which aiUserId is associated with each conversationId
-    /// (populated at sendMessage time so WS signals can be mapped back).
-    QHash<QString, QString> convToAiUser_;
 
     /// Track in-progress AI streaming messages by conversationId → clientUuid
     /// so we can update content incrementally across stream_chunk frames.

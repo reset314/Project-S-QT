@@ -19,8 +19,8 @@ ChatService::ChatService(ChatRepository *repo,
     , wsClient_(wsClient)
     , syncService_(syncService)
 {
-    // Wire ChatStreamClient signals to private slots so we can map
-    // conversationId → aiUserId and re-emit enriched signals.
+    // Wire ChatStreamClient signals to private slots for re-emitting
+    // enriched signals with aiUserId context.
     if (wsClient_) {
         connect(wsClient_, &ChatStreamClient::streamInit,
                 this, &ChatService::onStreamInit);
@@ -45,10 +45,6 @@ void ChatService::sendMessage(const QString &aiUserId,
     QString clientUuid = optimisticInsert(aiUserId, content, conversationId,
                                           QStringLiteral("user"),
                                           QStringLiteral("text"));
-
-    // Track conversationId → aiUserId mapping for WS signal routing
-    if (!conversationId.isEmpty())
-        convToAiUser_[conversationId] = aiUserId;
 
     // 2. Add to batch
     BatchState &batch = batchers_[aiUserId];
@@ -117,9 +113,6 @@ void ChatService::sendMediaMessage(const QString &aiUserId,
     QString clientUuid = optimisticInsert(aiUserId, content, conversationId,
                                           QStringLiteral("user"), effectiveMsgType);
 
-    if (!conversationId.isEmpty())
-        convToAiUser_[conversationId] = aiUserId;
-
     // Media messages bypass batching — send immediately
     auto result = repo_->sendFormDataMessage(aiUserId, filePath, content,
                                              conversationId, effectiveMsgType);
@@ -147,7 +140,6 @@ void ChatService::sendMediaMessage(const QString &aiUserId,
 
     // Handle conversation replacement
     if (resp.conversationReplaced && !resp.conversationId.empty()) {
-        convToAiUser_[QString::fromStdString(resp.conversationId)] = aiUserId;
         emit conversationReplaced(QString::fromStdString(resp.conversationId));
     }
 
@@ -251,12 +243,8 @@ void ChatService::flushBatch(const QString &aiUserId)
         }
     }
 
-    // Track conversation mapping
-    if (!resp.conversationId.empty()) {
-        convToAiUser_[QString::fromStdString(resp.conversationId)] = aiUserId;
-
-        // Handle conversation replacement
-        if (resp.conversationReplaced) {
+    // Handle conversation replacement
+    if (resp.conversationReplaced && !resp.conversationId.empty()) {
             emit conversationReplaced(QString::fromStdString(resp.conversationId));
         }
     }
@@ -314,11 +302,6 @@ void ChatService::stopWatchdog(const QString &aiUserId)
 // Private — ChatStreamClient signal handlers
 // ---------------------------------------------------------------------------
 
-QString ChatService::resolveAiUserId(const QString &conversationId) const
-{
-    return convToAiUser_.value(conversationId);
-}
-
 void ChatService::onStreamInit(const QString &aiUserId,
                                const QString &messageId,
                                const QString &timestamp)
@@ -375,21 +358,14 @@ void ChatService::onStreamChunk(const QString &aiUserId,
     emit messagesChanged(aiUserId);
 }
 
-void ChatService::onStreamDone(const QString &conversationId,
+void ChatService::onStreamDone(const QString &aiUserId,
                                const QString &messageId,
                                const QString &content)
 {
-    QString aiUserId = resolveAiUserId(conversationId);
-
-    // Cancel watchdog unconditionally — stopWatchdog safely handles empty keys.
-    // Must come before any aiUserId.isEmpty() guard so the timer is always
-    // cleaned up even when the aiUserId cannot be resolved.
     cancelWatchdog(aiUserId);
 
-    // Finalize the optimistic AI message — set full content and mark complete.
-    QString clientUuid = streamingAiMessages_.take(conversationId);
-    qDebug() << "ChatService::onStreamDone" << "conv:" << conversationId
-             << "aiUserId:" << aiUserId << "clientUuid:" << clientUuid
+    QString clientUuid = streamingAiMessages_.take(aiUserId);
+    qDebug() << "ChatService::onStreamDone" << "aiUserId:" << aiUserId << "clientUuid:" << clientUuid
              << "contentLen:" << content.size();
     if (!clientUuid.isEmpty()) {
         QVariantMap values;
@@ -423,19 +399,13 @@ void ChatService::onStreamDone(const QString &conversationId,
     emit messagesChanged(aiUserId);
 }
 
-void ChatService::onStreamError(const QString &conversationId,
+void ChatService::onStreamError(const QString &aiUserId,
                                 const QString &code,
                                 const QString &message)
 {
-    QString aiUserId = resolveAiUserId(conversationId);
-
-    // Cancel watchdog unconditionally — stopWatchdog safely handles empty keys.
-    // Must come before any aiUserId.isEmpty() guard so the timer is always
-    // cleaned up even when the aiUserId cannot be resolved.
     cancelWatchdog(aiUserId);
 
-    // Clean up the optimistic AI message on error
-    QString clientUuid = streamingAiMessages_.take(conversationId);
+    QString clientUuid = streamingAiMessages_.take(aiUserId);
     if (!clientUuid.isEmpty()) {
         QVariantMap values;
         values[QStringLiteral("is_complete")] = 1;
