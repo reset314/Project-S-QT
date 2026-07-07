@@ -67,16 +67,15 @@ QHash<int, QByteArray> ChatMessagesModel::roleNames() const
 
 void ChatMessagesModel::appendMessage(const MessageDTO &msg)
 {
-    qDebug() << "  [appendMessage] expandSplits call";
-    auto parts = expandSplits({msg});
-    qDebug() << "  [appendMessage] parts=" << parts.size() << "rows=" << messages_.size();
-    if (parts.isEmpty()) return;
-
+    // 直接追加，不做 split 展开。
+    // expandSplits 只在 onHistoryLoaded/onOlderMessagesLoaded 中处理。
     const int row = messages_.size();
-    beginInsertRows(QModelIndex(), row, row + parts.size() - 1);
-    for (auto &part : parts)
-        messages_.append(part);
-    rebuildIndices();
+    beginInsertRows(QModelIndex(), row, row);
+    messages_.append(msg);
+    if (!msg.clientUuid.empty())
+        clientUuidIndex_[QString::fromStdString(msg.clientUuid)] = row;
+    if (!msg.serverId.empty())
+        serverIdIndex_[QString::fromStdString(msg.serverId)] = row;
     endInsertRows();
     emit messageAppended();
 }
