@@ -28,7 +28,7 @@ QVariant ChatMessagesModel::data(const QModelIndex &index, int role) const
     case AiUserIdRole:
         return QString::fromStdString(msg.aiUserId);
     case ConversationIdRole:
-        return QString::fromStdString(msg.conversationId);
+        return QString();  // 客户端不再使用 conversation_id
     case SenderTypeRole:
         return QString::fromStdString(msg.senderType);
     case MsgTypeRole:

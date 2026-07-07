@@ -29,7 +29,6 @@ struct MessageDTO {
         m.serverId = JsonHelper::getString(obj, "id");
         m.clientUuid = JsonHelper::getString(obj, "client_uuid");
         m.aiUserId = JsonHelper::getString(obj, "ai_user_id");
-        m.conversationId = JsonHelper::getString(obj, "conversation_id");
         m.senderType = JsonHelper::getString(obj, "sender_type");
         m.msgType = JsonHelper::getString(obj, "msg_type");
         // Content is a raw string from the server. It may be plain text or
@@ -66,7 +65,6 @@ struct MessageDTO {
         if (!serverId.empty()) o["id"] = QString::fromStdString(serverId);
         o["client_uuid"] = QString::fromStdString(clientUuid);
         o["ai_user_id"] = QString::fromStdString(aiUserId);
-        o["conversation_id"] = QString::fromStdString(conversationId);
         o["sender_type"] = QString::fromStdString(senderType);
         o["msg_type"] = QString::fromStdString(msgType);
         o["content"] = QString::fromStdString(content);

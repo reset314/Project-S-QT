@@ -227,7 +227,6 @@ std::optional<MessageDTO> Database::messageFromQuery(QSqlQuery &q) {
 
     m.clientUuid     = q.value("client_uuid").toString().toStdString();
     m.aiUserId       = q.value("ai_user_id").toString().toStdString();
-    m.conversationId = q.value("conversation_id").toString().toStdString();
     m.senderType     = q.value("sender_type").toString().toStdString();
     m.msgType        = q.value("msg_type").toString().toStdString();
 
@@ -276,15 +275,13 @@ std::optional<MessageDTO> Database::messageFromQuery(QSqlQuery &q) {
 int64_t Database::insertMessage(const MessageDTO &msg, const QString &aiUserId) {
     QSqlQuery q(db_);
     q.prepare(R"(
-        INSERT INTO messages (server_id, client_uuid, ai_user_id, conversation_id,
-            sender_type, msg_type, content, media_list, is_complete, is_read,
+        INSERT INTO messages (server_id, client_uuid, ai_user_id, sender_type, msg_type, content, media_list, is_complete, is_read,
             source_function, revoked_at, timestamp)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     )");
     q.addBindValue(msg.serverId.empty() ? QVariant() : QString::fromStdString(msg.serverId));
     q.addBindValue(QString::fromStdString(msg.clientUuid));
     q.addBindValue(aiUserId);
-    q.addBindValue(QString::fromStdString(msg.conversationId));
     q.addBindValue(QString::fromStdString(msg.senderType));
     q.addBindValue(QString::fromStdString(msg.msgType));
     q.addBindValue(QString::fromStdString(msg.content));
@@ -320,7 +317,7 @@ void Database::upsertMessage(const MessageDTO &msg, const QString &aiUserId) {
         QSqlQuery up(db_);
         up.prepare(R"(
             UPDATE messages SET
-                server_id = ?, ai_user_id = ?, conversation_id = ?,
+                server_id = ?, ai_user_id = ?,
                 sender_type = ?, msg_type = ?, content = ?, media_list = ?,
                 is_complete = ?, is_read = ?, source_function = ?,
                 revoked_at = ?, timestamp = ?
@@ -328,10 +325,9 @@ void Database::upsertMessage(const MessageDTO &msg, const QString &aiUserId) {
         )");
         up.addBindValue(msg.serverId.empty() ? QVariant() : QString::fromStdString(msg.serverId));
         up.addBindValue(aiUserId);
-        up.addBindValue(QString::fromStdString(msg.conversationId));
         up.addBindValue(QString::fromStdString(msg.senderType));
         up.addBindValue(QString::fromStdString(msg.msgType));
-        up.addBindValue(QString::fromUtf8(QJsonDocument(msg.content).toJson(QJsonDocument::Compact)));
+        up.addBindValue(QString::fromStdString(msg.content));
         QJsonArray ml;
         for (const auto &m : msg.mediaList)
             ml.append(m.toJson());

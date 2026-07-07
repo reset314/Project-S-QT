@@ -87,7 +87,6 @@ void ChatService::sendMessage(const QString &aiUserId,
     MessageDTO optimisticMsg;
     optimisticMsg.clientUuid = clientUuid.toStdString();
     optimisticMsg.aiUserId = aiUserId.toStdString();
-    optimisticMsg.conversationId = conversationId.toStdString();
     optimisticMsg.senderType = "user";
     optimisticMsg.msgType = "text";
     QJsonObject contentObj;
@@ -339,7 +338,6 @@ void ChatService::onStreamInit(const QString &conversationId,
         MessageDTO aiMsg;
         aiMsg.clientUuid = UuidGenerator::generate().toStdString();
         aiMsg.aiUserId = aiUserId.toStdString();
-        aiMsg.conversationId = conversationId.toStdString();
         aiMsg.senderType = "ai";
         aiMsg.msgType = "text";
         aiMsg.content = QJsonObject{};
@@ -473,7 +471,6 @@ QString ChatService::optimisticInsert(const QString &aiUserId,
     MessageDTO msg;
     msg.clientUuid = UuidGenerator::generate().toStdString();
     msg.aiUserId = aiUserId.toStdString();
-    msg.conversationId = conversationId.toStdString();
     msg.senderType = senderType.toStdString();
     msg.msgType = msgType.toStdString();
 
