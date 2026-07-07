@@ -334,10 +334,7 @@ void ChatService::onStreamInit(const QString &aiUserId,
         streamingAiMessages_[aiUserId] = QString::fromStdString(aiMsg.clientUuid);
         qDebug() << "  -> step 7: emit messageAppended";
 
-        // 延迟发射，避免 Qt 信号投递机制在处理 MessageDTO 时崩溃
-        QTimer::singleShot(0, this, [this, aiUserId, aiMsg]() {
-            emit messageAppended(aiUserId, aiMsg);
-        });
+        emit messageAppended(aiUserId, aiMsg);
     }
     qDebug() << "  -> step 8: emit streamInitReceived";
 
