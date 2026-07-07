@@ -91,7 +91,7 @@ void ChatService::sendMessage(const QString &aiUserId,
     optimisticMsg.msgType = "text";
     QJsonObject contentObj;
     contentObj[QStringLiteral("response")] = content;
-    optimisticMsg.content = contentObj;
+    optimisticMsg.content = QString::fromUtf8(QJsonDocument(contentObj).toJson(QJsonDocument::Compact)).toStdString();
     optimisticMsg.isComplete = false;
     optimisticMsg.timestamp = QDateTime::currentDateTimeUtc()
                                   .toString(Qt::ISODate).toStdString();
@@ -340,7 +340,7 @@ void ChatService::onStreamInit(const QString &conversationId,
         aiMsg.aiUserId = aiUserId.toStdString();
         aiMsg.senderType = "ai";
         aiMsg.msgType = "text";
-        aiMsg.content = QJsonObject{};
+        aiMsg.content = "{}";
         aiMsg.isComplete = false;
         aiMsg.timestamp = timestamp.isEmpty()
             ? QDateTime::currentDateTimeUtc().toString(Qt::ISODate).toStdString()

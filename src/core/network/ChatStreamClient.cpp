@@ -19,8 +19,7 @@ ChatStreamClient::ChatStreamClient(QObject *parent)
                      this, &ChatStreamClient::onDisconnected);
     QObject::connect(&ws_, &QWebSocket::textMessageReceived,
                      this, &ChatStreamClient::onTextMessageReceived);
-    QObject::connect(&ws_,
-                     QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error),
+    QObject::connect(&ws_, &QWebSocket::errorOccurred,
                      this, &ChatStreamClient::onError);
     QObject::connect(&heartbeatTimer_, &QTimer::timeout,
                      this, &ChatStreamClient::sendPing);
