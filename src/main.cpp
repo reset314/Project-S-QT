@@ -489,8 +489,12 @@ int main(int argc, char *argv[])
     QObject::connect(chatService, &ChatService::messageAppended,
                      &app, [chatMessagesModel](
                                 const QString &aiUserId, const MessageDTO &msg) {
-        if (chatMessagesModel->activeAiUserId() == aiUserId)
+        if (!chatMessagesModel) { qWarning() << "chatMessagesModel is NULL!"; return; }
+        if (chatMessagesModel->activeAiUserId() == aiUserId) {
+            qDebug() << "appendMessage for" << aiUserId;
             chatMessagesModel->appendMessage(msg);
+            qDebug() << "appendMessage DONE";
+        }
     });
 
     QObject::connect(chatService, &ChatService::messageContentUpdated,
