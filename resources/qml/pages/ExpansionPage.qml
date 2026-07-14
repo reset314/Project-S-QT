@@ -21,17 +21,16 @@ Item {
                     id: cardCol; anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top; anchors.margins: 12; spacing: 4
                     RowLayout {
                         Text { text: model.name || qsTr("Unknown"); font.pixelSize: Theme.fontSizeBody; font.weight: Font.Bold; color: Theme.textPrimary; Layout.fillWidth: true }
-                        Rectangle { color: model.review_status === "approved" ? Theme.successColor : (model.review_status === "rejected" ? Theme.errorColor : Theme.warningColor)
-                            radius: 4; width: statusText.implicitWidth + 12; height: 20
-                            Text { id: statusText; anchors.centerIn: parent; text: model.review_status || "pending"; font.pixelSize: 10; color: "white" }
+                        Rectangle {
+                            color: categoryColor(model.category)
+                            radius: 4; width: catText.implicitWidth + 12; height: 20
+                            Text { id: catText; anchors.centerIn: parent; text: model.category || "ai"; font.pixelSize: 10; color: "white" }
                         }
                     }
-                    Text { text: model.description || ""; font.pixelSize: Theme.fontSizeSmall; color: Theme.textSecondary; Layout.fillWidth: true; wrapMode: Text.Wrap; maximumLineCount: 2 }
+                    Text { text: model.description || ""; font.pixelSize: Theme.fontSizeSmall; color: Theme.textSecondary; Layout.fillWidth: true; wrapMode: Text.Wrap; maximumLineCount: 2; elide: Text.ElideRight }
                     RowLayout { spacing: 8
-                        Text { text: "v" + (model.version || "1.0.0"); font.pixelSize: Theme.fontSizeCaption; color: Theme.textHint }
-                        Text { text: "· "+ (model.author || ""); font.pixelSize: Theme.fontSizeCaption; color: Theme.textHint }
+                        Text { text: qsTr("Functions:") + " " + (Array.isArray(model.functions) ? model.functions.length : 0); font.pixelSize: Theme.fontSizeCaption; color: Theme.textHint }
                         Item { Layout.fillWidth: true }
-                        Switch { checked: model.enabled !== false; onClicked: toggleModule(model.name || "", checked) }
                     }
                 }
             }
@@ -45,6 +44,11 @@ Item {
         }
     }
 
+    function categoryColor(cat) {
+        if (cat === "client") return Theme.primaryColor
+        if (cat === "data") return Theme.successColor
+        return Theme.warningColor  // ai
+    }
     function loadModules() {
         if (typeof expansionRepo === "undefined") return
         var json = expansionRepo.listModulesJson()
@@ -52,11 +56,6 @@ Item {
         if (!json || json.error) return
         var modules = json.modules || []
         for (var i = 0; i < modules.length; i++) moduleModel.append(modules[i])
-    }
-
-    function toggleModule(name, enabled) {
-        if (typeof expansionRepo === "undefined") return
-        expansionRepo.toggleModuleJson(name, enabled)
     }
 
     Component.onCompleted: loadModules()

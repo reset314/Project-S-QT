@@ -1,5 +1,0 @@
-C:/Users/root/Documents/Programs/aaa2/_b/CMakeFiles/AIChatDesktop.dir
-C:/Users/root/Documents/Programs/aaa2/_b/CMakeFiles/edit_cache.dir
-C:/Users/root/Documents/Programs/aaa2/_b/CMakeFiles/rebuild_cache.dir
-C:/Users/root/Documents/Programs/aaa2/_b/CMakeFiles/AIChatDesktop_autogen_timestamp_deps.dir
-C:/Users/root/Documents/Programs/aaa2/_b/CMakeFiles/AIChatDesktop_autogen.dir

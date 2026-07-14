@@ -70,6 +70,7 @@ Rectangle {
 
     // ── TitleBarButton component with drawn icons ─────────────────
     component TitleBarButton: Rectangle {
+        id: btn
         property string iconType: ""     // "minimize" | "maximize" | "restore" | "close"
         property bool isClose: false
 
@@ -81,8 +82,11 @@ Rectangle {
 
         signal clicked()
 
+        onIconTypeChanged: iconCanvas.requestPaint()
+
         // Drawn icon — crisp at any DPI, no font dependency
         Canvas {
+            id: iconCanvas
             anchors.centerIn: parent
             width: 12; height: 12
             scale: 1.0
@@ -135,10 +139,6 @@ Rectangle {
                 }
             }
 
-            Connections {
-                target: parent
-                function onIconTypeChanged() { parent.repaint?.() }
-            }
         }
 
         MouseArea {

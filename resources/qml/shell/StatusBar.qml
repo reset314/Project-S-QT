@@ -77,6 +77,7 @@ Rectangle {
     }
 
     Component.onCompleted: {
+        console.warn("StatusBar: init, appState=" + (typeof appState) + " status=" + (typeof appState !== "undefined" ? appState.connectionStatus : "N/A"))
         if (typeof appState !== "undefined")
             statusBar.connected = appState.connectionStatus === "connected"
     }
@@ -90,6 +91,7 @@ Rectangle {
         target: typeof appState !== "undefined" ? appState : null
         enabled: typeof appState !== "undefined"
         function onConnectionStatusChanged() {
+            console.warn("StatusBar: connectionStatus changed to", appState.connectionStatus)
             statusBar.connected = appState.connectionStatus === "connected"
         }
     }

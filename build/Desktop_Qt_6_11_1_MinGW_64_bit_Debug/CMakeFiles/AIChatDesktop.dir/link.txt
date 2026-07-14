@@ -1,3 +1,0 @@
-D:\QT\Tools\CMake_64\bin\cmake.exe -E rm -f CMakeFiles\AIChatDesktop.dir/objects.a
-D:\QT\Tools\mingw1310_64\bin\ar.exe qc CMakeFiles\AIChatDesktop.dir/objects.a @CMakeFiles\AIChatDesktop.dir\objects1.rsp
-D:\QT\Tools\mingw1310_64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\AIChatDesktop.dir/objects.a -Wl,--no-whole-archive -o AIChatDesktop.exe -Wl,--out-implib,libAIChatDesktop.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\AIChatDesktop.dir\linkLibs.rsp

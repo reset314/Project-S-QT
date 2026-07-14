@@ -279,14 +279,13 @@ Item {
 
         // C++ integration: call AIUserRepository via context property
         if (typeof aiUserRepo !== "undefined") {
-            aiUserRepo.createAIUser(JSON.stringify(payload), function(success, result) {
-                saving = false
-                if (success) {
-                    closePage()
-                } else {
-                    errorMessage = result || qsTr("Failed to create AI user")
-                }
-            })
+            var result = aiUserRepo.createAIUserJson(payload)
+            saving = false
+            if (result && !result.error) {
+                closePage()
+            } else {
+                errorMessage = (result && result.error) ? result.error : qsTr("Failed to create AI user")
+            }
         } else {
             // Standalone mode
             saving = false

@@ -1,8 +1,0 @@
-test_Database 3 0.0290403
-test_ApiError 3 0.0245146
-test_JsonHelper 3 0.0234019
-test_UuidGenerator 3 0.0206491
-test_TokenManager 3 0.025817
-test_SyncService 3 0.0235785
-test_UnreadTracker 1 0.0688766
----

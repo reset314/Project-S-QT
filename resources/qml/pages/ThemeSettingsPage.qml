@@ -1,14 +1,14 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import QtQuick.Dialogs 1.3
+import QtQuick.Dialogs
 import "../components" as C
 
 Item {
     id: themePage
     ColumnLayout {
         anchors.fill: parent; spacing: 0
-        C.BackHeader { title: qsTr("Theme"); onBackClicked: closePage() }
+        C.BackHeader { title: qsTr("Theme"); onBackClicked: closeWindow() }
 
         ColumnLayout {
             Layout.fillWidth: true; Layout.margins: Theme.spacingLarge; spacing: Theme.spacingMedium
@@ -26,11 +26,24 @@ Item {
                     if (path.includes("light")) return 0
                     return 3
                 }
-                onActivated: {
+                onActivated: function(selIndex) {
                     var urls = ["qrc:/themes/light.css", "qrc:/themes/dark.css", "qrc:/themes/glass.css"]
-                    if (index < 3 && typeof themeManager !== "undefined") {
-                        themeManager.setTheme(urls[index])
+                    if (selIndex < 3 && typeof themeManager !== "undefined") {
+                        themeManager.setTheme(urls[selIndex])
                     }
+                }
+            }
+
+            // ── Confirm & Apply ────────────────────────────────────
+            Button {
+                text: qsTr("Apply & Close")
+                Layout.fillWidth: true
+                Layout.preferredHeight: 40
+                onClicked: {
+                    if (typeof themeManager !== "undefined") {
+                        themeManager.reload()
+                    }
+                    closeWindow()
                 }
             }
 
@@ -57,12 +70,9 @@ Item {
         }
     }
 
-    function closePage() {
-        var sv = typeof rootStack !== "undefined" ? rootStack : null
-        if (!sv) {
-            var obj = themePage.parent
-            while (obj) { if (obj instanceof StackView) { sv = obj; break } obj = obj.parent }
+    function closeWindow() {
+        if (themePage.Window && themePage.Window.window) {
+            themePage.Window.window.close()
         }
-        if (sv) sv.pop()
     }
 }

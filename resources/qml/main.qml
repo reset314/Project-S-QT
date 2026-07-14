@@ -43,7 +43,7 @@ ApplicationWindow {
         // ── Content area ─────────────────────────────────────────
         Item {
             width: parent.width
-            height: parent.height - titleBar.height - statusBar.height
+            height: parent.height - titleBar.height /*- statusBar.height*/
 
             // Login page or MainShell (switched after auth)
             Loader {
@@ -63,10 +63,10 @@ ApplicationWindow {
         }
 
         // Status bar
-        StatusBar {
-            id: statusBar
-            width: parent.width
-        }
+        // StatusBar {
+        //     id: statusBar
+        //     width: parent.width
+        // }
     }
 
     // ── Component cache ──────────────────────────────────────────

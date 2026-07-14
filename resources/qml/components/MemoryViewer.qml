@@ -44,13 +44,13 @@ Popup {
                 color: Theme.surfaceColor; border.color: Theme.dividerColor; border.width: 1; radius: 6
                 ColumnLayout {
                     id: memCard; anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top; anchors.margins: 8; spacing: 4
-                    Text { text: model.summary || model.content.substring(0, 100); font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; Layout.fillWidth: true; wrapMode: Text.Wrap }
+                    Text { text: model.summary || (model.content ? model.content.substring(0, 100) : ""); font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; Layout.fillWidth: true; wrapMode: Text.Wrap }
                     RowLayout { spacing: 8
-                        Rectangle { color: typeColor(model.memoryType); radius: 4; width: typeLabel.implicitWidth + 8; height: 18
-                            Text { id: typeLabel; anchors.centerIn: parent; text: model.memoryType; font.pixelSize: 10; color: "white" } }
+                        Rectangle { color: typeColor(model.memory_type); radius: 4; width: typeLabel.implicitWidth + 8; height: 18
+                            Text { id: typeLabel; anchors.centerIn: parent; text: model.memory_type; font.pixelSize: 10; color: "white" } }
                         Text { text: model.category; font.pixelSize: Theme.fontSizeCaption; color: Theme.textHint }
                         Item { Layout.fillWidth: true }
-                        Text { text: model.createdAt || ""; font.pixelSize: Theme.fontSizeCaption; color: Theme.textHint }
+                        Text { text: model.created_at || ""; font.pixelSize: Theme.fontSizeCaption; color: Theme.textHint }
                     }
                 }
             }
@@ -62,6 +62,9 @@ Popup {
         var types = []; if (cbStm.checked) types.push("STM"); if (cbMtm.checked) types.push("MTM"); if (cbLtm.checked) types.push("LTM")
         memoryModel.clear()
         if (typeof memoryRepo === "undefined" || !aiUserId) return
-        // TODO: call memoryRepo.getMemoriesJson(aiUserId, types) when added
+        var json = memoryRepo.getMemoriesJson(aiUserId, types, 50)
+        if (!json || json.error) return
+        var memories = json.memories || []
+        for (var i = 0; i < memories.length; i++) memoryModel.append(memories[i])
     }
 }

@@ -57,33 +57,33 @@ Item {
                         spacing: Theme.spacingMedium
 
                         Text {
-                            text: model.key || ""
+                            text: model.attribute_key || ""
                             color: Theme.textPrimary
                             font.pixelSize: Theme.fontSizeSubheading
                             font.weight: Theme.fontWeightBold
                             Layout.fillWidth: true
                         }
 
-                        Text {
-                            text: model.category || ""
-                            color: Theme.textHint
-                            font.pixelSize: Theme.fontSizeCaption
+                        Rectangle {
+                            radius: 4; width: confLabel.implicitWidth + 12; height: 20
+                            color: (model.confidence >= 0.8) ? Theme.successColor : ((model.confidence >= 0.5) ? Theme.warningColor : Theme.errorColor)
+                            Text { id: confLabel; anchors.centerIn: parent; text: Math.round((model.confidence || 0) * 100) + "%"; font.pixelSize: 10; color: "white" }
                         }
                     }
 
                     Text {
                         Layout.fillWidth: true
-                        text: model.value || model.summary || ""
+                        text: model.content || ""
                         color: Theme.textSecondary
                         font.pixelSize: Theme.fontSizeBody
                         wrapMode: Text.Wrap
                         maximumLineCount: 3
                     }
 
-                    Text {
-                        text: model.layer || ""
-                        color: Theme.textHint
-                        font.pixelSize: Theme.fontSizeCaption
+                    RowLayout { spacing: 8
+                        Text { text: model.source || ""; font.pixelSize: Theme.fontSizeCaption; color: Theme.textHint }
+                        Item { Layout.fillWidth: true }
+                        Text { text: model.created_at || ""; font.pixelSize: Theme.fontSizeCaption; color: Theme.textHint }
                     }
                 }
             }
@@ -100,7 +100,7 @@ Item {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: "📋"
+                        text: ""
                         font.pixelSize: 48
                     }
 
@@ -128,22 +128,12 @@ Item {
     }
 
     function loadProfiles() {
-        // C++ integration
-        if (typeof profileRepo !== "undefined") {
-            profileRepo.getAllProfiles(function(success, data) {
-                if (success && data) {
-                    profilesModel.clear()
-                    try {
-                        var profiles = JSON.parse(data)
-                        for (var i = 0; i < profiles.length; i++) {
-                            profilesModel.append(profiles[i])
-                        }
-                    } catch (e) {
-                        console.error("Failed to parse profiles:", e)
-                    }
-                }
-            })
-        }
+        if (typeof profileRepo === "undefined") return
+        var json = profileRepo.getProfilesJson()
+        if (!json || json.error) return
+        profilesModel.clear()
+        var profiles = json.profiles || []
+        for (var i = 0; i < profiles.length; i++) profilesModel.append(profiles[i])
     }
 
     function closePage() {

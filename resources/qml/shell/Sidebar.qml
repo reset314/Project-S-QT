@@ -69,12 +69,44 @@ Rectangle {
                 }
             }
 
-            // Extensions list (placeholder)
+            // Extensions list
             ListView {
                 id: extList; anchors.fill: parent; visible: sidebar.currentTab === 2; clip: true; spacing: 1
-                model: 0
+                model: ListModel { id: extModel }
+                delegate: Rectangle {
+                    width: extList.width; height: extCard.implicitHeight + 16
+                    color: Theme.surfaceColor
+                    ColumnLayout {
+                        id: extCard; anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top; anchors.margins: 12; spacing: 4
+                        RowLayout {
+                            Text { text: model.name || qsTr("Unknown"); font.pixelSize: Theme.fontSizeBody; font.weight: Font.Bold; color: Theme.textPrimary; Layout.fillWidth: true }
+                            Rectangle {
+                                color: extCategoryColor(model.category)
+                                radius: 4; width: catLabel.implicitWidth + 12; height: 20
+                                Text { id: catLabel; anchors.centerIn: parent; text: model.category || "ai"; font.pixelSize: 10; color: "white" }
+                            }
+                        }
+                        Text { text: model.description || ""; font.pixelSize: Theme.fontSizeSmall; color: Theme.textSecondary; Layout.fillWidth: true; wrapMode: Text.Wrap; maximumLineCount: 2; elide: Text.ElideRight }
+                        Text { text: qsTr("Functions:") + " " + (Array.isArray(model.functions) ? model.functions.length : 0); font.pixelSize: Theme.fontSizeCaption; color: Theme.textHint }
+                    }
+                }
+                Component.onCompleted: loadExtModules()
             }
         }
+    }
+
+    function extCategoryColor(cat) {
+        if (cat === "client") return Theme.primaryColor
+        if (cat === "data") return Theme.successColor
+        return Theme.warningColor
+    }
+    function loadExtModules() {
+        if (typeof expansionRepo === "undefined") return
+        var json = expansionRepo.listModulesJson()
+        extModel.clear()
+        if (!json || json.error) return
+        var modules = json.modules || []
+        for (var i = 0; i < modules.length; i++) extModel.append(modules[i])
     }
 
     function formatTime(isoStr) {

@@ -78,57 +78,58 @@ Item {
         id: userBubbleComponent
         Item {
             width: chatBubble.width
-            height: userContent.height + Theme.spacingTiny
+            height: userCol.implicitHeight
 
-            // Pin to right
-            Rectangle {
-                id: userBubble
+            Column {
+                id: userCol
                 anchors.right: parent.right
                 anchors.rightMargin: Theme.spacingLarge
-                width: Math.min(userContent.implicitWidth + 24, chatBubble.maxBubbleWidth)
-                height: userContent.implicitHeight + Theme.spacingMedium + 2
-                radius: Theme.bubbleRadius
-                color: Theme.userBubbleColor
+                spacing: 2
 
-                Text {
-                    id: userContent
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        top: parent.top
-                        leftMargin: Theme.spacingMedium
-                        rightMargin: Theme.spacingMedium
-                        topMargin: Theme.spacingSmall
+                // Bubble
+                Rectangle {
+                    id: userBubble
+                    width: Math.min(userContent.implicitWidth + 24, chatBubble.maxBubbleWidth)
+                    height: userContent.implicitHeight + Theme.spacingMedium + 2
+                    radius: Theme.bubbleRadius
+                    color: Theme.userBubbleColor
+
+                    Text {
+                        id: userContent
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            top: parent.top
+                            leftMargin: Theme.spacingMedium
+                            rightMargin: Theme.spacingMedium
+                            topMargin: Theme.spacingSmall
+                        }
+                        text: chatBubble.responseText
+                        color: Theme.userBubbleText
+                        font.pixelSize: Theme.fontSizeBody
+                        wrapMode: Text.Wrap
+                        textFormat: Text.PlainText
+                        linkColor: Theme.accentLight
                     }
-                    text: chatBubble.responseText
-                    color: Theme.userBubbleText
-                    font.pixelSize: Theme.fontSizeBody
-                    wrapMode: Text.Wrap
-                    textFormat: Text.PlainText
-                    linkColor: Theme.accentLight
                 }
-            }
 
-            // Timestamp
-            Text {
-                anchors {
-                    right: userBubble.right
-                    top: userBubble.bottom
-                    topMargin: 2
+                // Timestamp — inside Column, counted in implicitHeight
+                Text {
+                    anchors.right: userBubble.right
+                    text: formatTime(chatBubble.timestamp)
+                    color: Theme.textHint
+                    font.pixelSize: Theme.fontSizeCaption
                 }
-                text: formatTime(chatBubble.timestamp)
-                color: Theme.textHint
-                font.pixelSize: Theme.fontSizeCaption
             }
 
             // Sending indicator
             Rectangle {
                 visible: !chatBubble.isComplete
-                anchors {
-                    right: userBubble.left
-                    rightMargin: 4
-                    verticalCenter: userBubble.verticalCenter
-                }
+                // anchors {
+                //     right: userCol.left
+                //     rightMargin: 4
+                //     verticalCenter: userBubble.verticalCenter
+                // }
                 width: 12; height: 12; radius: 6
                 color: Theme.textHint
 

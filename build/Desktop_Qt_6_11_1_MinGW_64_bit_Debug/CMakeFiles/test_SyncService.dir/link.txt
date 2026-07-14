@@ -1,3 +1,0 @@
-D:\QT\Tools\CMake_64\bin\cmake.exe -E rm -f CMakeFiles\test_SyncService.dir/objects.a
-D:\QT\Tools\mingw1310_64\bin\ar.exe qc CMakeFiles\test_SyncService.dir/objects.a @CMakeFiles\test_SyncService.dir\objects1.rsp
-D:\QT\Tools\mingw1310_64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\test_SyncService.dir/objects.a -Wl,--no-whole-archive -o test_SyncService.exe -Wl,--out-implib,libtest_SyncService.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\test_SyncService.dir\linkLibs.rsp

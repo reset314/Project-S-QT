@@ -1,0 +1,44 @@
+# 只追踪源码(src/ resources/)和必要构建配置
+# 构建产物和IDE配置不追踪
+
+# 构建目录
+_b/
+build/
+build2/
+CMakeFiles/
+cmake-build-*/
+*.exe
+*.dll
+*.lib
+*.a
+*.so
+*.obj
+*.o
+*.exp
+*.pdb
+*.ilk
+
+# Qt Creator IDE
+.qtcreator/
+*.user
+*.pro.user*
+CMakeLists.txt.user*
+
+# Claude
+.superpowers/
+
+# 文档/笔记
+docs/
+
+# 测试（不上传）
+tests/
+
+# 测试构建产物
+*Tests_autogen/
+
+# 第三方库（请通过系统包管理器安装，不要提交）
+src/core/vendor/
+
+# OS 文件
+.DS_Store
+Thumbs.db

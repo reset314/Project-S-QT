@@ -239,21 +239,12 @@ Item {
     }
 
     function loadVoices() {
-        if (typeof ttsRepo !== "undefined") {
-            ttsRepo.getVoices(function(success, data) {
-                if (success && data) {
-                    voicesModel.clear()
-                    try {
-                        var voices = JSON.parse(data)
-                        for (var i = 0; i < voices.length; i++) {
-                            voicesModel.append(voices[i])
-                        }
-                    } catch (e) {
-                        console.error("Failed to parse voices:", e)
-                    }
-                }
-            })
-        }
+        if (typeof ttsRepo === "undefined") return
+        var json = ttsRepo.getVoicesJson()
+        if (!json || json.error) return
+        voicesModel.clear()
+        var voices = json.voices || []
+        for (var i = 0; i < voices.length; i++) voicesModel.append(voices[i])
     }
 
     function closePage() {
