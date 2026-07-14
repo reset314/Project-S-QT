@@ -1,8 +1,8 @@
-# AI Chat Desktop (Qt)
+# Project-S (Qt Desktop)
 
 C++ Qt 6 桌面端 AI 聊天客户端（Windows / macOS / Linux）。
 
-后端服务位于 [`../aaa`](https://github.com/your-org/aaa)（FastAPI + PostgreSQL + WebSocket）。
+后端服务位于 [`Project-S-backend`](https://github.com/reset314/Project-S-backend)。
 
 ## 技术栈
 
@@ -31,7 +31,7 @@ cmake -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
 
 # 运行
-./build/AIChatDesktop
+./build/ProjectS
 ```
 
 ## 项目结构
