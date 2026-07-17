@@ -78,3 +78,13 @@ HTTP REST (https://.../)
 ├── /sync (事件兜底同步)
 └── /upload (文件上传)
 ```
+
+### 致谢
+
+本软件使用了以下开源组件：
+
+| 组件 | 协议 | 版权 |
+|------|------|------|
+| **Ableton Link**（vendored） | MIT | Copyright (c) 2014 Ableton AG, Berlin |
+| **Catch**（vendored） | Boost Software License 1.0 | Copyright (c) 2014, Catch Authors |
+| **cpp-peglib**（vendored） | MIT | Copyright (c) 2015 yhirose |
